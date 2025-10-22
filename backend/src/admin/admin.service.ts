@@ -1,30 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import prisma from '../prisma/prisma';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
-
   findAll() {
-    return this.prisma.admin.findMany();
+    return prisma.admin.findMany();
   }
 
   findOne(id: number) {
-    return this.prisma.admin.findUnique({ where: { id } });
+    return prisma.admin.findUnique({ where: { id } });
   }
 
   create(data: { name: string; email: string; password: string }) {
-    return this.prisma.admin.create({ data });
+    return prisma.admin.create({ data });
   }
 
-  update(id: number, data: { name?: string; email?: string; password?: string }) {
-    return this.prisma.admin.update({
+  update(
+    id: number,
+    data: { name?: string; email?: string; password?: string },
+  ) {
+    return prisma.admin.update({
       where: { id },
       data,
     });
   }
 
   remove(id: number) {
-    return this.prisma.admin.delete({ where: { id } });
+    return prisma.admin.delete({ where: { id } });
   }
 }
