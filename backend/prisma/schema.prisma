@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -19,4 +19,56 @@ model Admin {
   name String
   email String @unique
   password String
+}
+
+model Conference {
+  id Int @id @default(autoincrement())
+  name String
+  location String
+  startDate DateTime
+  endDate DateTime
+  createdAt DateTime @default(now())
+//bidirektionale Fremdschlüsselbeziehung
+  users User[]
+  presentations Presentation[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String
+  code String
+  createdAt DateTime @default(now())
+//Fremdschlüssel
+  conferenceId Int
+  conference Conference @relation(fields: [conferenceId], references: [id])
+//bidirektionale Fremdschlüsselbeziehung
+  presentations Presentation[]
+  ratings Rating[]
+}
+
+model Presentation {
+  id Int @id @default(autoincrement())
+  title String
+  agendaPosition Int
+  createdAt DateTime @default(now())
+//Fremdschlüssel
+  conferenceId Int
+  conference Conference @relation(fields: [conferenceId], references: [id])
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+//bidirektionale Fremdschlüsselbeziehung
+  ratings Rating[]
+}
+
+model Rating {
+  id Int @id @default(autoincrement())
+  rating Int //From 1 to 10 -> muss noch festgelegt werden
+  createdAt DateTime @default(now())
+//Fremdschlüssel
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  presentationId Int
+  presentation Presentation @relation(fields: [presentationId], references: [id])  
 }
