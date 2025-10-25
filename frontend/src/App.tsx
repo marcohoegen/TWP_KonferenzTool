@@ -1,13 +1,8 @@
 import './App.css'
 import React, { useEffect, useState } from "react";
+import type { AdminData } from "./entities/adminEntity";
 
-interface AdminData {
-  id: number;
-  name: string;
-  email: string;
-}
-
-const AdminList = () => {
+const App = () => {
   const [data, setData] = useState<AdminData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,4 +40,4 @@ const AdminList = () => {
     );
 };
 
-export default AdminList;
+export default App;
