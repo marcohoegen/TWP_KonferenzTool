@@ -1,5 +1,5 @@
 import './App.css'
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AdminData } from "./entities/adminEntity";
 
 const App = () => {
