@@ -1,38 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Conference } from '@prisma/client';
+import { CreateConferenceDto } from './dto/create-conference.dto';
+import { UpdateConferenceDto } from './dto/update-conference.dto';
 
 @Injectable()
 export class ConferenceService {
-  constructor(private prisma: PrismaService) {}
+  create(createConferenceDto: CreateConferenceDto) {
+    return 'This action adds a new conference';
+  }
 
-  // Alle Konferenzen abrufen
   findAll() {
-    return this.prisma.conference.findMany();
+    return `This action returns all conference`;
   }
 
-  // Einzelne Konferenz abrufen
   findOne(id: number) {
-    return this.prisma.conference.findUnique({ where: { id } });
+    return `This action returns a #${id} conference`;
   }
 
-  // Neue Konferenz erstellen
-  create(data: {
-    name: string;
-    location: string;
-    startDate: Date;
-    endDate: Date;
-  }) {
-    return this.prisma.conference.create({ data });
+  update(id: number, updateConferenceDto: UpdateConferenceDto) {
+    return `This action updates a #${id} conference`;
   }
 
-  // Konferenz aktualisieren
-  update(id: number, data: Partial<Conference>) {
-    return this.prisma.conference.update({ where: { id }, data });
-  }
-
-  // Konferenz löschen
   remove(id: number) {
-    return this.prisma.conference.delete({ where: { id } });
+    return `This action removes a #${id} conference`;
   }
 }

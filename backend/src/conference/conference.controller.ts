@@ -3,16 +3,22 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Delete,
-  Put,
 } from '@nestjs/common';
 import { ConferenceService } from './conference.service';
-import { Conference } from '@prisma/client';
+import { CreateConferenceDto } from './dto/create-conference.dto';
+import { UpdateConferenceDto } from './dto/update-conference.dto';
 
 @Controller('conference')
 export class ConferenceController {
   constructor(private readonly conferenceService: ConferenceService) {}
+
+  @Post()
+  create(@Body() createConferenceDto: CreateConferenceDto) {
+    return this.conferenceService.create(createConferenceDto);
+  }
 
   @Get()
   findAll() {
@@ -24,27 +30,12 @@ export class ConferenceController {
     return this.conferenceService.findOne(+id);
   }
 
-  @Post()
-  create(
-    @Body()
-    body: {
-      name: string;
-      location: string;
-      startDate: string;
-      endDate: string;
-    },
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateConferenceDto: UpdateConferenceDto,
   ) {
-    return this.conferenceService.create({
-      name: body.name,
-      location: body.location,
-      startDate: new Date(body.startDate),
-      endDate: new Date(body.endDate),
-    });
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() body: Partial<Conference>) {
-    return this.conferenceService.update(+id, body);
+    return this.conferenceService.update(+id, updateConferenceDto);
   }
 
   @Delete(':id')
