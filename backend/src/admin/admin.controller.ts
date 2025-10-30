@@ -6,37 +6,64 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { AdminEntity } from './entities/admin.entity';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post()
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
+  async create(@Body() createAdminDto: CreateAdminDto): Promise<AdminEntity> {
+    const createdAdmin = await this.adminService.create(createAdminDto);
+
+    return new AdminEntity({
+      id: createdAdmin.id,
+      name: createdAdmin.name,
+      email: createdAdmin.email,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.adminService.findAll();
+  async findAll(): Promise<AdminEntity[]> {
+    const admins = await this.adminService.findAll();
+    return admins.map(
+      (admin) =>
+        new AdminEntity({
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+        }),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
+    const admin = await this.adminService.findOne(id);
+    return new AdminEntity(admin);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateAdminDto: UpdateAdminDto,
+  ): Promise<AdminEntity> {
+    const updatedAdmin = await this.adminService.update(id, updateAdminDto);
+    return new AdminEntity({
+      id: updatedAdmin.id,
+      name: updatedAdmin.name,
+      email: updatedAdmin.email,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    return this.adminService.remove(id);
   }
 }

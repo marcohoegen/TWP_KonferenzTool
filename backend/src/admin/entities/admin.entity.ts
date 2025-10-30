@@ -6,7 +6,7 @@ export class AdminEntity implements PrismaAdmin {
   email: string;
   password: string;
 
-  constructor(admin: AdminEntity) {
-    Object.assign(this, admin);
+  constructor(partial: Partial<AdminEntity>) {
+    Object.assign(this, partial);
   }
 }

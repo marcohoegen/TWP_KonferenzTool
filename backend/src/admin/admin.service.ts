@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AdminService {
-  create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createAdminDto: CreateAdminDto) {
+    return await this.prisma.admin.create({
+      data: {
+        ...createAdminDto,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async findAll() {
+    return await this.prisma.admin.findMany({
+      select: { id: true, name: true, email: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: number) {
+    const admin = await this.prisma.admin.findUnique({
+      where: { id },
+      select: { id: true, name: true, email: true },
+    });
+
+    if (!admin) {
+      throw new NotFoundException(`Admin with ID ${id} not found`);
+    }
+    return admin;
   }
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+  async update(id: number, updateAdminDto: UpdateAdminDto) {
+    const adminExists = await this.prisma.admin.findUnique({ where: { id } });
+    if (!adminExists) {
+      throw new NotFoundException(`Admin with ID ${id} not found`);
+    }
+    const data = { ...updateAdminDto };
+
+    return this.prisma.admin.update({
+      where: { id },
+      data,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async remove(id: number) {
+    const adminExists = await this.prisma.admin.findUnique({ where: { id } });
+    if (!adminExists) {
+      throw new NotFoundException(`Admin with ID ${id} not found`);
+    }
+
+    await this.prisma.admin.delete({ where: { id } });
+    return { message: `Admin with ID ${id} deleted` };
   }
 }
