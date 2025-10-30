@@ -95,10 +95,14 @@ Nach dem erfolgreichen Build ist die Anwendung unter folgenden Adressen erreichb
 ### 🧩 Neues Backend-Modul erstellen
 
 ```bash
-nest generate module <name>
-nest generate service <name>
-nest generate controller <name>
+nest generate resource <name>
 ```
+Es werden folgende resourcen erstellt:
+- Entity
+- Data-Transfer-Object (Dto)
+- Module
+- Service
+- Controller mit CRUD-Endpoints
 
 ### 🗄️ Prisma: Datenbankschema anpassen
 
