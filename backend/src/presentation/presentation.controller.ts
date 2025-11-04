@@ -18,8 +18,12 @@ export class PresentationController {
   constructor(private readonly presentationService: PresentationService) {}
 
   @Post()
-  async create(@Body() createPresentationDto: CreatePresentationDto): Promise<Presentation> {
-    const createPresentation = await this.presentationService.create(createPresentationDto);
+  async create(
+    @Body() createPresentationDto: CreatePresentationDto,
+  ): Promise<Presentation> {
+    const createPresentation = await this.presentationService.create(
+      createPresentationDto,
+    );
 
     return new Presentation({
       id: createPresentation.id,
@@ -56,7 +60,10 @@ export class PresentationController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePresentationDto: UpdatePresentationDto,
   ): Promise<Presentation> {
-    const updatedPresentation = await this.presentationService.update(id, updatePresentationDto);
+    const updatedPresentation = await this.presentationService.update(
+      id,
+      updatePresentationDto,
+    );
     return new Presentation({
       id: updatedPresentation.id,
       title: updatedPresentation.title,
@@ -67,7 +74,9 @@ export class PresentationController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
     return this.presentationService.remove(id);
   }
 }

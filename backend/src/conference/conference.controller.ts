@@ -18,8 +18,11 @@ export class ConferenceController {
   constructor(private readonly conferenceService: ConferenceService) {}
 
   @Post()
-  async create(@Body() createConferenceDto: CreateConferenceDto) : Promise<Conference> {
-    const createConference = await this.conferenceService.create(createConferenceDto);
+  async create(
+    @Body() createConferenceDto: CreateConferenceDto,
+  ): Promise<Conference> {
+    const createConference =
+      await this.conferenceService.create(createConferenceDto);
 
     return new Conference({
       id: createConference.id,
@@ -31,8 +34,8 @@ export class ConferenceController {
   }
 
   @Get()
-  async findAll() : Promise<Conference[]> {
-    const conferences =  await this.conferenceService.findAll();
+  async findAll(): Promise<Conference[]> {
+    const conferences = await this.conferenceService.findAll();
     return conferences.map(
       (conference) =>
         new Conference({
@@ -46,7 +49,7 @@ export class ConferenceController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) : Promise<Conference> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Conference> {
     const conference = await this.conferenceService.findOne(id);
     return new Conference(conference);
   }
@@ -55,8 +58,11 @@ export class ConferenceController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateConferenceDto: UpdateConferenceDto,
-  ) : Promise<Conference> {
-    const updatedConference = await this.conferenceService.update(id, updateConferenceDto);
+  ): Promise<Conference> {
+    const updatedConference = await this.conferenceService.update(
+      id,
+      updateConferenceDto,
+    );
     return new Conference({
       id: updatedConference.id,
       name: updatedConference.name,
@@ -67,7 +73,9 @@ export class ConferenceController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
     return this.conferenceService.remove(id);
   }
 }

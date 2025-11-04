@@ -17,25 +17,39 @@ export class ConferenceService {
 
   async findAll() {
     return await this.prisma.conference.findMany({
-      select: { id: true, name: true, location: true, startDate: true, endDate: true}
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+      },
     });
   }
 
   async findOne(id: number) {
     const conference = await this.prisma.conference.findUnique({
       where: { id },
-      select: { id: true, name: true, location: true, startDate: true, endDate: true}
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+      },
     });
-    
-    if(!conference) {
+
+    if (!conference) {
       throw new NotFoundException(`Conference with ID ${id} not found`);
     }
     return conference;
   }
 
   async update(id: number, updateConferenceDto: UpdateConferenceDto) {
-    const conferenceExists = await this.prisma.conference.findUnique({ where: { id } });
-    if(!conferenceExists) {
+    const conferenceExists = await this.prisma.conference.findUnique({
+      where: { id },
+    });
+    if (!conferenceExists) {
       throw new NotFoundException(`Conference with ID ${id} not found`);
     }
     const data = { ...updateConferenceDto };
@@ -47,12 +61,14 @@ export class ConferenceService {
   }
 
   async remove(id: number) {
-    const conferenceExists = await this.prisma.conference.findUnique({ where: { id } });
-    if(!conferenceExists) {
+    const conferenceExists = await this.prisma.conference.findUnique({
+      where: { id },
+    });
+    if (!conferenceExists) {
       throw new NotFoundException(`Conference with ID ${id} not found`);
     }
 
-    await this.prisma.conference.delete({ where: { id }});
-    return { message: `Conference with ID ${id} deleted`};
+    await this.prisma.conference.delete({ where: { id } });
+    return { message: `Conference with ID ${id} deleted` };
   }
 }

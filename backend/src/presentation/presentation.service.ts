@@ -17,14 +17,28 @@ export class PresentationService {
 
   async findAll() {
     return await this.prisma.presentation.findMany({
-      select: { id: true, title: true, agendaPosition: true, conferenceId: true, userId: true, ratings: true },
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        conferenceId: true,
+        userId: true,
+        ratings: true,
+      },
     });
   }
 
   async findOne(id: number) {
     const presentation = await this.prisma.presentation.findUnique({
       where: { id },
-      select: { id: true, title: true, agendaPosition: true, conferenceId: true, userId: true, ratings: true },
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        conferenceId: true,
+        userId: true,
+        ratings: true,
+      },
     });
 
     if (!presentation) {
@@ -34,7 +48,9 @@ export class PresentationService {
   }
 
   async update(id: number, updatePresentationDto: UpdatePresentationDto) {
-    const presentationExists = await this.prisma.presentation.findUnique({ where: { id } });
+    const presentationExists = await this.prisma.presentation.findUnique({
+      where: { id },
+    });
     if (!presentationExists) {
       throw new Error(`Presentation with ID ${id} not found`);
     }
@@ -47,12 +63,14 @@ export class PresentationService {
   }
 
   async remove(id: number) {
-    const presentationExists = await this.prisma.presentation.findUnique({ where: { id } });
+    const presentationExists = await this.prisma.presentation.findUnique({
+      where: { id },
+    });
     if (!presentationExists) {
       throw new Error(`Presentation with ID ${id} not found`);
     }
 
     await this.prisma.presentation.delete({ where: { id } });
-    return { message: `Presentation with ID ${id} deleted`};
+    return { message: `Presentation with ID ${id} deleted` };
   }
 }
