@@ -1,8 +1,7 @@
 # Confeed — Self-hosted Konferenz-Feedback-Plattform
 
 > **Ernst-Abbe-Hochschule Jena — Modul: Technisch-wirtschaftliches Projekt**  
-> **Teamgröße:** 8 Studierende (4 Entwickler)
-
+> **Teamgröße:** 8 Studierende 
 ---
 
 ## Projektbeschreibung
