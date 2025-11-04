@@ -1,11 +1,11 @@
-# 🧠 Confeed — Self-hosted Konferenz-Feedback-Plattform
+# Confeed — Self-hosted Konferenz-Feedback-Plattform
 
 > **Ernst-Abbe-Hochschule Jena — Modul: Technisch-wirtschaftliches Projekt**  
 > **Teamgröße:** 8 Studierende (4 Entwickler)
 
 ---
 
-## 🚀 Projektbeschreibung
+## Projektbeschreibung
 
 **Confeed** ist eine self-hosted Webanwendung zur Durchführung und Auswertung von Teilnehmerfeedback bei mehrtägigen Konferenzen.  
 Teilnehmende können nach jedem Vortrag eine **individuelle Bewertung** abgeben.  
@@ -15,7 +15,7 @@ Ziel des Projekts ist es, eine **vollständig eigenständig betreibbare Anwendun
 
 ---
 
-## 🧩 Technologie-Stack
+## Technologie-Stack
 
 | Ebene | Technologie |
 |-------|--------------|
@@ -27,7 +27,7 @@ Ziel des Projekts ist es, eine **vollständig eigenständig betreibbare Anwendun
 
 ---
 
-## 🏗️ Architekturübersicht
+## Architekturübersicht
 
 ```
 
@@ -90,9 +90,9 @@ Nach dem erfolgreichen Build ist die Anwendung unter folgenden Adressen erreichb
 
 ---
 
-## 🧠 Entwicklungs-Workflow
+## Entwicklungs-Workflow
 
-### 🧩 Neues Backend-Modul erstellen
+### Neues Backend-Modul erstellen
 
 ```bash
 nest generate resource <name>
@@ -104,7 +104,7 @@ Es werden folgende resourcen erstellt:
 - Service
 - Controller mit CRUD-Endpoints
 
-### 🗄️ Prisma: Datenbankschema anpassen
+### Prisma: Datenbankschema anpassen
 
 Passe das Prisma-Schema in `backend/prisma/schema.prisma` an und führe anschließend aus:
 
@@ -112,7 +112,7 @@ Passe das Prisma-Schema in `backend/prisma/schema.prisma` an und führe anschlie
 npx prisma migrate dev --name <migration-name>
 ```
 
-### 🔁 Änderungen übernehmen
+### Änderungen übernehmen
 
 Sowohl das Backend, als auch das Frontend unterstützen Hot-Reload. 
 Die Zuverlässigkeit dessen ist nicht zu 100% gegeben, daher ist folgendes bei untypischen Verhalten ratsam:
