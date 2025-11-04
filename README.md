@@ -55,7 +55,7 @@ Das gesamte System läuft containerisiert über Docker und ist somit plattformun
 
 ---
 
-## ⚙️ Setup & Installation (Docker-first)
+## Setup & Installation (Docker-first)
 
 ### 1. Repository klonen
 
