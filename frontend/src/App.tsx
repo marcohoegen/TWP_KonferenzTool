@@ -1,6 +1,6 @@
 import './App.css'
 import { useEffect, useState } from "react";
-import type { AdminData } from "./entities/adminEntity";
+import type { AdminData } from "./entities/Admin";
 
 const App = () => {
   const [data, setData] = useState<AdminData[]>([]);

@@ -11,17 +11,17 @@ import {
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { AdminEntity } from './entities/admin.entity';
+import { Admin } from './entities/admin.entity';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post()
-  async create(@Body() createAdminDto: CreateAdminDto): Promise<AdminEntity> {
+  async create(@Body() createAdminDto: CreateAdminDto): Promise<Admin> {
     const createdAdmin = await this.adminService.create(createAdminDto);
 
-    return new AdminEntity({
+    return new Admin({
       id: createdAdmin.id,
       name: createdAdmin.name,
       email: createdAdmin.email,
@@ -29,11 +29,11 @@ export class AdminController {
   }
 
   @Get()
-  async findAll(): Promise<AdminEntity[]> {
+  async findAll(): Promise<Admin[]> {
     const admins = await this.adminService.findAll();
     return admins.map(
       (admin) =>
-        new AdminEntity({
+        new Admin({
           id: admin.id,
           name: admin.name,
           email: admin.email,
@@ -42,18 +42,18 @@ export class AdminController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Admin> {
     const admin = await this.adminService.findOne(id);
-    return new AdminEntity(admin);
+    return new Admin(admin);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateAdminDto: UpdateAdminDto,
-  ): Promise<AdminEntity> {
+  ): Promise<Admin> {
     const updatedAdmin = await this.adminService.update(id, updateAdminDto);
-    return new AdminEntity({
+    return new Admin({
       id: updatedAdmin.id,
       name: updatedAdmin.name,
       email: updatedAdmin.email,

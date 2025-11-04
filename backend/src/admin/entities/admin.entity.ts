@@ -1,12 +1,12 @@
 import { Admin as PrismaAdmin } from '@prisma/client';
 
-export class AdminEntity implements PrismaAdmin {
+export class Admin implements PrismaAdmin {
   id: number;
   name: string;
   email: string;
   password: string;
 
-  constructor(partial: Partial<AdminEntity>) {
+  constructor(partial: Partial<Admin>) {
     Object.assign(this, partial);
   }
 }
