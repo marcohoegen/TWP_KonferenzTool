@@ -6,40 +6,68 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ConferenceService } from './conference.service';
 import { CreateConferenceDto } from './dto/create-conference.dto';
 import { UpdateConferenceDto } from './dto/update-conference.dto';
+import { Conference } from './entities/conference.entity';
 
 @Controller('conference')
 export class ConferenceController {
   constructor(private readonly conferenceService: ConferenceService) {}
 
   @Post()
-  create(@Body() createConferenceDto: CreateConferenceDto) {
-    return this.conferenceService.create(createConferenceDto);
+  async create(@Body() createConferenceDto: CreateConferenceDto) : Promise<Conference> {
+    const createConference = await this.conferenceService.create(createConferenceDto);
+
+    return new Conference({
+      id: createConference.id,
+      name: createConference.name,
+      location: createConference.location,
+      startDate: createConference.startDate,
+      endDate: createConference.endDate,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.conferenceService.findAll();
+  async findAll() : Promise<Conference[]> {
+    const conferences =  await this.conferenceService.findAll();
+    return conferences.map(
+      (conference) =>
+        new Conference({
+          id: conference.id,
+          name: conference.name,
+          location: conference.location,
+          startDate: conference.startDate,
+          endDate: conference.endDate,
+        }),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.conferenceService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) : Promise<Conference> {
+    const conference = await this.conferenceService.findOne(id);
+    return new Conference(conference);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateConferenceDto: UpdateConferenceDto,
-  ) {
-    return this.conferenceService.update(+id, updateConferenceDto);
+  ) : Promise<Conference> {
+    const updatedConference = await this.conferenceService.update(id, updateConferenceDto);
+    return new Conference({
+      id: updatedConference.id,
+      name: updatedConference.name,
+      location: updatedConference.location,
+      startDate: updatedConference.startDate,
+      endDate: updatedConference.endDate,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.conferenceService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+    return this.conferenceService.remove(id);
   }
 }

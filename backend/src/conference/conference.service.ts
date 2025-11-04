@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateConferenceDto } from './dto/create-conference.dto';
 import { UpdateConferenceDto } from './dto/update-conference.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ConferenceService {
-  create(createConferenceDto: CreateConferenceDto) {
-    return 'This action adds a new conference';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createConferenceDto: CreateConferenceDto) {
+    return await this.prisma.conference.create({
+      data: {
+        ...createConferenceDto,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all conference`;
+  async findAll() {
+    return await this.prisma.conference.findMany({
+      select: { id: true, name: true, location: true, startDate: true, endDate: true}
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} conference`;
+  async findOne(id: number) {
+    const conference = await this.prisma.conference.findUnique({
+      where: { id },
+      select: { id: true, name: true, location: true, startDate: true, endDate: true}
+    });
+    
+    if(!conference) {
+      throw new NotFoundException(`Conference with ID ${id} not found`);
+    }
+    return conference;
   }
 
-  update(id: number, updateConferenceDto: UpdateConferenceDto) {
-    return `This action updates a #${id} conference`;
+  async update(id: number, updateConferenceDto: UpdateConferenceDto) {
+    const conferenceExists = await this.prisma.conference.findUnique({ where: { id } });
+    if(!conferenceExists) {
+      throw new NotFoundException(`Conference with ID ${id} not found`);
+    }
+    const data = { ...updateConferenceDto };
+
+    return this.prisma.conference.update({
+      where: { id },
+      data,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} conference`;
+  async remove(id: number) {
+    const conferenceExists = await this.prisma.conference.findUnique({ where: { id } });
+    if(!conferenceExists) {
+      throw new NotFoundException(`Conference with ID ${id} not found`);
+    }
+
+    await this.prisma.conference.delete({ where: { id }});
+    return { message: `Conference with ID ${id} deleted`};
   }
 }
