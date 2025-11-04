@@ -1,26 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PresentationService {
-  create(createPresentationDto: CreatePresentationDto) {
-    return 'This action adds a new presentation';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createPresentationDto: CreatePresentationDto) {
+    return await this.prisma.presentation.create({
+      data: {
+        ...createPresentationDto,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all presentation`;
+  async findAll() {
+    return await this.prisma.presentation.findMany({
+      select: { id: true, title: true, agendaPosition: true, conferenceId: true, userId: true, ratings: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} presentation`;
+  async findOne(id: number) {
+    const presentation = await this.prisma.presentation.findUnique({
+      where: { id },
+      select: { id: true, title: true, agendaPosition: true, conferenceId: true, userId: true, ratings: true },
+    });
+
+    if (!presentation) {
+      throw new Error(`Presentation with ID ${id} not found`);
+    }
+    return presentation;
   }
 
-  update(id: number, updatePresentationDto: UpdatePresentationDto) {
-    return `This action updates a #${id} presentation`;
+  async update(id: number, updatePresentationDto: UpdatePresentationDto) {
+    const presentationExists = await this.prisma.presentation.findUnique({ where: { id } });
+    if (!presentationExists) {
+      throw new Error(`Presentation with ID ${id} not found`);
+    }
+    const data = { ...updatePresentationDto };
+
+    return this.prisma.presentation.update({
+      where: { id },
+      data,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} presentation`;
+  async remove(id: number) {
+    const presentationExists = await this.prisma.presentation.findUnique({ where: { id } });
+    if (!presentationExists) {
+      throw new Error(`Presentation with ID ${id} not found`);
+    }
+
+    await this.prisma.presentation.delete({ where: { id } });
+    return { message: `Presentation with ID ${id} deleted`};
   }
 }
