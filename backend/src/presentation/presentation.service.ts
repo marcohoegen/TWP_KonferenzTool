@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -42,7 +42,7 @@ export class PresentationService {
     });
 
     if (!presentation) {
-      throw new Error(`Presentation with ID ${id} not found`);
+      throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
     return presentation;
   }
@@ -52,7 +52,7 @@ export class PresentationService {
       where: { id },
     });
     if (!presentationExists) {
-      throw new Error(`Presentation with ID ${id} not found`);
+      throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
     const data = { ...updatePresentationDto };
 
@@ -67,7 +67,7 @@ export class PresentationService {
       where: { id },
     });
     if (!presentationExists) {
-      throw new Error(`Presentation with ID ${id} not found`);
+      throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
 
     await this.prisma.presentation.delete({ where: { id } });
