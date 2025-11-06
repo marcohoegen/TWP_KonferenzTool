@@ -51,7 +51,7 @@ describe('AdminService', () => {
       const result = await service.create(dto);
 
       expect(result).toEqual(mockAdmin);
-      expect(prisma.admin.create.bind(prisma)).toHaveBeenCalledWith({
+      expect(prisma.admin.create).toHaveBeenCalledWith({
         data: dto,
       });
     });
@@ -98,7 +98,7 @@ describe('AdminService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual(mockAdmins);
-      expect(prisma.admin.findMany.bind(prisma)).toHaveBeenCalled();
+      expect(prisma.admin.findMany).toHaveBeenCalled();
     });
 
     it('should return empty array if no admins found (edge case)', async () => {
@@ -158,7 +158,7 @@ describe('AdminService', () => {
       const result = await service.update(1, dto);
 
       expect(result).toEqual(mockAdmin);
-      expect(prisma.admin.update.bind(prisma)).toHaveBeenCalledWith({
+      expect(prisma.admin.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: dto,
       });
@@ -194,7 +194,7 @@ describe('AdminService', () => {
       const result = await service.remove(1);
 
       expect(result).toEqual({ message: 'Admin with ID 1 deleted' });
-      expect(prisma.admin.delete.bind(prisma)).toHaveBeenCalledWith({
+      expect(prisma.admin.delete).toHaveBeenCalledWith({
         where: { id: 1 },
       });
     });
