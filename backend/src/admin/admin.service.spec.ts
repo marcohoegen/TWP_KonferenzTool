@@ -46,12 +46,14 @@ describe('AdminService', () => {
       };
       const mockAdmin = { id: 1, ...dto };
 
-      prisma.admin.create.mockResolvedValue(mockAdmin);
+      (prisma.admin.create as jest.Mock).mockResolvedValue(mockAdmin);
 
       const result = await service.create(dto);
 
       expect(result).toEqual(mockAdmin);
-      expect(prisma.admin.create).toHaveBeenCalledWith({ data: dto });
+      expect(prisma.admin.create.bind(prisma)).toHaveBeenCalledWith({
+        data: dto,
+      });
     });
 
     it('should create an admin with minimal valid data (edge case)', async () => {
@@ -62,7 +64,7 @@ describe('AdminService', () => {
       };
       const mockAdmin = { id: 2, ...dto };
 
-      prisma.admin.create.mockResolvedValue(mockAdmin);
+      (prisma.admin.create as jest.Mock).mockResolvedValue(mockAdmin);
 
       const result = await service.create(dto);
 
@@ -75,7 +77,9 @@ describe('AdminService', () => {
         email: 'x@test.com',
         password: '123456',
       };
-      prisma.admin.create.mockRejectedValue(new Error('DB error'));
+      (prisma.admin.create as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
 
       await expect(service.create(dto)).rejects.toThrow('DB error');
     });
@@ -89,16 +93,16 @@ describe('AdminService', () => {
         { id: 1, name: 'Torsten', email: 'torsten@test.com' },
         { id: 2, name: 'Anna', email: 'anna@test.com' },
       ];
-      prisma.admin.findMany.mockResolvedValue(mockAdmins);
+      (prisma.admin.findMany as jest.Mock).mockResolvedValue(mockAdmins);
 
       const result = await service.findAll();
 
       expect(result).toEqual(mockAdmins);
-      expect(prisma.admin.findMany).toHaveBeenCalled();
+      expect(prisma.admin.findMany.bind(prisma)).toHaveBeenCalled();
     });
 
     it('should return empty array if no admins found (edge case)', async () => {
-      prisma.admin.findMany.mockResolvedValue([]);
+      (prisma.admin.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await service.findAll();
 
@@ -106,7 +110,9 @@ describe('AdminService', () => {
     });
 
     it('should throw if prisma.findMany fails (error case)', async () => {
-      prisma.admin.findMany.mockRejectedValue(new Error('DB connection error'));
+      (prisma.admin.findMany as jest.Mock).mockRejectedValue(
+        new Error('DB connection error'),
+      );
 
       await expect(service.findAll()).rejects.toThrow('DB connection error');
     });
@@ -117,7 +123,7 @@ describe('AdminService', () => {
   describe('findOne()', () => {
     it('should return an admin by id (normal case)', async () => {
       const mockAdmin = { id: 1, name: 'Torsten', email: 'torsten@test.com' };
-      prisma.admin.findUnique.mockResolvedValue(mockAdmin);
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue(mockAdmin);
 
       const result = await service.findOne(1);
 
@@ -125,13 +131,15 @@ describe('AdminService', () => {
     });
 
     it('should throw NotFoundException if admin not found (edge case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue(null);
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.findOne(99)).rejects.toThrow(NotFoundException);
     });
 
     it('should throw if prisma.findUnique fails (error case)', async () => {
-      prisma.admin.findUnique.mockRejectedValue(new Error('DB error'));
+      (prisma.admin.findUnique as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
 
       await expect(service.findOne(1)).rejects.toThrow('DB error');
     });
@@ -144,20 +152,20 @@ describe('AdminService', () => {
       const dto: UpdateAdminDto = { name: 'Updated' };
       const mockAdmin = { id: 1, name: 'Sven', email: 'a@b.c' };
 
-      prisma.admin.findUnique.mockResolvedValue(mockAdmin);
-      prisma.admin.update.mockResolvedValue(mockAdmin);
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue(mockAdmin);
+      (prisma.admin.update as jest.Mock).mockResolvedValue(mockAdmin);
 
       const result = await service.update(1, dto);
 
       expect(result).toEqual(mockAdmin);
-      expect(prisma.admin.update).toHaveBeenCalledWith({
+      expect(prisma.admin.update.bind(prisma)).toHaveBeenCalledWith({
         where: { id: 1 },
         data: dto,
       });
     });
 
     it('should throw NotFoundException if admin does not exist (edge case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue(null);
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.update(99, { name: 'X' })).rejects.toThrow(
         NotFoundException,
@@ -165,8 +173,10 @@ describe('AdminService', () => {
     });
 
     it('should throw if prisma.update fails (error case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue({ id: 1 });
-      prisma.admin.update.mockRejectedValue(new Error('DB error'));
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+      (prisma.admin.update as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
 
       await expect(service.update(1, { name: 'X' })).rejects.toThrow(
         'DB error',
@@ -178,24 +188,28 @@ describe('AdminService', () => {
 
   describe('remove()', () => {
     it('should delete an admin (normal case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue({ id: 1 });
-      prisma.admin.delete.mockResolvedValue({});
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+      (prisma.admin.delete as jest.Mock).mockResolvedValue({});
 
       const result = await service.remove(1);
 
       expect(result).toEqual({ message: 'Admin with ID 1 deleted' });
-      expect(prisma.admin.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(prisma.admin.delete.bind(prisma)).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
     });
 
     it('should throw NotFoundException if admin not found (edge case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue(null);
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.remove(99)).rejects.toThrow(NotFoundException);
     });
 
     it('should throw if prisma.delete fails (error case)', async () => {
-      prisma.admin.findUnique.mockResolvedValue({ id: 1 });
-      prisma.admin.delete.mockRejectedValue(new Error('DB error'));
+      (prisma.admin.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+      (prisma.admin.delete as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
 
       await expect(service.remove(1)).rejects.toThrow('DB error');
     });

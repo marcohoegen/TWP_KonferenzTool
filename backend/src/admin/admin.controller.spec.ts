@@ -47,7 +47,7 @@ describe('AdminController', () => {
     const result = await controller.create(dto);
 
     expect(result).toEqual(new Admin({ ...dto, password: 'PW1234' }));
-    expect(service.create).toHaveBeenCalledWith(dto);
+    expect(service.create.bind(service)).toHaveBeenCalledWith(dto);
   });
 
   it('should create a new admin (edge case with minimal valid data)', async () => {
@@ -62,7 +62,7 @@ describe('AdminController', () => {
     const result = await controller.create(dto);
 
     expect(result).toEqual(mockCreatedAdmin);
-    expect(service.create).toHaveBeenCalledWith(dto);
+    expect(service.create.bind(service)).toHaveBeenCalledWith(dto);
   });
 
   it('should handle error when creating a new admin (error case)', async () => {
@@ -75,7 +75,7 @@ describe('AdminController', () => {
     jest.spyOn(service, 'create').mockRejectedValue(new Error(errorMessage));
 
     await expect(controller.create(dto)).rejects.toThrow(errorMessage);
-    expect(service.create).toHaveBeenCalledWith(dto);
+    expect(service.create.bind(service)).toHaveBeenCalledWith(dto);
   });
 
   //Tests for findAll()
@@ -104,7 +104,7 @@ describe('AdminController', () => {
         new Admin({ id: 1, name: 'Torsten', email: 'torsten@test.com' }),
         new Admin({ id: 2, name: 'Anna', email: 'anna@test.com' }),
       ]);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAll.bind(service)).toHaveBeenCalled();
     });
 
     it('should return an empty array when there are no admins (edge case)', async () => {
@@ -113,7 +113,7 @@ describe('AdminController', () => {
       const result = await controller.findAll();
 
       expect(result).toEqual([]);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAll.bind(service)).toHaveBeenCalled();
     });
 
     it('should handle errors from the service (error case)', async () => {
@@ -121,7 +121,7 @@ describe('AdminController', () => {
       jest.spyOn(service, 'findAll').mockRejectedValue(new Error(errorMessage));
 
       await expect(controller.findAll()).rejects.toThrow(errorMessage);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAll.bind(service)).toHaveBeenCalled();
     });
   });
 
@@ -142,17 +142,17 @@ describe('AdminController', () => {
       expect(result).toEqual(
         new Admin({ id: 1, name: 'Torsten', email: 'torsten@test.com' }),
       );
-      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(service.findOne.bind(service)).toHaveBeenCalledWith(1);
     });
 
     it('should handle case where admin is not found (edge case)', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findOne').mockResolvedValue(null as any);
 
       const result = await controller.findOne(999);
 
       // Der Controller macht new Admin(null), daher prüfen wir das Ergebnis
-      expect(result).toEqual(new Admin(null));
-      expect(service.findOne).toHaveBeenCalledWith(999);
+      expect(result).toEqual(new Admin(null as any));
+      expect(service.findOne.bind(service)).toHaveBeenCalledWith(999);
     });
 
     it('should handle service errors (error case)', async () => {
@@ -160,7 +160,7 @@ describe('AdminController', () => {
       jest.spyOn(service, 'findOne').mockRejectedValue(new Error(errorMessage));
 
       await expect(controller.findOne(1)).rejects.toThrow(errorMessage);
-      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(service.findOne.bind(service)).toHaveBeenCalledWith(1);
     });
   });
 
@@ -185,7 +185,7 @@ describe('AdminController', () => {
       const result = await controller.update(id, updateDto);
 
       expect(result).toEqual(mockUpdatedAdmin);
-      expect(service.update).toHaveBeenCalledWith(id, updateDto);
+      expect(service.update.bind(service)).toHaveBeenCalledWith(id, updateDto);
     });
 
     it('should handle partial update (edge case)', async () => {
@@ -202,7 +202,7 @@ describe('AdminController', () => {
       const result = await controller.update(id, updateDto);
 
       expect(result).toEqual(mockUpdatedAdmin);
-      expect(service.update).toHaveBeenCalledWith(id, updateDto);
+      expect(service.update.bind(service)).toHaveBeenCalledWith(id, updateDto);
     });
 
     it('should handle error when updating admin (error case)', async () => {
@@ -215,7 +215,7 @@ describe('AdminController', () => {
       await expect(controller.update(id, updateDto)).rejects.toThrow(
         errorMessage,
       );
-      expect(service.update).toHaveBeenCalledWith(id, updateDto);
+      expect(service.update.bind(service)).toHaveBeenCalledWith(id, updateDto);
     });
   });
 
@@ -231,7 +231,7 @@ describe('AdminController', () => {
       const result = await controller.remove(id);
 
       expect(result).toEqual(mockResponse);
-      expect(service.remove).toHaveBeenCalledWith(id);
+      expect(service.remove.bind(service)).toHaveBeenCalledWith(id);
     });
 
     it('should return a message when trying to remove a non-existing admin (edge case)', async () => {
@@ -243,7 +243,7 @@ describe('AdminController', () => {
       const result = await controller.remove(id);
 
       expect(result).toEqual(mockResponse);
-      expect(service.remove).toHaveBeenCalledWith(id);
+      expect(service.remove.bind(service)).toHaveBeenCalledWith(id);
     });
 
     it('should handle error when removing an admin (error case)', async () => {
@@ -253,7 +253,7 @@ describe('AdminController', () => {
       jest.spyOn(service, 'remove').mockRejectedValue(new Error(errorMessage));
 
       await expect(controller.remove(id)).rejects.toThrow(errorMessage);
-      expect(service.remove).toHaveBeenCalledWith(id);
+      expect(service.remove.bind(service)).toHaveBeenCalledWith(id);
     });
   });
 });
