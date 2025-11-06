@@ -44,7 +44,7 @@ export class AdminController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Admin> {
     const admin = await this.adminService.findOne(id);
-    return new Admin(admin);
+    return new Admin(admin); //ToDo: vermeiden, dass das Passwort mit zurückgegeben wird
   }
 
   @Patch(':id')
