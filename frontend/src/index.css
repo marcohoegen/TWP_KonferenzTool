@@ -46,3 +46,8 @@ h1 {
     color: #747bff;
   }
 }
+
+html, body {
+  background-color: white !important;
+  color: black !important;
+}
