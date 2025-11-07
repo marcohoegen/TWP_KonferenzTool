@@ -6,7 +6,6 @@ import ButtonRoundedLgPrimaryBasic from "./components/ButtonRoundedLgPrimaryBasi
 import AdminSeite from "./pages/AdminLogin";
 import CustomerSeite from "./pages/CustomerSeite";
 import confeedlogo from "./assets/confeedlogo.svg";
-import FormElementsInputRoundedBaseBasic from "./components/FormElementsInputRoundedBaseBasic";
 
 const HomePage = () => {
   const [data, setData] = useState<AdminData[]>([]);
@@ -56,12 +55,10 @@ const HomePage = () => {
          Abstimmung
         </ButtonRoundedLgPrimaryBasic>
         <img src={confeedlogo} alt="Confeed Logo" className="logo confeed" width={400}/>
-        <FormElementsInputRoundedBaseBasic />
       </div>
     </div>
   );
 }
-
 
 export default function App() {
   return (
