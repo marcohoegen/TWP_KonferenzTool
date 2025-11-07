@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export default function ButtonRoundedFullBasePrimaryBasic({
+export default function ButtonStandard({
   children,
 }: {
   children: ReactNode;

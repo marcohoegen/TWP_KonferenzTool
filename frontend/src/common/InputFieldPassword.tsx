@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function FormElementsInputPlainBaseTrailingIcon() {
+export default function InputFieldPassword() {
   const [state, setState] = useState({
     "id-b14": "IloveConfeed123!",
   })

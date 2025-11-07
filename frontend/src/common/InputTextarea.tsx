@@ -7,15 +7,17 @@ interface TextareaProps {
   helperText?: string;
   defaultValue?: string;
   rows?: number;
+  resizable?: boolean;
 }
 
-export default function FormElementsTextareaRoundedBaseHelperText({
+export default function InputTextarea({
   id,
   label,
   placeholder = label,
   helperText,
   defaultValue = "",
   rows = 3,
+  resizable = false, // standardmäßig deaktiviert
 }: TextareaProps) {
   const [value, setValue] = useState(defaultValue);
 
@@ -32,7 +34,9 @@ export default function FormElementsTextareaRoundedBaseHelperText({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
-        className="peer relative w-full rounded border border-slate-200 px-4 py-2 text-sm text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+        className={`peer relative w-full rounded border border-slate-200 px-4 py-2 text-sm text-slate-500 placeholder-transparent outline-none transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 ${
+          resizable ? "resize-y" : "resize-none"
+        }`}
       ></textarea>
 
       <label
