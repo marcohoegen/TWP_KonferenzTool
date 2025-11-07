@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import type { AdminData } from "./entities/adminEntity";
 import ButtonRoundedLgPrimaryBasic from "./components/ButtonRoundedLgPrimaryBasic";
-import AdminSeite from "./pages/AdminSeite";
+import AdminSeite from "./pages/AdminLogin";
 import CustomerSeite from "./pages/CustomerSeite";
+import confeedlogo from "./assets/confeedlogo.svg";
+import FormElementsInputRoundedBaseBasic from "./components/FormElementsInputRoundedBaseBasic";
 
 const HomePage = () => {
   const [data, setData] = useState<AdminData[]>([]);
@@ -53,6 +55,8 @@ const HomePage = () => {
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/customerseite")}>
          Abstimmung
         </ButtonRoundedLgPrimaryBasic>
+        <img src={confeedlogo} alt="Confeed Logo" className="logo confeed" width={400}/>
+        <FormElementsInputRoundedBaseBasic />
       </div>
     </div>
   );
