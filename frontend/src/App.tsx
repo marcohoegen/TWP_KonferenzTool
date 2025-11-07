@@ -2,7 +2,7 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import type { AdminData } from "./entities/adminEntity";
-import ButtonRoundedLgPrimaryBasic from "./components/ButtonRoundedLgPrimaryBasic";
+import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import CustomerSeite from "./pages/CustomerSeite";
 import confeedlogo from "./assets/confeedlogo.svg";
