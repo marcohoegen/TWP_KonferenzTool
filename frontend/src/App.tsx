@@ -12,7 +12,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate(); // 👈 React Router Hook für Navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:3000/admin")
@@ -45,7 +45,6 @@ const HomePage = () => {
         ))}
       </ul>
 
-      {/* ✅ Buttons für Navigation */}
       <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
           Admin
