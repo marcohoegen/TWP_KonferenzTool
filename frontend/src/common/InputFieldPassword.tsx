@@ -1,23 +1,33 @@
-import { useState } from "react"
+import { useState, type ChangeEvent, type FocusEvent } from "react";
 
 export default function InputFieldPassword() {
   const [state, setState] = useState({
     "id-b14": "IloveConfeed123!",
-  })
+  });
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [cleared, setCleared] = useState(false);
 
-  const handleChange = evt => {
-    const value = evt.target.value
+  const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = evt.target;
     setState({
       ...state,
-      [evt.target.name]: value,
-    })
-  }
+      [name]: value,
+    });
+  };
+
+  const handleFocus = (evt: FocusEvent<HTMLInputElement>) => {
+    if (!cleared) {
+      setState({
+        ...state,
+        [evt.target.name]: "",
+      });
+      setCleared(true);
+    }
+  };
 
   return (
     <>
-      {/*    <!-- Component: Plain trailing icon input  --> */}
       <div className="relative my-6">
         <input
           id="id-b14"
@@ -25,15 +35,19 @@ export default function InputFieldPassword() {
           value={state["id-b14"]}
           name="id-b14"
           placeholder="your name"
-          className="peer relative h-10 w-full border-b border-slate-200 px-4 pr-12 text-sm text-slate-500 placeholder-transparent outline-full transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          onFocus={handleFocus}
           onChange={handleChange}
+          className="peer relative h-10 w-full border-b border-slate-200 px-4 pr-12 text-sm text-slate-500 placeholder-transparent outline-full transition-all autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
         />
+
         <label
           htmlFor="id-b14"
-          className="absolute left-2 -top-2 z-[1] cursor-text px-2 text-xs text-slate-400 transition-all before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-autofill:-top-2 peer-required:after:text-pink-500 peer-required:after:content-['\00a0*'] peer-invalid:text-pink-500 peer-focus:-top-2 peer-focus:cursor-default peer-focus:text-xs peer-focus:text-emerald-500 peer-invalid:peer-focus:text-pink-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
+          className="absolute left-2 -top-2 z-[1] cursor-text px-2 text-xs text-slate-400 transition-all before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-autofill:-top-2 peer-required:after:text-pink-500 peer-required:after:content-['\\00a0*'] peer-invalid:text-pink-500 peer-focus:-top-2 peer-focus:cursor-default peer-focus:text-xs peer-focus:text-emerald-500 peer-invalid:peer-focus:text-pink-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
         >
           Your password
         </label>
+
+        {/* Toggle Icon */}
         {showPassword ? (
           <svg
             onClick={() => setShowPassword(!showPassword)}
@@ -43,11 +57,7 @@ export default function InputFieldPassword() {
             viewBox="0 0 24 24"
             stroke="currentColor"
             strokeWidth="1.5"
-            aria-labelledby="title-2 description-2"
-            role="graphics-symbol"
           >
-            <title id="title-2">Check mark icon</title>
-            <desc id="description-2">Icon description here</desc>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -68,24 +78,19 @@ export default function InputFieldPassword() {
             viewBox="0 0 24 24"
             stroke="currentColor"
             strokeWidth="1.5"
-            aria-labelledby="title-2d description-2d"
-            role="graphics-symbol"
           >
-            <title id="title-2d">Check mark icon</title>
-            <desc id="description-2d">Icon description here</desc>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
             />
           </svg>
         )}
+
         <small className="absolute flex w-full justify-between px-4 py-1 text-xs text-slate-400 transition peer-invalid:text-pink-500">
           <span>Bitte geben Sie ihr Passwort ein</span>
-          {/* <span className="text-slate-500">1/10</span> */}
         </small>
       </div>
-      {/*    <!-- End Plain trailing icon input  --> */}
     </>
-  )
+  );
 }
