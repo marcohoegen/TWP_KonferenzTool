@@ -60,6 +60,6 @@ export class UserService {
     }
 
     await this.prisma.user.delete({ where: { id } });
-    return { message: `User with ID ${id} has been deleted.` };
+    return { message: `User with ID ${id} deleted.` };
   }
 }
