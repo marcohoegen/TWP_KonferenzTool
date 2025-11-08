@@ -67,6 +67,6 @@ export class RatingService {
     }
 
     await this.prisma.rating.delete({ where: { id } });
-    return { message: `Rating with ID ${id} has been deleted.` };
+    return { message: `Rating with ID ${id} deleted.` };
   }
 }
