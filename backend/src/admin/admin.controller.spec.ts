@@ -46,7 +46,7 @@ describe('AdminController', () => {
 
     const result = await controller.create(dto);
 
-    expect(result).toEqual(new Admin({ ...dto, password: 'PW1234' }));
+    expect(result).toEqual(new Admin({ id: 1, ...dto, password: 'PW1234' }));
     expect(service.create).toHaveBeenCalledWith(dto);
   });
 
