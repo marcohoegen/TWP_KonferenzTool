@@ -1,43 +1,69 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  Patch,
   Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { CreateAdminDto } from './dto/create-admin.dto';
+import { UpdateAdminDto } from './dto/update-admin.dto';
+import { Admin } from './entities/admin.entity';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Post()
+  async create(@Body() createAdminDto: CreateAdminDto): Promise<Admin> {
+    const createdAdmin = await this.adminService.create(createAdminDto);
+
+    return new Admin({
+      id: createdAdmin.id,
+      name: createdAdmin.name,
+      email: createdAdmin.email,
+    });
+  }
+
   @Get()
-  findAll() {
-    return this.adminService.findAll();
+  async findAll(): Promise<Admin[]> {
+    const admins = await this.adminService.findAll();
+    return admins.map(
+      (admin) =>
+        new Admin({
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+        }),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
-  }
-
-  @Post()
-  create(@Body() data: { name: string; email: string; password: string }) {
-    return this.adminService.create(data);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Admin> {
+    const admin = await this.adminService.findOne(id);
+    return new Admin(admin); //ToDo: vermeiden, dass das Passwort mit zurückgegeben wird
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() data: { name?: string; email?: string; password?: string },
-  ) {
-    return this.adminService.update(+id, data);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateAdminDto: UpdateAdminDto,
+  ): Promise<Admin> {
+    const updatedAdmin = await this.adminService.update(id, updateAdminDto);
+    return new Admin({
+      id: updatedAdmin.id,
+      name: updatedAdmin.name,
+      email: updatedAdmin.email,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    return this.adminService.remove(id);
   }
 }
