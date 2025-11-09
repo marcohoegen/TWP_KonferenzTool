@@ -44,7 +44,7 @@ export default function InputFieldTime({
         onChange={(e) => setValue(e.target.value)}
         className={`peer relative ${height} w-full rounded border border-slate-200 px-4 text-sm text-slate-500
           outline-none transition-all autofill:bg-white
-          focus:border-emerald-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400`}
+          focus:border-sky-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400`}
       >
         <option value="" disabled hidden>
           {label}
@@ -63,7 +63,7 @@ export default function InputFieldTime({
           before:bg-white before:transition-all
           peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm
           peer-required:after:text-pink-500 peer-required:after:content-['\\00a0*']
-          peer-focus:-top-2 peer-focus:cursor-default peer-focus:text-xs peer-focus:text-emerald-500
+          peer-focus:-top-2 peer-focus:cursor-default peer-focus:text-xs peer-focus:text-sky-500
           peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
       >
         {label}

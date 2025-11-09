@@ -18,7 +18,7 @@ export default function ButtonGreenRed({
   // Farben analog zu ButtonImport
   const colorClasses =
     color === "green"
-      ? "bg-emerald-500 hover:bg-emerald-600 focus:bg-emerald-700"
+      ? "bg-sky-500 hover:bg-sky-600 focus:bg-sky-700"
       : "bg-red-500 hover:bg-red-600 focus:bg-red-700";
 
   const handleClick = () => {
