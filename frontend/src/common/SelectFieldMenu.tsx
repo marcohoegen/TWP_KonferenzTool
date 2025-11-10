@@ -1,31 +1,16 @@
+// src/common/SelectFieldMenu.tsx
+import { Fragment, useState } from "react";
+import { Listbox, Transition } from "@headlessui/react";
 
-{/*  
-      Verwendungsbeispiel:
-    <SelectFieldMenu
-      id="country"
-      label="Land auswählen"
-      width="w-72"
-      options={[
-        { value: "de", label: "Deutschland" },
-        { value: "at", label: "Österreich" },
-        { value: "ch", label: "Schweiz" },
-      ]}
-    />
-  */}
-
-
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
-
+interface SelectOption { value: string; label: string; }
 interface SelectProps {
   id: string;
   label: string;
-  width?: string; // z. B. "w-full", "w-60", "w-1/2"
+  width?: string;           // z. B. "w-full sm:w-40"
   options: SelectOption[];
   required?: boolean;
+  value?: string;           // optional controlled
+  onChange?: (val: string)=> void;
 }
 
 export default function SelectFieldMenu({
@@ -34,52 +19,78 @@ export default function SelectFieldMenu({
   width = "w-60",
   options,
   required = false,
+  value,
+  onChange,
 }: SelectProps) {
+  // Uncontrolled fallback, wenn kein value/onChange übergeben wird
+  const [internal, setInternal] = useState<string>(value ?? "");
+  const selectedValue = value ?? internal;
+  const selected = options.find(o => o.value === selectedValue) || null;
+
+  const setValue = (v: string) => {
+    setInternal(v);
+    onChange?.(v);
+  };
+
   return (
     <div className={`relative my-6 ${width}`}>
-      <select
-        id={id}
-        name={id}
-        required={required}
-        defaultValue=""
-        className="peer relative h-10 w-full appearance-none rounded border border-slate-200 bg-white px-4 text-sm text-slate-500 outline-none transition-all autofill:bg-white focus:border-sky-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-      >
-        <option value="" disabled hidden></option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      {/* Button (Eingabefeld) */}
+      <Listbox value={selectedValue} onChange={setValue}>
+        <div className="relative">
+          {/* Label (floating look) */}
+          <label
+            htmlFor={id}
+            className="pointer-events-none absolute -top-2 left-2 z-[1] px-2 text-xs text-slate-400 bg-white"
+          >
+            {label}{required && <span className="text-pink-500"> *</span>}
+          </label>
 
-      <label
-        htmlFor={id}
-        className="pointer-events-none absolute top-2.5 left-2 z-[1] px-2 text-sm text-slate-400 transition-all 
-          before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all
-          peer-required:after:text-pink-500 peer-required:after:content-['\\00a0*']
-          peer-valid:-top-2 peer-valid:text-xs peer-focus:-top-2 peer-focus:text-xs peer-focus:text-sky-500
-          peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
-      >
-        {label}
-      </label>
+          {/* Feld */}
+          <Listbox.Button
+            id={id}
+            className="h-10 w-full rounded border border-slate-200 bg-white px-4 text-sm text-slate-700 text-left
+                       outline-none transition focus:border-emerald-500"
+            aria-required={required}
+          >
+            {selected ? selected.label : <span className="text-slate-400">{label}</span>}
+            {/* Pfeil rechts */}
+            <span className="absolute inset-y-0 right-2 flex items-center">
+              <svg className="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </span>
+          </Listbox.Button>
 
-      {/* Pfeil-Icon */}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="pointer-events-none absolute top-2.5 right-2 h-5 w-5 fill-slate-400 transition-all peer-focus:fill-sky-500 peer-disabled:cursor-not-allowed"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-labelledby="title-04 description-04"
-        role="graphics-symbol"
-      >
-        <title id="title-04">Arrow Icon</title>
-        <desc id="description-04">Arrow icon of the select list.</desc>
-        <path
-          fillRule="evenodd"
-          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-          clipRule="evenodd"
-        />
-      </svg>
+          {/* Optionen – erscheinen UNTER dem Feld */}
+          <Transition as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-75"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Listbox.Options
+              className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-lg border border-slate-200
+                         bg-white py-2 text-sm shadow-lg focus:outline-none"
+            >
+              {options.map(opt => (
+                <Listbox.Option
+                  key={opt.value}
+                  value={opt.value}
+                  className={({ active, selected }) =>
+                    `cursor-pointer px-4 py-2 ${
+                      active ? "bg-emerald-50" : ""
+                    } ${selected ? "font-medium text-emerald-700" : "text-slate-700"}`
+                  }
+                >
+                  {opt.label}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </div>
+      </Listbox>
     </div>
   );
 }
