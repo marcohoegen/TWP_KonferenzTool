@@ -1,10 +1,15 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import type { AdminData } from "./entities/adminEntity";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
-import CustomerSeite from "./pages/CustomerSeite";
+import UserPanel from "./pages/UserPanel";
 import confeedlogo from "./assets/confeedlogo.svg";
 import NewConference from "./pages/NewConference";
 import ComponentShowCase from "./pages/ComponentShowcase";
@@ -31,7 +36,6 @@ const HomePage = () => {
         setLoading(false);
       });
   }, []);
-  
 
   if (loading) return <p>Lade Daten…</p>;
   if (error) return <p>Fehler: {error}</p>;
@@ -47,16 +51,23 @@ const HomePage = () => {
         ))}
       </ul>
 
-      <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div
+        style={{
+          marginTop: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+        }}
+      >
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
           Admin
         </ButtonRoundedLgPrimaryBasic>
 
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/customerseite")}>
-         Abstimmung
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/userpanel")}>
+          Userverwaltung
         </ButtonRoundedLgPrimaryBasic>
 
-        <ButtonRoundedLgPrimaryBasic onClick={()=> navigate("/newconference")}>
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/newconference")}>
           New Conference
         </ButtonRoundedLgPrimaryBasic>
         <ButtonRoundedLgPrimaryBasic
@@ -73,18 +84,18 @@ const HomePage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default function App() {
   return (
     <Router>
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/adminseite" element={<AdminSeite />} />
-      <Route path="/customerseite" element={<CustomerSeite />} />
-      <Route path="/newconference" element={<NewConference />} />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/adminseite" element={<AdminSeite />} />
+        <Route path="/userpanel" element={<UserPanel />} />
+        <Route path="/newconference" element={<NewConference />} />
         <Route path="/componentshowcase" element={<ComponentShowCase />} />
-    </Routes>
+      </Routes>
     </Router>
   );
 }
