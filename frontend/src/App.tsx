@@ -7,6 +7,7 @@ import AdminSeite from "./pages/AdminLogin";
 import CustomerSeite from "./pages/CustomerSeite";
 import confeedlogo from "./assets/confeedlogo.svg";
 import NewConference from "./pages/NewConference";
+import ComponentShowCase from "./pages/ComponentShowcase";
 
 const HomePage = () => {
   const [data, setData] = useState<AdminData[]>([]);
@@ -58,7 +59,17 @@ const HomePage = () => {
         <ButtonRoundedLgPrimaryBasic onClick={()=> navigate("/newconference")}>
           New Conference
         </ButtonRoundedLgPrimaryBasic>
-        <img src={confeedlogo} alt="Confeed Logo" className="logo confeed" width={400}/>
+        <ButtonRoundedLgPrimaryBasic
+          onClick={() => navigate("/componentshowcase")}
+        >
+          Beispielkomponenten
+        </ButtonRoundedLgPrimaryBasic>
+        <img
+          src={confeedlogo}
+          alt="Confeed Logo"
+          className="logo confeed"
+          width={400}
+        />
       </div>
     </div>
   );
@@ -72,6 +83,7 @@ export default function App() {
       <Route path="/adminseite" element={<AdminSeite />} />
       <Route path="/customerseite" element={<CustomerSeite />} />
       <Route path="/newconference" element={<NewConference />} />
+        <Route path="/componentshowcase" element={<ComponentShowCase />} />
     </Routes>
     </Router>
   );
