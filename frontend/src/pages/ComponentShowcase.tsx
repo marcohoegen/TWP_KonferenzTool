@@ -16,6 +16,7 @@ import RatingBasic from "../common/RatingBasic";
 import RatingDetailed from "../common/RatingDetailed";
 import SelectFieldMenu from "../common/SelectFieldMenu";
 import InputFieldTime from "../components/InputFieldTime";
+import AccordionBasic from "../common/AccordionBasic";
 const ComponentShowCase = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -122,13 +123,13 @@ const ComponentShowCase = () => {
             ></SelectFieldMenu>
           </div>
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+            <h3 className="text-xl font-semibold mb-4">RatingBasic</h3>
 
             <RatingBasic rating={4.5} totalRatings={88} title="Bewertungen" />
           </div>
 
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+            <h3 className="text-xl font-semibold mb-4">RatingDetailed</h3>
 
             <RatingDetailed
               averageRating={4.2}
@@ -138,16 +139,29 @@ const ComponentShowCase = () => {
           </div>
 
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+            <h3 className="text-xl font-semibold mb-4">InputFieldTime</h3>
 
             <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
           </div>
 
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+            <h3 className="text-xl font-semibold mb-4">InputDatePicker</h3>
 
             <InputDatePicker id={""} label={""} 
             />          
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">AccordionBasic</h3>
+
+            <AccordionBasic
+              items={[
+                  { id: "ac01", title: "How does TailwindCSS work?", content: "Tailwind CSS works by scanning..." },
+                  { id: "ac02", title: "How do I install TailwindCSS?", content: "The simplest and fastest way..." },
+                  { id: "ac03", title: "What is Wind UI about?", content: "Expertly made components..." },
+                  { id: "ac04", title: "How do I use Wind UI components?", content: "All components can be copied..." },
+              ]}
+          />         
           </div>
         </div>
       </section>

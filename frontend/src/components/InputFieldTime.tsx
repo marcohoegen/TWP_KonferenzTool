@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import calendarIcon from "../assets/calendarIcon.svg";
+import clockIcon from "../assets/clockIcon.svg";
 
 /* Beispiel:
   <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
@@ -91,8 +91,8 @@ export default function InputFieldTime({
         className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-sky-500 focus:outline-none"
       >
         <img
-          src={calendarIcon}
-          alt="Kalender Icon"
+          src={clockIcon}
+          alt="Clock Icon"
           className="h-5 w-5 pointer-events-none select-none"
         />
       </button>
