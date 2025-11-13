@@ -11,7 +11,10 @@ import InputFieldBasic from "../common/InputFieldBasic";
 import InputFieldBasicRounded from "../common/InputFieldBasicRounded";
 import InputFieldPassword from "../common/InputFieldPassword";
 import InputTextarea from "../common/InputTextarea";
+import RatingBasic from "../common/RatingBasic";
+import RatingDetailed from "../common/RatingDetailed";
 import SelectFieldMenu from "../common/SelectFieldMenu";
+import InputFieldTime from "../components/InputFieldTime";
 const ComponentShowCase = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -101,6 +104,7 @@ const ComponentShowCase = () => {
               label={"InputTextArea"}
             ></InputTextarea>
           </div>
+
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
 
@@ -113,6 +117,27 @@ const ComponentShowCase = () => {
                 { value: "option3", label: "Option 3" },
               ]}
             ></SelectFieldMenu>
+          </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+
+            <RatingBasic rating={4.5} totalRatings={88} title="Bewertungen" />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+
+            <RatingDetailed
+              averageRating={4.2}
+              totalRatings={58}
+              ratingBreakdown={[40, 10, 5, 2, 1]}
+            />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+
+            <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
           </div>
         </div>
       </section>
