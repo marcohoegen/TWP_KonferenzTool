@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent } from "react";
-import CalendarIcon from "../assets/calendarIcon.svg";
+import calendarIcon from "../assets/calendarIcon.svg";
 
 interface InputDatePickerProps {
   id: string;
@@ -26,8 +26,8 @@ export default function InputDatePicker({
   };
 
   const handleIconClick = () => {
-    inputRef.current?.showPicker?.(); // moderne Browser: öffnet das native Picker-Popup
-    inputRef.current?.focus();         // Fallback: focus
+    inputRef.current?.showPicker?.(); 
+    inputRef.current?.focus();  
   };
 
   return (
@@ -56,7 +56,7 @@ export default function InputDatePicker({
         className="absolute right-2 top-2.5 h-5 w-5 cursor-pointer"
         onClick={handleIconClick}
       >
-        <img src={CalendarIcon} alt="Calendar" />
+        <img src={calendarIcon} alt="Calendar" />
       </div>
 
       {helperText && (

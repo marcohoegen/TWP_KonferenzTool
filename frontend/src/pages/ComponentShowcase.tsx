@@ -17,6 +17,8 @@ import RatingDetailed from "../common/RatingDetailed";
 import SelectFieldMenu from "../common/SelectFieldMenu";
 import InputFieldTime from "../components/InputFieldTime";
 import AccordionBasic from "../common/AccordionBasic";
+import TableResponsive from "../common/TableResponsive";
+import ProgressBar from "../common/ProgressBar";
 const ComponentShowCase = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -162,6 +164,34 @@ const ComponentShowCase = () => {
                   { id: "ac04", title: "How do I use Wind UI components?", content: "All components can be copied..." },
               ]}
           />         
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">TableResponsive</h3>
+
+            <TableResponsive
+              columns={[
+                { key: "name", label: "Name" },
+                { key: "age", label: "Age" },
+                { key: "email", label: "Email" },
+              ]}
+              data={[
+                { name: "John Doe", age: "30", email: "john@example.com" },
+                { name: "Jane Smith", age: "25", email: "jane@example.com" },
+                { name: "Bob Johnson", age: "40", email: "bob@example.com" },
+              ]}
+            />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ProgressBar</h3>
+
+            <ProgressBar
+            startTime="2025-11-13T21:20:00Z"
+            endTime="2025-11-13T22:00:00Z"
+            label="Konferenz läuft"
+            direction="fill"
+            />
           </div>
         </div>
       </section>
