@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import InputFieldBasic from "../common/InputFieldBasic";
+import InputFieldLogin from "../components/InputFieldLogin";
 import InputFieldPassword from "../common/InputFieldPassword";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ErrorPopup from "../common/ErrorPopup";
@@ -57,7 +57,7 @@ const AdminLogin = () => {
       <h2 className="text-xl font-semibold mt-4">Admin-Login</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
-        <InputFieldBasic
+        <InputFieldLogin
           id="email"
           label="Email"
           value={email}
