@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ButtonGreenRed from "../common/ButtonGreenRed";
 import ButtonImport from "../common/ButtonImport";
@@ -94,7 +95,9 @@ const ComponentShowCase = () => {
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">InputFieldPassword</h3>
 
-            <InputFieldPassword></InputFieldPassword>
+            <InputFieldPassword id={""} label={""} value={""} onChange={function (e: ChangeEvent<HTMLInputElement>): void {
+              throw new Error("Function not implemented.");
+            } }></InputFieldPassword>
           </div>
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">InputTextarea</h3>
@@ -138,6 +141,13 @@ const ComponentShowCase = () => {
             <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
 
             <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">SelectFieldMenu</h3>
+
+            <InputDatePicker id={""} label={""} 
+            />          
           </div>
         </div>
       </section>
