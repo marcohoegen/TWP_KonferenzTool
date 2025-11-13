@@ -19,6 +19,16 @@ model Admin {
   name String
   email String @unique
   password String
+
+  adminPasswordTests AdminPasswordTest[]
+}
+
+model AdminPasswordTest {
+  id Int @id @default(autoincrement())
+  adminId Int @unique
+  password String
+  createdAt DateTime @default(now())
+  admin Admin @relation(fields: [adminId], references: [id])
 }
 
 model Conference {
