@@ -27,6 +27,7 @@ import ToggleStandard from "../components/ToggleStandard";
 import ButtonOptions from "../components/ButtonOptions";
 import InputRating from "../components/InputRating";
 import CheckboxBasic from "../common/CheckBoxBasic";
+import ButtonMenu from "../components/ButtonMenu";
 const ComponentShowCase = () => {
   const navigate = useNavigate();
   return (
@@ -242,6 +243,20 @@ const ComponentShowCase = () => {
             <CheckboxBasic 
               label="Accept terms" 
               isPlaceholder 
+            />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ButtonMenu</h3>
+
+            <ButtonMenu 
+              items={[
+                { label: "Home", path: "/" },
+                { label: "Profile", path: "/profile" },
+                { label: "Settings", path: "/settings" },
+              ]}
+              size={40}
+              onNavigate={(path) => console.log(`Navigate to: ${path}`)}
             />
           </div>
         </div>
