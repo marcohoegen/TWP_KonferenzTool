@@ -14,7 +14,7 @@ export default function CardBasic({
   onButtonClick,
 }: CardBasicProps) {
   return (
-    <div className="relative overflow-hidden rounded bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4 min-w-65">
+    <div className="relative overflow-hidden rounded bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4 min-w-50">
       {/* title */}
       <h3 className="mb-2 w-4/5 text-xl font-medium text-slate-700 text-left">
         {title}
