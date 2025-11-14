@@ -1,6 +1,7 @@
 import type { ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
+import BasicSpinner from "../common/BasicSpinner";
 import ButtonGreenRed from "../common/ButtonGreenRed";
 import ButtonImport from "../common/ButtonImport";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
@@ -258,6 +259,11 @@ const ComponentShowCase = () => {
               size={40}
               onNavigate={(path) => console.log(`Navigate to: ${path}`)}
             />
+          </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">Basic Spinner</h3>
+
+            <BasicSpinner />
           </div>
         </div>
       </section>
