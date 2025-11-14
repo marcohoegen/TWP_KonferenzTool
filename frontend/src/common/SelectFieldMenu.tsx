@@ -49,7 +49,7 @@ export default function SelectFieldMenu({
           <Listbox.Button
             id={id}
             className="h-10 w-full rounded border border-slate-200 bg-white px-4 text-sm text-slate-700 text-left
-                       outline-none transition focus:border-emerald-500"
+                       outline-none transition focus:border-sky-500"
             aria-required={required}
           >
             {selected ? selected.label : <span className="text-slate-400">{label}</span>}
@@ -80,8 +80,8 @@ export default function SelectFieldMenu({
                   value={opt.value}
                   className={({ active, selected }) =>
                     `cursor-pointer px-4 py-2 ${
-                      active ? "bg-emerald-50" : ""
-                    } ${selected ? "font-medium text-emerald-700" : "text-slate-700"}`
+                      active ? "bg-sky-50" : ""
+                    } ${selected ? "font-medium text-sky-700" : "text-slate-700"}`
                   }
                 >
                   {opt.label}

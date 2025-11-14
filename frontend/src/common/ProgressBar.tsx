@@ -80,8 +80,8 @@ export default function ProgressBar({
         value={progress}
         className="block w-full overflow-hidden rounded bg-slate-100 
                    [&::-webkit-progress-bar]:bg-slate-100 
-                   [&::-webkit-progress-value]:bg-emerald-500 
-                   [&::-moz-progress-bar]:bg-emerald-500"
+                   [&::-webkit-progress-value]:bg-sky-500 
+                   [&::-moz-progress-bar]:bg-sky-500"
       >
         {Math.floor(progress)}%
       </progress>

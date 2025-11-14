@@ -55,9 +55,9 @@ export default function ToggleStandard({
           peer relative cursor-pointer appearance-none
           bg-slate-300 transition-colors
           after:absolute after:rounded-full
-          checked:bg-emerald-200 checked:after:bg-emerald-500
-          hover:bg-slate-400 checked:hover:bg-emerald-300
-          focus:outline-none checked:focus:bg-emerald-400
+          checked:bg-sky-200 checked:after:bg-sky-500
+          hover:bg-slate-400 checked:hover:bg-sky-300
+          focus:outline-none checked:focus:bg-sky-400
           disabled:cursor-not-allowed
           disabled:bg-slate-200
         `}
@@ -86,10 +86,10 @@ export default function ToggleStandard({
             background-color: #000; /* black when unchecked */
             content: "";
           }
-          /* checked knob color (keeps emerald) */
+          /* checked knob color (keeps sky) */
           #${generatedId}:checked::after {
             left: ${knobCheckedLeft}px;
-            background-color: #10b981; /* emerald-500 */
+            background-color: #10b981; /* sky-500 */
           }
           /* disabled state: lighter knob */
           #${generatedId}:disabled::after {
