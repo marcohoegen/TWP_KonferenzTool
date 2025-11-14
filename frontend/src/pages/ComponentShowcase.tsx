@@ -1,4 +1,5 @@
 import confeedlogo from "../assets/confeedlogo.svg";
+import BasicSpinner from "../common/BasicSpinner";
 import ButtonGreenRed from "../common/ButtonGreenRed";
 import ButtonImport from "../common/ButtonImport";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
@@ -113,6 +114,11 @@ const ComponentShowCase = () => {
                 { value: "option3", label: "Option 3" },
               ]}
             ></SelectFieldMenu>
+          </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">Basic Spinner</h3>
+
+            <BasicSpinner />
           </div>
         </div>
       </section>
