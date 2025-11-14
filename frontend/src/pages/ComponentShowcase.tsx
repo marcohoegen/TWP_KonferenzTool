@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ButtonGreenRed from "../common/ButtonGreenRed";
 import ButtonImport from "../common/ButtonImport";
@@ -19,7 +20,15 @@ import InputFieldTime from "../components/InputFieldTime";
 import AccordionBasic from "../common/AccordionBasic";
 import TableResponsive from "../common/TableResponsive";
 import ProgressBar from "../common/ProgressBar";
+import ButtonBack from "../components/ButtonBack";
+import ButtonTrashbin from "../components/ButtonTrashbin";
+import ButtonLanguage from "../components/ButtonLanguage";
+import ToggleStandard from "../components/ToggleStandard";
+import ButtonOptions from "../components/ButtonOptions";
+import InputRating from "../components/InputRating";
+import CheckboxBasic from "../common/CheckBoxBasic";
 const ComponentShowCase = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
       <img
@@ -77,6 +86,13 @@ const ComponentShowCase = () => {
               label={"TestDateInput"}
             ></InputDatePicker>
           </div>
+          
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">InputFieldTime</h3>
+
+            <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
+          </div>
+
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">InputFieldBasic</h3>
 
@@ -141,19 +157,6 @@ const ComponentShowCase = () => {
           </div>
 
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">InputFieldTime</h3>
-
-            <InputFieldTime label="Startzeit" stepMinutes={15} width="w-1/2" />
-          </div>
-
-          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4">InputDatePicker</h3>
-
-            <InputDatePicker id={""} label={""} 
-            />          
-          </div>
-
-          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4">AccordionBasic</h3>
 
             <AccordionBasic
@@ -191,6 +194,54 @@ const ComponentShowCase = () => {
             endTime="2025-11-13T22:00:00Z"
             label="Konferenz läuft"
             direction="fill"
+            />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ButtonBack</h3>
+
+            <ButtonBack onClick={() => navigate("/adminseite")} size={50} />
+          </div>
+              
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ButtonTrashbin</h3>
+
+            <ButtonTrashbin onConfirm={() => alert("Gelöscht!")} size={50} />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ButtonLanguage</h3>
+
+            <ButtonLanguage size={50} iconSize={50}/>
+          </div>
+              
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ToggleStandard</h3>
+
+            <ToggleStandard label="An/Aus" size={40} />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">ButtonOptions</h3>
+
+            <ButtonOptions size={40} />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">InputRating</h3>
+
+            <InputRating 
+              onRatingChange={(rating) => console.log(`User rated: ${rating}`)}
+              title="Wie hat dir die Konferenz gefallen?"
+            />
+          </div>
+
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">CheckboxBasic</h3>
+
+            <CheckboxBasic 
+              label="Accept terms" 
+              isPlaceholder 
             />
           </div>
         </div>

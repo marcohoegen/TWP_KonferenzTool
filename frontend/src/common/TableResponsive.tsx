@@ -1,8 +1,8 @@
+
 {/* 
     PASST SICH LEIDER NOCH NICHT GUT AN BEI MITTLERER BREITE; 
     BESONDERS GUT ALLERDINGS BEI GROSS UND SEHR KLEIN;
 */}
-
 
 interface Column {
   key: string;
@@ -10,7 +10,8 @@ interface Column {
 }
 
 interface Row {
-  [key: string]: string;
+  id?: string | number;
+  [key: string]: string | number | undefined;
 }
 
 interface TableResponsiveProps {
@@ -20,7 +21,7 @@ interface TableResponsiveProps {
 
 export default function TableResponsive({ columns, data }: TableResponsiveProps) {
   return (
-    <table className="w-full text-left border border-separate rounded border-slate-200" cellSpacing={0}>
+    <table className="w-full text-left border border-separate rounded border-slate-200">
       <thead className="hidden sm:table-header-group">
         <tr>
           {columns.map((col) => (
@@ -35,18 +36,18 @@ export default function TableResponsive({ columns, data }: TableResponsiveProps)
       </thead>
 
       <tbody>
-        {data.map((row, rowIndex) => (
+        {data.map((row) => (
           <tr
-            key={rowIndex}
+            key={row.id || Math.random()}
             className="block border-b sm:table-row last:border-b-0 border-slate-200 sm:border-none"
           >
             {columns.map((col) => (
               <td
                 key={col.key}
-                data-th={col.label}
+                data-label={col.label}
                 className="
-                  before:w-24 before:inline-block before:font-medium before:text-slate-700 
-                  before:content-[attr(data-th)':'] sm:before:content-none
+                  before:min-w-24 before:inline-block before:font-medium before:text-slate-700 
+                  before:content-[attr(data-label)':'] sm:before:content-none
                   flex items-center sm:table-cell
                   h-12 px-6 text-sm sm:border-t sm:border-l first:border-l-0
                   border-slate-200 text-slate-500
