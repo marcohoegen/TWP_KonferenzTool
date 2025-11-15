@@ -1,35 +1,18 @@
-import ButtonGreenRed from "./ButtonGreenRed";
-
 interface CardBasicProps {
   title: string;
-  description?: string;
-  buttonText?: string;
-  onButtonClick?: () => void;
+  children?: React.ReactNode;
 }
 
-export default function CardBasic({
-  title,
-  buttonText = "Action",
-  description = "Description is currently empty.",
-  onButtonClick,
-}: CardBasicProps) {
+export default function CardBasic({ title, children }: CardBasicProps) {
   return (
-    <div className="relative overflow-hidden rounded bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4 min-w-50">
+    <div className="flex flex-col border-sky-500 border relative overflow-hidden rounded-lg bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4 box-content w-65 min-h-40 transition transform hover:-translate-y-1 hover:shadow-lg">
       {/* title */}
-      <h3 className="mb-2 w-4/5 text-xl font-medium text-slate-700 text-left">
-        {title}
-      </h3>
+      <h3 className="text-lg font-medium text-slate-700 text-left">{title}</h3>
 
-      {/* description */}
-      <p className="w-3/5 text-left whitespace-pre-line">{description}</p>
+      <hr />
 
-      {/* button */}
-      <div className="absolute bottom-4 right-4">
-        <ButtonGreenRed
-          text={buttonText}
-          width="w-24"
-          onClick={onButtonClick}
-        />
+      <div className="mt-2 flex flex-1 flex-col h-auto place-content-between">
+        {children}
       </div>
     </div>
   );
