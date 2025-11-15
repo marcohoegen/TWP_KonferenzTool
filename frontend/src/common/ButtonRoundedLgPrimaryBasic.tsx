@@ -1,49 +1,37 @@
-import { useState } from "react";
-
+import React from "react";
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "customer";
-  size?: "lg"
+  size?: "lg" | "md" | "sm";
 };
 
 export default function ButtonRoundedLgPrimaryBasic({
   children,
   type = "button",
   variant = "primary",
+  size = "md",
+  className = "",
   ...props
 }: Props) {
-  const [isHovered, setIsHovered] = useState(false);
+  const base =
+    "rounded-2xl font-medium transition duration-200 focus:outline-none disabled:opacity-60";
 
-  const baseStyle: React.CSSProperties = {
-    borderRadius: "20px",
-    padding: "20px 60px",
-    cursor: "pointer",
-    fontWeight: 500,
-    transition: "all 0.2s ease",
+  const sizes = {
+    sm: "px-4 py-2 text-sm",
+    md: "px-6 py-3 text-base",
+    lg: "px-8 py-4 text-lg",
   };
 
-  const variants: Record<string, React.CSSProperties> = {
-    primary: {
-      backgroundColor: isHovered ? "#1d4ed8" : "#6583c2ff", // dunkler beim Hover
-      color: "white",
-      border: "none",
-    },
-    customer: {
-      backgroundColor: isHovered ? "#e5e7eb" : "#f3f4f6", // leicht dunkler
-      color: "#374151",
-      border: "2px solid #9ca3af",
-    },
+  const variants = {
+    primary: "bg-sky-500 hover:bg-sky-600 text-white",
+    customer:
+      "bg-gray-100 hover:bg-gray-200 text-slate-700 border border-gray-300",
   };
 
   return (
     <button
       type={type}
       {...props}
-      style={{
-        ...baseStyle,
-        ...variants[variant],
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {children}
     </button>
