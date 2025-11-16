@@ -7,10 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "openapi:gen": "npx openapi-typescript-codegen --input http://localhost:3000/api-json --output src/api/generate --client axios && node src/api/generate-hooks.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
+    "@tanstack/react-query": "^5.90.9",
+    "axios": "^1.13.2",
+    "openapi-typescript-codegen": "^0.29.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5",
