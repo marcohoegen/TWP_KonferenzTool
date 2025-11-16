@@ -97,4 +97,4 @@ ${hookExports.join("\n")}
   fs.writeFileSync(hookFilePath, hookFileContent, "utf8");
 }
 
-console.log("Hooks erfolgreich generiert!");
+console.log("Hooks successfully generated!");
