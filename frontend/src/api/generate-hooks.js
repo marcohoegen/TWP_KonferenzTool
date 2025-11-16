@@ -59,7 +59,7 @@ for (const file of fs.readdirSync(servicesDir)) {
       methodName
     )}`.replace("Service", "");
 
-    // invalidateKeys = alle queryKeys dieses Service
+    // invalidateKeys = all queryKeys of this service
     const invalidateKey = `${serviceName}.findAll`;
 
     if (isMutation) {
