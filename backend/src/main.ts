@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import coockieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(coockieParser());
+  app.use(cookieParser());
   app.enableCors({
     origin: 'http://localhost:5173',
     credentials: true,
@@ -15,6 +15,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Confeed Backend')
     .setDescription('API-description for the Confeed Backend')
+    .addServer('http://localhost:3000')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
