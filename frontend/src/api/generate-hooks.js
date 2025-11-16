@@ -38,7 +38,6 @@ for (const file of fs.readdirSync(servicesDir)) {
 
   while ((match = methodRegex.exec(content)) !== null) {
     const methodName = match[1];
-    const argString = match[2];
 
     // Find the end of this method (next method or end of class)
     const nextMethodMatch = content
