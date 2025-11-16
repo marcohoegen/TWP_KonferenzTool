@@ -7,7 +7,7 @@ import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 
 const NewConference = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-white py-8">  
       <div className="max-w-xl mx-auto px-4">
         <h2 className="text-2xl font-semibold text-slate-800 mb-6">
           Neue Konferenz
@@ -72,7 +72,7 @@ const NewConference = () => {
         </div>
 
         <div className="flex justify-center gap-4 mt-8">
-          <ButtonRoundedLgPrimaryBasic variant="primary" size="md">
+          <ButtonRoundedLgPrimaryBasic variant="customer" size="md">
             Abbrechen
           </ButtonRoundedLgPrimaryBasic>
           <ButtonRoundedLgPrimaryBasic variant="primary" size="md">
