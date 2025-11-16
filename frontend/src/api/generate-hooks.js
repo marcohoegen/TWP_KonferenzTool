@@ -30,7 +30,7 @@ for (const file of fs.readdirSync(servicesDir)) {
 
   const serviceName = file.replace(".ts", "");
 
-  // suche methoden
+  // search for methods
   const methodRegex = /public static (\w+)\(([^)]*)\):/g;
   let match;
 
