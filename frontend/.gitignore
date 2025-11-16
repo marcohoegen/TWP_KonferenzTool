@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OpenAPI auto-generated files
+src/api/generate/core
+src/api/generate/models
+src/api/generate/services
+src/api/generate/index.ts
+src/api/generate/hooks

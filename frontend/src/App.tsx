@@ -1,50 +1,36 @@
 import "./App.css";
-import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useNavigate,
 } from "react-router-dom";
-import type { AdminData } from "./entities/adminEntity";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import UserPanel from "./pages/UserPanel";
 import confeedlogo from "./assets/confeedlogo.svg";
 import NewConference from "./pages/NewConference";
 import ComponentShowCase from "./pages/ComponentShowcase";
+import { useAdminAdminControllerFindAll } from "./api/generate/hooks/AdminService.hooks";
+import ConferenceCRUDDemo from "./components/ConferenceCRUDDemo";
 
 const HomePage = () => {
-  const [data, setData] = useState<AdminData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("http://localhost:3000/admin")
-      .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Laden der Daten");
-        return res.json();
-      })
-      .then((data: AdminData[]) => {
-        setData(data);
-        setLoading(false);
-      })
-      .catch((err: Error) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+  const {
+    data: admins,
+    isLoading,
+    error,
+  } = useAdminAdminControllerFindAll(undefined, undefined);
 
-  if (loading) return <p>Lade Daten…</p>;
-  if (error) return <p>Fehler: {error}</p>;
+  if (isLoading) return <p>Lade Daten…</p>;
+  if (error) return <p>Fehler: {error.message}</p>;
 
   return (
     <div className="p-4">
       <h2>Confeed</h2>
       <ul>
-        {data.map((a) => (
+        {admins?.map((a) => (
           <li key={a.id}>
             {a.name} ({a.email})
           </li>
@@ -95,6 +81,7 @@ export default function App() {
         <Route path="/userpanel" element={<UserPanel />} />
         <Route path="/newconference" element={<NewConference />} />
         <Route path="/componentshowcase" element={<ComponentShowCase />} />
+        <Route path="/conferencecruddemo" element={<ConferenceCRUDDemo />} />
       </Routes>
     </Router>
   );

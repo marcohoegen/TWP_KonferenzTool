@@ -1,4 +1,5 @@
 import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateConferenceDto {
   @IsString()
@@ -8,9 +9,11 @@ export class CreateConferenceDto {
   @IsString()
   location: string;
 
+  @Type(() => Date)
   @IsDate()
   startDate: Date;
 
+  @Type(() => Date)
   @IsDate()
   endDate: Date;
 }
