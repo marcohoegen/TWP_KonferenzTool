@@ -1,63 +1,19 @@
-
-import ButtonGreenRed from "./ButtonGreenRed";
-
 interface CardBasicProps {
-  title: string;          // aus Formular
-  startDate?: string;     // Startdatum
-  endDate?: string;       // Enddatum
-  room?: string;          // Raumname
-  buttonText?: string;
-  onButtonClick?: () => void;
+  title: string;
+  children?: React.ReactNode;
 }
 
-export default function CardBasic({
-  title,
-  startDate,
-  endDate,
-  room,
-  buttonText = "Aktion",
-  onButtonClick,
-}: CardBasicProps) {
-  // Beschreibung automatisch generieren
-  let description = "Noch keine Daten angegeben.";
-  if (startDate && endDate && room) {
-    description = `${formatDate(startDate)} → ${formatDate(endDate)}\n${room}`;
-  } else if (startDate && endDate) {
-    description = `${formatDate(startDate)} → ${formatDate(endDate)}`;
-  } else if (room) {
-    description = `Raum: ${room}`;
-  }
-
+export default function CardBasic({ title, children }: CardBasicProps) {
   return (
-    <div className="relative overflow-hidden rounded bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4">
-      {/* Titel */}
-      <h3 className="mb-2 w-4/5 text-xl font-medium text-slate-700 text-left">
-        {title}
-      </h3>
+    <div className="flex flex-col border-sky-500 border relative overflow-hidden rounded-lg bg-white text-slate-500 shadow-md shadow-slate-200 p-6 mb-4 box-content w-65 min-h-40 transition transform hover:-translate-y-1 hover:shadow-lg">
+      {/* title */}
+      <h3 className="text-lg font-medium text-slate-700 text-left">{title}</h3>
 
-      {/* Beschreibung */}
-      <p className="w-3/5 text-left whitespace-pre-line">{description}</p>
+      <hr />
 
-      {/* Button unten rechts */}
-      <div className="absolute bottom-4 right-4">
-        <ButtonGreenRed
-          text={buttonText}
-          width="w-24"
-          onClick={onButtonClick}
-        />
+      <div className="mt-2 flex flex-1 flex-col h-auto place-content-between">
+        {children}
       </div>
     </div>
   );
-}
-
-// Datum formatieren (Deutsch)
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
-  return date.toLocaleDateString("de-DE", {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 }

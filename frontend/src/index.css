@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-lg: 80rem;
+  --breakpoint-md: 70rem;
+  --breakpoint-sm: 45rem;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -47,7 +53,8 @@ h1 {
   }
 }
 
-html, body {
+html,
+body {
   background-color: white !important;
   color: black !important;
 }

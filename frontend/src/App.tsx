@@ -7,33 +7,22 @@ import {
 } from "react-router-dom";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
-import CustomerSeite from "./pages/CustomerSeite";
+import UserPanel from "./pages/UserPanel";
 import confeedlogo from "./assets/confeedlogo.svg";
-import { useAdminAdminControllerFindAll } from "./api/generate/hooks/AdminService.hooks";
-import ConferenceCRUDDemo from "./components/ConferenceCRUDDemo";
+import NewConference from "./pages/NewConference";
+import ComponentShowCase from "./pages/ComponentShowcase";
+import AdminCRUD from "./pages/AdminCRUD";
+import ConferenceCRUD from "./pages/ConferenceCRUD";
+import PresentationCRUD from "./pages/PresentationCRUD";
+import RatingCRUD from "./pages/RatingCRUD";
+import UserCRUD from "./pages/UserCRUD";
 
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const {
-    data: admins,
-    isLoading,
-    error,
-  } = useAdminAdminControllerFindAll(undefined, undefined);
-
-  if (isLoading) return <p>Lade Daten…</p>;
-  if (error) return <p>Fehler: {error.message}</p>;
-
   return (
     <div className="p-4">
       <h2>Confeed</h2>
-      <ul>
-        {admins?.map((a) => (
-          <li key={a.id}>
-            {a.name} ({a.email})
-          </li>
-        ))}
-      </ul>
 
       <div
         style={{
@@ -44,12 +33,49 @@ const HomePage = () => {
         }}
       >
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
-          Admin
+          Admin Login
         </ButtonRoundedLgPrimaryBasic>
 
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/customerseite")}>
-          Abstimmung
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/userpanel")}>
+          Userverwaltung
         </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/newconference")}>
+          New Conference
+        </ButtonRoundedLgPrimaryBasic>
+
+        <h3 className="mt-4 font-bold">CRUD Verwaltung</h3>
+
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/admins")}>
+          Admin CRUD
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic
+          onClick={() => navigate("/crud/conferences")}
+        >
+          Konferenz CRUD
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic
+          onClick={() => navigate("/crud/presentations")}
+        >
+          Präsentationen CRUD
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/ratings")}>
+          Bewertungen CRUD
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/users")}>
+          Benutzer CRUD
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic
+          onClick={() => navigate("/componentshowcase")}
+        >
+          Beispielkomponenten
+        </ButtonRoundedLgPrimaryBasic>
+
         <img
           src={confeedlogo}
           alt="Confeed Logo"
@@ -67,8 +93,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/adminseite" element={<AdminSeite />} />
-        <Route path="/customerseite" element={<CustomerSeite />} />
-        <Route path="/conferencecruddemo" element={<ConferenceCRUDDemo />} />
+        <Route path="/userpanel" element={<UserPanel />} />
+        <Route path="/newconference" element={<NewConference />} />
+        <Route path="/componentshowcase" element={<ComponentShowCase />} />
+        <Route path="/crud/admins" element={<AdminCRUD />} />
+        <Route path="/crud/conferences" element={<ConferenceCRUD />} />
+        <Route path="/crud/presentations" element={<PresentationCRUD />} />
+        <Route path="/crud/ratings" element={<RatingCRUD />} />
+        <Route path="/crud/users" element={<UserCRUD />} />
       </Routes>
     </Router>
   );
