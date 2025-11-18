@@ -7,10 +7,42 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Generates a random alphanumeric code of specified length
+  private generatePersonCode(length = 5): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from(
+      { length },
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join('');
+  }
+
   async create(createUserDto: CreateUserDto) {
+    let personCode: string = '';
+    let isUnique = false;
+
+    // Ensure the generated code is unique
+    while (!isUnique) {
+      personCode = this.generatePersonCode();
+      const existingUser = await this.prisma.user.findUnique({
+        where: { code: personCode },
+      });
+      if (!existingUser) {
+        isUnique = true;
+      }
+    }
+
+    const data = {
+      ...createUserDto,
+      code: personCode,
+    };
+
     return await this.prisma.user.create({
-      data: {
-        ...createUserDto,
+      data,
+      select: {
+        id: true,
+        email: true,
+        code: true,
+        conferenceId: true,
       },
     });
   }

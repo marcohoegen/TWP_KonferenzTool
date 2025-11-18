@@ -104,7 +104,11 @@ async function main() {
       prisma.user.create({
         data: {
           email: faker.internet.email(),
-          code: faker.string.alphanumeric(5),
+          code: Array.from({ length: 5 }, () =>
+            faker.helpers.arrayElement(
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
+            ),
+          ).join(''),
           conferenceId: conference.id,
         },
       }),
