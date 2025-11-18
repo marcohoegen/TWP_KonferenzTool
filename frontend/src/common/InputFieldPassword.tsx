@@ -13,7 +13,7 @@ export default function InputFieldPassword({
   label,
   value,
   onChange,
-  initialValue = "IloveConfeed123!", // initialer Text
+  initialValue = "", // initialer Text
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [cleared, setCleared] = useState(false);
