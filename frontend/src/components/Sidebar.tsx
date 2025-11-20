@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import confeedLogo from "../assets/confeedlogo.svg";
 
 interface SidebarProps {
@@ -12,7 +12,6 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
   const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(256); // Default 256px (w-64)
   const [isResizing, setIsResizing] = useState(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -55,7 +54,6 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
 
   return (
     <aside 
-      ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
       className="fixed left-0 top-0 h-screen bg-white border-r-2 border-sky-500 flex flex-col transition-none"
     >
@@ -65,11 +63,13 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
       </div>
 
       {/* Navigation items */}
-      <nav className="flex-1 overflow-y-auto py-4">
+      <nav className="flex-1 overflow-y-auto py-4" aria-label="Main navigation">
         {menuItems.map((item) => (
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
+            role="link"
+            aria-current={location.pathname === item.path ? "page" : undefined}
             className={`w-full text-left px-6 py-3 transition-colors break-words ${
               location.pathname === item.path
                 ? "bg-sky-500 text-white font-medium"

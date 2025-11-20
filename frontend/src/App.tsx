@@ -5,7 +5,7 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import UserPanel from "./pages/UserPanel";
@@ -42,7 +42,7 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
   
-  const menuItems = [
+  const menuItems = useMemo(() => [
     { label: "Home", path: "/" },
     { label: "Userverwaltung", path: "/userpanel" },
     { label: "New Conference", path: "/newconference" },
@@ -52,7 +52,7 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
     { label: "Bewertungen CRUD", path: "/crud/ratings" },
     { label: "Benutzer CRUD", path: "/crud/users" },
     { label: "Beispielkomponenten", path: "/componentshowcase" },
-  ];
+  ], []);
 
   return (
     <>
