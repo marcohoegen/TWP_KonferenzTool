@@ -1,5 +1,6 @@
 import ButtonMenu from "./ButtonMenu";
 import ButtonLanguage from "./ButtonLanguage";
+import confeedLogo from "../assets/confeedlogo.svg";
 
 interface TopMenuBarProps {
   pageTitle: string;
@@ -14,8 +15,10 @@ export default function TopMenuBar({
 }: TopMenuBarProps) {
   return (
     <div className="w-screen bg-white border-b-2 border-sky-500 px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
-      {/* Empty space on left for balance */}
-      <div className="w-20"></div>
+      {/* Logo on the left */}
+      <div className="flex items-center flex-shrink-0">
+        <img src={confeedLogo} alt="Confeed Logo" className="h-12 w-auto" />
+      </div>
       
       {/* Page title in center */}
       <div className="flex-1 text-center">
@@ -23,7 +26,7 @@ export default function TopMenuBar({
       </div>
       
       {/* Buttons on right */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-shrink-0">
         <ButtonLanguage size={36} iconSize={20} />
         <ButtonMenu items={menuItems} size={24} onNavigate={onNavigate} />
       </div>

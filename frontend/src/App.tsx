@@ -5,6 +5,7 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
+import { useState } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import UserPanel from "./pages/UserPanel";
@@ -23,6 +24,7 @@ import type { ReactNode } from "react";
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({ children, title }: { children: ReactNode; title: string }) {
   const navigate = useNavigate();
+  const [sidebarWidth, setSidebarWidth] = useState(256);
   
   const menuItems = [
     { label: "Home", path: "/" },
@@ -49,11 +51,14 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
 
       {/* Desktop sidebar - hidden on mobile, shown on desktop */}
       <div className="hidden md:block">
-        <Sidebar menuItems={menuItems} />
+        <Sidebar menuItems={menuItems} onWidthChange={setSidebarWidth} />
       </div>
 
       {/* Content area - with padding for mobile top bar or desktop sidebar */}
-      <div className="pt-16 md:pt-0 md:pl-64">
+      <div 
+        className="pt-16 md:pt-0"
+        style={{ paddingLeft: window.innerWidth >= 768 ? `${sidebarWidth}px` : '0' }}
+      >
         {children}
       </div>
     </>
