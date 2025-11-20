@@ -13,7 +13,7 @@ export default function TopMenuBar({
   onNavigate,
 }: TopMenuBarProps) {
   return (
-    <div className="w-screen bg-white border-b-2 border-sky-500 px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+    <div className="w-full bg-white border-b-2 border-sky-500 px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
       {/* Logo on the left */}
       <div className="flex items-center flex-shrink-0">
         <img src={confeedLogo} alt="Confeed Logo" className="h-12 w-auto" />
