@@ -22,9 +22,10 @@ const AdminLogin = () => {
     }
   }, [error]);
 
-  const handleLogin = () => {
-    setError(null);
-
+  const handleLogin = async () => {
+  setError(null);
+  
+  return new Promise((resolve, reject) => {
     loginMutation.mutate(
       { email, password },
       {
@@ -34,14 +35,16 @@ const AdminLogin = () => {
           } else {
             setError("Falsche E-Mail oder Passwort");
           }
+          resolve(undefined);
         },
         onError: () => {
-          // Always show user-friendly message for login errors
           setError("Falsche E-Mail oder Passwort");
+          reject();
         },
       }
     );
-  };
+  });
+};
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
