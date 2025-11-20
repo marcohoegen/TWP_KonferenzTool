@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min, IsEnum, IsOptional } from 'class-validator';
+import { PresentationStatus } from '@prisma/client';
 
 export class CreatePresentationDto {
   @IsString()
@@ -11,4 +12,8 @@ export class CreatePresentationDto {
 
   conferenceId: number;
   userId: number;
+
+  @IsOptional()
+  @IsEnum(PresentationStatus)
+  status?: PresentationStatus;
 }

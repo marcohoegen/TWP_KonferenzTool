@@ -125,6 +125,7 @@ async function main() {
           agendaPosition: i + 1,
           conferenceId: conference.id,
           userId: user.id,
+          status: "INACTIVE"
         },
       }),
     ),

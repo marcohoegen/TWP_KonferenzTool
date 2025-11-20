@@ -31,6 +31,7 @@ export class PresentationController {
       agendaPosition: createPresentation.agendaPosition,
       conferenceId: createPresentation.conferenceId,
       userId: createPresentation.userId,
+      status: createPresentation.status,
     });
   }
 
@@ -45,6 +46,7 @@ export class PresentationController {
           agendaPosition: presentation.agendaPosition,
           conferenceId: presentation.conferenceId,
           userId: presentation.userId,
+          status: presentation.status,
         }),
     );
   }
@@ -70,6 +72,7 @@ export class PresentationController {
       agendaPosition: updatedPresentation.agendaPosition,
       conferenceId: updatedPresentation.conferenceId,
       userId: updatedPresentation.userId,
+      status: updatedPresentation.status,
     });
   }
 

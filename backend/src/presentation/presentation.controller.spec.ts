@@ -4,6 +4,21 @@ import { PresentationService } from './presentation.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { Presentation } from './entities/presentation.entity';
+import { PresentationStatus } from '@prisma/client';
+
+// Helper factory to always provide required fields
+const makePresentation = (partial: Partial<Presentation> = {}) =>
+  new Presentation({
+    id: 1,
+    title: 'Default Title',
+    agendaPosition: 1,
+    conferenceId: 1,
+    userId: 1,
+    status: PresentationStatus.ACTIVE,
+    createdAt: undefined,
+    ratings: undefined,
+    ...partial,
+  });
 
 describe('PresentationController', () => {
   let controller: PresentationController;
@@ -45,20 +60,17 @@ describe('PresentationController', () => {
         conferenceId: 10,
         userId: 5,
       };
-      const mockCreated = { id: 1, ...dto };
+
+      const mockCreated = makePresentation({
+        id: 1,
+        ...dto,
+      });
+
       jest.spyOn(service, 'create').mockResolvedValue(mockCreated);
 
       const result = await controller.create(dto);
 
-      expect(result).toEqual(
-        new Presentation({
-          id: 1,
-          title: 'Keynote',
-          agendaPosition: 1,
-          conferenceId: 10,
-          userId: 5,
-        }),
-      );
+      expect(result).toEqual(mockCreated);
       expect(service.create).toHaveBeenCalledWith(dto);
     });
 
@@ -69,7 +81,12 @@ describe('PresentationController', () => {
         conferenceId: 1,
         userId: 1,
       };
-      const mockCreated = new Presentation({ id: 2, ...dto });
+
+      const mockCreated = makePresentation({
+        id: 2,
+        ...dto,
+      });
+
       jest.spyOn(service, 'create').mockResolvedValue(mockCreated);
 
       const result = await controller.create(dto);
@@ -83,6 +100,7 @@ describe('PresentationController', () => {
         conferenceId: 1,
         userId: 1,
       };
+
       jest
         .spyOn(service, 'create')
         .mockRejectedValue(new Error('Invalid presentation data'));
@@ -97,29 +115,14 @@ describe('PresentationController', () => {
   describe('findAll()', () => {
     it('should return all presentations (normal case)', async () => {
       const mockPresentations = [
-        {
-          id: 1,
-          title: 'Talk 1',
-          agendaPosition: 1,
-          conferenceId: 1,
-          userId: 1,
-        },
-        {
-          id: 2,
-          title: 'Talk 2',
-          agendaPosition: 2,
-          conferenceId: 1,
-          userId: 2,
-        },
+        makePresentation({ id: 1, title: 'Talk 1', agendaPosition: 1, userId: 1 }),
+        makePresentation({ id: 2, title: 'Talk 2', agendaPosition: 2, userId: 2 }),
       ];
+
       jest.spyOn(service, 'findAll').mockResolvedValue(mockPresentations);
 
       const result = await controller.findAll();
-
-      expect(result).toEqual([
-        new Presentation(mockPresentations[0]),
-        new Presentation(mockPresentations[1]),
-      ]);
+      expect(result).toEqual(mockPresentations);
     });
 
     it('should return empty list if no presentations (edge case)', async () => {
@@ -139,33 +142,33 @@ describe('PresentationController', () => {
   // ---------- FIND ONE ----------
   describe('findOne()', () => {
     it('should return a presentation by id (normal case)', async () => {
-      const mockPresentation = {
+      const mockPresentation = makePresentation({
         id: 1,
         title: 'Keynote',
         agendaPosition: 1,
         conferenceId: 10,
         userId: 5,
-      };
+      });
+
       jest.spyOn(service, 'findOne').mockResolvedValue(mockPresentation);
 
       const result = await controller.findOne(1);
-
-      expect(result).toEqual(new Presentation(mockPresentation));
+      expect(result).toEqual(mockPresentation);
     });
 
     it('should return minimal presentation (edge case)', async () => {
-      const mockPresentation = {
+      const mockPresentation = makePresentation({
         id: 2,
         title: 'A',
         agendaPosition: 0,
         conferenceId: 1,
         userId: 1,
-      };
+      });
+
       jest.spyOn(service, 'findOne').mockResolvedValue(mockPresentation);
 
       const result = await controller.findOne(2);
-
-      expect(result).toEqual(new Presentation(mockPresentation));
+      expect(result).toEqual(mockPresentation);
     });
 
     it('should handle service error on findOne (error case)', async () => {
@@ -179,36 +182,36 @@ describe('PresentationController', () => {
   describe('update()', () => {
     it('should update a presentation (normal case)', async () => {
       const dto: UpdatePresentationDto = { title: 'Updated Title' };
-      const mockUpdated = {
+
+      const mockUpdated = makePresentation({
         id: 1,
         title: 'Updated Title',
-        agendaPosition: 1,
-        conferenceId: 10,
-        userId: 5,
-      };
+      });
+
       jest.spyOn(service, 'update').mockResolvedValue(mockUpdated);
 
       const result = await controller.update(1, dto);
-      expect(result).toEqual(new Presentation(mockUpdated));
+      expect(result).toEqual(mockUpdated);
     });
 
     it('should handle partial update (edge case)', async () => {
       const dto: UpdatePresentationDto = { agendaPosition: 2 };
-      const mockUpdated = {
+
+      const mockUpdated = makePresentation({
         id: 2,
         title: 'Partial',
         agendaPosition: 3,
-        conferenceId: 1,
-        userId: 1,
-      };
+      });
+
       jest.spyOn(service, 'update').mockResolvedValue(mockUpdated);
 
       const result = await controller.update(2, dto);
-      expect(result).toEqual(new Presentation(mockUpdated));
+      expect(result).toEqual(mockUpdated);
     });
 
     it('should handle service error on update (error case)', async () => {
       const dto: UpdatePresentationDto = { title: 'Fail' };
+
       jest
         .spyOn(service, 'update')
         .mockRejectedValue(new Error('Update failed'));

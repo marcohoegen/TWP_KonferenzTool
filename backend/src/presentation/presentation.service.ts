@@ -23,6 +23,7 @@ export class PresentationService {
         agendaPosition: true,
         conferenceId: true,
         userId: true,
+        status: true,
         ratings: true,
       },
     });
@@ -37,6 +38,7 @@ export class PresentationService {
         agendaPosition: true,
         conferenceId: true,
         userId: true,
+        status: true,
         ratings: true,
       },
     });
