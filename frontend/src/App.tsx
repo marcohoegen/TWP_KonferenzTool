@@ -16,6 +16,49 @@ import ConferenceCRUD from "./pages/ConferenceCRUD";
 import PresentationCRUD from "./pages/PresentationCRUD";
 import RatingCRUD from "./pages/RatingCRUD";
 import UserCRUD from "./pages/UserCRUD";
+import TopMenuBar from "./components/TopMenuBar";
+import Sidebar from "./components/Sidebar";
+import type { ReactNode } from "react";
+
+// Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
+function PageWithMenu({ children, title }: { children: ReactNode; title: string }) {
+  const navigate = useNavigate();
+  
+  const menuItems = [
+    { label: "Home", path: "/" },
+    { label: "Userverwaltung", path: "/userpanel" },
+    { label: "New Conference", path: "/newconference" },
+    { label: "Admin CRUD", path: "/crud/admins" },
+    { label: "Konferenz CRUD", path: "/crud/conferences" },
+    { label: "Präsentationen CRUD", path: "/crud/presentations" },
+    { label: "Bewertungen CRUD", path: "/crud/ratings" },
+    { label: "Benutzer CRUD", path: "/crud/users" },
+    { label: "Beispielkomponenten", path: "/componentshowcase" },
+  ];
+
+  return (
+    <>
+      {/* Mobile menu bar - hidden on desktop (md breakpoint and up) */}
+      <div className="md:hidden">
+        <TopMenuBar 
+          pageTitle={title} 
+          menuItems={menuItems}
+          onNavigate={(path) => navigate(path)}
+        />
+      </div>
+
+      {/* Desktop sidebar - hidden on mobile, shown on desktop */}
+      <div className="hidden md:block">
+        <Sidebar menuItems={menuItems} />
+      </div>
+
+      {/* Content area - with padding for mobile top bar or desktop sidebar */}
+      <div className="pt-16 md:pt-0 md:pl-64">
+        {children}
+      </div>
+    </>
+  );
+}
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -91,16 +134,16 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
         <Route path="/adminseite" element={<AdminSeite />} />
-        <Route path="/userpanel" element={<UserPanel />} />
-        <Route path="/newconference" element={<NewConference />} />
-        <Route path="/componentshowcase" element={<ComponentShowCase />} />
-        <Route path="/crud/admins" element={<AdminCRUD />} />
-        <Route path="/crud/conferences" element={<ConferenceCRUD />} />
-        <Route path="/crud/presentations" element={<PresentationCRUD />} />
-        <Route path="/crud/ratings" element={<RatingCRUD />} />
-        <Route path="/crud/users" element={<UserCRUD />} />
+        <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
+        <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
+        <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
+        <Route path="/crud/admins" element={<PageWithMenu title="Admin CRUD"><AdminCRUD /></PageWithMenu>} />
+        <Route path="/crud/conferences" element={<PageWithMenu title="Konferenz CRUD"><ConferenceCRUD /></PageWithMenu>} />
+        <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
+        <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
+        <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
       </Routes>
     </Router>
   );
