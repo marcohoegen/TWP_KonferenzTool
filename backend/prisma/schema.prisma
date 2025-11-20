@@ -46,7 +46,7 @@ model Conference {
 model User {
   id Int @id @default(autoincrement())
   email String
-  code String
+  code String @unique
   createdAt DateTime @default(now())
 //Fremdschlüssel
   conferenceId Int
