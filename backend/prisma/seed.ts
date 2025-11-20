@@ -111,28 +111,42 @@ async function main() {
     ),
   );
 
-  // Presentations (je User eine)
+  // Presentations mit mehreren Presenters (m:n Beziehung)
+  const numberOfPresentations = faker.number.int({ min: 15, max: 25 });
   const presentations = await Promise.all(
-    users.map((user, i) =>
-      prisma.presentation.create({
+    Array.from({ length: numberOfPresentations }).map((_, i) => {
+      // Wähle 1-3 zufällige User als Präsentatoren
+      const numberOfPresenters = faker.number.int({ min: 1, max: 3 });
+      const shuffledUsers = users.sort(() => 0.5 - Math.random());
+      const selectedPresenters = shuffledUsers.slice(0, numberOfPresenters);
+
+      return prisma.presentation.create({
         data: {
           title: faker.lorem.sentence(),
           agendaPosition: i + 1,
           conferenceId: conference.id,
-          userId: user.id,
+          presenters: {
+            connect: selectedPresenters.map((user) => ({ id: user.id })),
+          },
         },
-      }),
-    ),
+        include: {
+          presenters: true,
+        },
+      });
+    }),
   );
 
-  // Ratings ((User - 1) * Vortrag)
+  // Ratings (jeder User bewertet alle Präsentationen, außer die eigenen)
   const ratings: {
     rating: number;
     userId: number;
     presentationId: number;
   }[] = [];
+
   for (const presentation of presentations) {
-    for (const user of users.filter((u) => u.id !== presentation.userId)) {
+    const presenterIds = presentation.presenters.map((p) => p.id);
+
+    for (const user of users.filter((u) => !presenterIds.includes(u.id))) {
       ratings.push({
         rating: faker.number.int({ min: 1, max: 10 }),
         userId: user.id,

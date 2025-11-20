@@ -21,56 +21,40 @@ export class PresentationController {
   async create(
     @Body() createPresentationDto: CreatePresentationDto,
   ): Promise<Presentation> {
-    const createPresentation = await this.presentationService.create(
+    const created = (await this.presentationService.create(
       createPresentationDto,
-    );
+    )) as Presentation;
 
-    return new Presentation({
-      id: createPresentation.id,
-      title: createPresentation.title,
-      agendaPosition: createPresentation.agendaPosition,
-      conferenceId: createPresentation.conferenceId,
-      userId: createPresentation.userId,
-    });
+    // Add code as empty string for each presenter without mutating the original object
+    const presentersWithCode =
+      created.presenters && Array.isArray(created.presenters)
+        ? created.presenters.map((presenter) => ({
+            ...presenter,
+            code: '',
+          }))
+        : created.presenters;
+
+    const result: Presentation = { ...created, presenters: presentersWithCode };
+
+    return result;
   }
 
   @Get()
-  async findAll(): Promise<Presentation[]> {
-    const presentations = await this.presentationService.findAll();
-    return presentations.map(
-      (presentation) =>
-        new Presentation({
-          id: presentation.id,
-          title: presentation.title,
-          agendaPosition: presentation.agendaPosition,
-          conferenceId: presentation.conferenceId,
-          userId: presentation.userId,
-        }),
-    );
+  async findAll() {
+    return await this.presentationService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Presentation> {
-    const presentation = await this.presentationService.findOne(id);
-    return new Presentation(presentation);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.presentationService.findOne(id);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePresentationDto: UpdatePresentationDto,
-  ): Promise<Presentation> {
-    const updatedPresentation = await this.presentationService.update(
-      id,
-      updatePresentationDto,
-    );
-    return new Presentation({
-      id: updatedPresentation.id,
-      title: updatedPresentation.title,
-      agendaPosition: updatedPresentation.agendaPosition,
-      conferenceId: updatedPresentation.conferenceId,
-      userId: updatedPresentation.userId,
-    });
+  ) {
+    return await this.presentationService.update(id, updatePresentationDto);
   }
 
   @Delete(':id')
@@ -78,5 +62,24 @@ export class PresentationController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<{ message: string }> {
     return this.presentationService.remove(id);
+  }
+
+  @Post(':presentationId/presenter/:userId')
+  async addPresenter(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.presentationService.addPresenter(presentationId, userId);
+  }
+
+  @Delete(':presentationId/presenter/:userId')
+  async removePresenter(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.presentationService.removePresenter(
+      presentationId,
+      userId,
+    );
   }
 }

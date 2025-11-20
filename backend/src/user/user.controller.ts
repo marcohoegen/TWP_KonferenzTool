@@ -11,56 +11,32 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const createUser = await this.userService.create(createUserDto);
-
-    return new User({
-      id: createUser.id,
-      email: createUser.email,
-      code: createUser.code,
-      conferenceId: createUser.conferenceId,
-    });
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.userService.create(createUserDto);
   }
 
   @Get()
-  async findAll(): Promise<User[]> {
-    const users = await this.userService.findAll();
-    return users.map(
-      (user) =>
-        new User({
-          id: user.id,
-          email: user.email,
-          code: user.code,
-          conferenceId: user.conferenceId,
-        }),
-    );
+  async findAll() {
+    return await this.userService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    const user = await this.userService.findOne(id);
-    return new User(user);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findOne(id);
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    const updatedUser = await this.userService.update(id, updateUserDto);
-    return new User({
-      id: updatedUser.id,
-      email: updatedUser.email,
-      code: updatedUser.code,
-      conferenceId: updatedUser.conferenceId,
-    });
+  ) {
+    return await this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
@@ -68,5 +44,21 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<{ message: string }> {
     return this.userService.remove(id);
+  }
+
+  @Post(':userId/presentation/:presentationId')
+  async addPresentation(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+  ) {
+    return await this.userService.addPresentation(userId, presentationId);
+  }
+
+  @Delete(':userId/presentation/:presentationId')
+  async removePresentation(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+  ) {
+    return await this.userService.removePresentation(userId, presentationId);
   }
 }

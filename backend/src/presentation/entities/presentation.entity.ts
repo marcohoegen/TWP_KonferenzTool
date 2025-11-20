@@ -8,10 +8,9 @@ export class Presentation implements PrismaPresentation {
   title: string;
   agendaPosition: number;
   conferenceId: number;
-  userId: number;
   createdAt: Date;
   conference?: Conference;
-  user?: User;
+  presenters?: User[];
   ratings?: Rating[];
 
   constructor(partial: Partial<Presentation>) {

@@ -8,9 +8,30 @@ export class PresentationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createPresentationDto: CreatePresentationDto) {
+    const { conferenceId, presenterIds, ...presentationData } =
+      createPresentationDto;
+
     return await this.prisma.presentation.create({
       data: {
-        ...createPresentationDto,
+        ...presentationData,
+        presenters: presenterIds?.length
+          ? {
+              connect: presenterIds.map((id) => ({ id })),
+            }
+          : undefined,
+        conference: { connect: { id: conferenceId } },
+      },
+      include: {
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: false,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+        ratings: true,
       },
     });
   }
@@ -22,9 +43,19 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
-        userId: true,
+        createdAt: true,
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: false,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
         ratings: true,
       },
+      orderBy: { agendaPosition: 'asc' },
     });
   }
 
@@ -36,7 +67,16 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
-        userId: true,
+        createdAt: true,
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
         ratings: true,
       },
     });
@@ -54,11 +94,38 @@ export class PresentationService {
     if (!presentationExists) {
       throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
-    const data = { ...updatePresentationDto };
+
+    const { presenterIds, ...presentationData } = updatePresentationDto;
+
+    // Build update data object properly typed
+    const updateData: {
+      title?: string;
+      agendaPosition?: number;
+      conferenceId?: number;
+      presenters?: { set: { id: number }[] };
+    } = { ...presentationData };
+
+    if (presenterIds !== undefined) {
+      updateData.presenters = {
+        set: presenterIds.map((id) => ({ id })),
+      };
+    }
 
     return this.prisma.presentation.update({
       where: { id },
-      data,
+      data: updateData,
+      include: {
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+        ratings: true,
+      },
     });
   }
 
@@ -72,5 +139,52 @@ export class PresentationService {
 
     await this.prisma.presentation.delete({ where: { id } });
     return { message: `Presentation with ID ${id} deleted` };
+  }
+
+  // Zusätzliche Hilfsmethoden für die n:m-Beziehung
+  async addPresenter(presentationId: number, userId: number) {
+    return await this.prisma.presentation.update({
+      where: { id: presentationId },
+      data: {
+        presenters: {
+          connect: { id: userId },
+        },
+      },
+      include: {
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+        ratings: true,
+      },
+    });
+  }
+
+  async removePresenter(presentationId: number, userId: number) {
+    return await this.prisma.presentation.update({
+      where: { id: presentationId },
+      data: {
+        presenters: {
+          disconnect: { id: userId },
+        },
+      },
+      include: {
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            code: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+        ratings: true,
+      },
+    });
   }
 }
