@@ -1,5 +1,4 @@
 import ButtonMenu from "./ButtonMenu";
-import ButtonLanguage from "./ButtonLanguage";
 import confeedLogo from "../assets/confeedlogo.svg";
 
 interface TopMenuBarProps {
@@ -25,9 +24,8 @@ export default function TopMenuBar({
         <span className="text-base font-medium text-gray-900">{pageTitle}</span>
       </div>
       
-      {/* Buttons on right */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <ButtonLanguage size={36} iconSize={20} />
+      {/* Menu button on right */}
+      <div className="flex items-center flex-shrink-0">
         <ButtonMenu items={menuItems} size={24} onNavigate={onNavigate} />
       </div>
     </div>

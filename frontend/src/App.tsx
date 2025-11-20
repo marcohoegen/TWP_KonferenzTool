@@ -5,7 +5,7 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import UserPanel from "./pages/UserPanel";
@@ -25,6 +25,22 @@ import type { ReactNode } from "react";
 function PageWithMenu({ children, title }: { children: ReactNode; title: string }) {
   const navigate = useNavigate();
   const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Track screen size to determine desktop vs mobile
+  useEffect(() => {
+    const checkScreenSize = () => {
+      // Use 1120px to match Tailwind md breakpoint (70rem)
+      setIsDesktop(window.innerWidth >= 1120);
+    };
+    
+    // Check on mount
+    checkScreenSize();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   
   const menuItems = [
     { label: "Home", path: "/" },
@@ -57,7 +73,10 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
       {/* Content area - with padding for mobile top bar or desktop sidebar */}
       <div 
         className="pt-16 md:pt-0"
-        style={{ paddingLeft: window.innerWidth >= 768 ? `${sidebarWidth}px` : '0' }}
+        style={{ 
+          paddingLeft: isDesktop ? `${sidebarWidth}px` : 0,
+          transition: isDesktop ? 'padding-left 75ms' : 'none'
+        }}
       >
         {children}
       </div>

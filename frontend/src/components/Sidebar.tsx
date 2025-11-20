@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import ButtonLanguage from "./ButtonLanguage";
 import confeedLogo from "../assets/confeedlogo.svg";
 
 interface SidebarProps {
@@ -36,7 +35,7 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
       document.addEventListener("mouseup", handleMouseUp);
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
-      
+
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
@@ -46,11 +45,19 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
     }
   }, [isResizing, onWidthChange]);
 
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, []);
+
   return (
     <aside 
       ref={sidebarRef}
       style={{ width: `${sidebarWidth}px` }}
-      className="fixed left-0 top-0 h-screen bg-white border-r-2 border-sky-500 flex flex-col"
+      className="fixed left-0 top-0 h-screen bg-white border-r-2 border-sky-500 flex flex-col transition-none"
     >
       {/* Logo at top */}
       <div className="p-6 border-b border-gray-200 flex justify-center items-center">
@@ -73,11 +80,6 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
           </button>
         ))}
       </nav>
-
-      {/* Language selector at bottom */}
-      <div className="p-6 border-t border-gray-200 flex justify-center">
-        <ButtonLanguage size={40} iconSize={22} />
-      </div>
 
       {/* Resize handle */}
       <div
