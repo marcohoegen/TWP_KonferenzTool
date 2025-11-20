@@ -22,5 +22,6 @@ export class CreatePresentationDto {
 
   @IsArray()
   @IsOptional()
+  @IsNumber({}, { each: true })
   presenterIds?: number[];
 }

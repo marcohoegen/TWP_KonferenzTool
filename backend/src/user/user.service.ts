@@ -18,7 +18,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const { conferenceId, ...userData } = createUserDto;
-    
+
     let personCode: string = '';
     let isUnique = false;
 
@@ -36,7 +36,7 @@ export class UserService {
     return await this.prisma.user.create({
       data: {
         ...userData,
-        code: personCode;
+        code: personCode,
         conference: {
           connect: { id: conferenceId },
         },
@@ -51,6 +51,8 @@ export class UserService {
             createdAt: true,
           },
         },
+      },
+    });
   }
 
   async findAll() {

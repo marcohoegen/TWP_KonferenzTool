@@ -40,6 +40,7 @@ export interface ResourceField {
     | "number"
     | "date"
     | "textarea"
+    | "numberArray"
     | "select";
   placeholder?: string;
   options?: { value: string | number; label: string }[];
@@ -106,7 +107,12 @@ export const presentationConfig: ResourceConfig = {
       type: "number",
       required: true,
     },
-    { key: "userId", label: "Benutzer ID", type: "number", required: true },
+    {
+      key: "presenterIds",
+      label: "Presenter ID",
+      type: "numberArray",
+      required: true,
+    },
   ],
   useFindAll: usePresentationPresentationControllerFindAll,
   useCreate: usePresentationPresentationControllerCreate,
@@ -119,8 +125,20 @@ export const ratingConfig: ResourceConfig = {
   title: "Bewertungs-Verwaltung",
   fields: [
     {
-      key: "rating",
-      label: "Bewertung (1-10)",
+      key: "contentsRating",
+      label: "Bewertung Inhalt (1-10)",
+      type: "number",
+      required: true,
+    },
+    {
+      key: "styleRating",
+      label: "Bewertung Style (1-10)",
+      type: "number",
+      required: true,
+    },
+    {
+      key: "slidesRating",
+      label: "Bewertung Slides (1-10)",
       type: "number",
       required: true,
     },
