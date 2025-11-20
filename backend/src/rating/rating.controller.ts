@@ -23,7 +23,9 @@ export class RatingController {
 
     return new Rating({
       id: createRating.id,
-      rating: createRating.rating,
+      contentsRating: createRating.contentsRating,
+      styleRating: createRating.styleRating,
+      slidesRating: createRating.slidesRating,
       userId: createRating.userId,
       presentationId: createRating.presentationId,
     });
@@ -36,7 +38,9 @@ export class RatingController {
       (rating) =>
         new Rating({
           id: rating.id,
-          rating: rating.rating,
+          contentsRating: rating.contentsRating,
+          styleRating: rating.styleRating,
+          slidesRating: rating.slidesRating,
           userId: rating.userId,
           presentationId: rating.presentationId,
         }),
@@ -57,7 +61,9 @@ export class RatingController {
     const updatedRating = await this.ratingService.update(id, updateRatingDto);
     return new Rating({
       id: updatedRating.id,
-      rating: updatedRating.rating,
+      contentsRating: updatedRating.contentsRating,
+      styleRating: updatedRating.styleRating,
+      slidesRating: updatedRating.slidesRating,
       userId: updatedRating.userId,
       presentationId: updatedRating.presentationId,
     });

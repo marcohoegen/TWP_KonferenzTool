@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
+import { CreateRatingDto } from 'src/rating/dto/create-rating.dto';
 
 // npx prisma db seed --> Erstellung von zufälligen, neuen Testdaten - neu generierter Seed wird in seed-info.json gespeichert
 // SEED=12345 npx prisma db seed --> Verwendung des angegebenen Seeds
@@ -126,15 +127,13 @@ async function main() {
   );
 
   // Ratings ((User - 1) * Vortrag)
-  const ratings: {
-    rating: number;
-    userId: number;
-    presentationId: number;
-  }[] = [];
+  const ratings: CreateRatingDto[] = [];
   for (const presentation of presentations) {
     for (const user of users.filter((u) => u.id !== presentation.userId)) {
       ratings.push({
-        rating: faker.number.int({ min: 1, max: 10 }),
+        contentsRating: faker.number.int({ min: 1, max: 5 }),
+        styleRating: faker.number.int({ min: 1, max: 5 }),
+        slidesRating: faker.number.int({ min: 1, max: 5 }),
         userId: user.id,
         presentationId: presentation.id,
       });

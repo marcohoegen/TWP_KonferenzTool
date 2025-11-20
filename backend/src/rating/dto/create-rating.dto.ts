@@ -1,9 +1,17 @@
 import { Max, Min } from 'class-validator';
 
 export class CreateRatingDto {
-  @Min(0)
+  @Min(1)
   @Max(5)
-  rating: number;
+  contentsRating: number;
+
+  @Min(1)
+  @Max(5)
+  styleRating: number;
+
+  @Min(1)
+  @Max(5)
+  slidesRating: number;
 
   userId: number;
   presentationId: number;

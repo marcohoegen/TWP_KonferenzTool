@@ -73,7 +73,9 @@ model Presentation {
 
 model Rating {
   id Int @id @default(autoincrement())
-  rating Int //From 1 to 10 -> muss noch festgelegt werden
+  contentsRating Int
+  styleRating Int
+  slidesRating Int
   createdAt DateTime @default(now())
 //Fremdschlüssel
   userId Int

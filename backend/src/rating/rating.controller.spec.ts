@@ -37,7 +37,9 @@ describe('RatingController', () => {
 
   it('should create a new rating (normal case)', async () => {
     const dto: CreateRatingDto = {
-      rating: 1,
+      contentsRating: 1,
+      styleRating: 1,
+      slidesRating: 1,
       userId: 2,
       presentationId: 3,
     };
@@ -52,7 +54,9 @@ describe('RatingController', () => {
 
   it('should create a new rating (edge case with minimal valid data)', async () => {
     const dto: CreateRatingDto = {
-      rating: 1,
+      contentsRating: 1,
+      styleRating: 1,
+      slidesRating: 1,
       userId: 2,
       presentationId: 3,
     };
@@ -67,7 +71,9 @@ describe('RatingController', () => {
 
   it('should handle error when creating a new rating (error case)', async () => {
     const dto: CreateRatingDto = {
-      rating: 7, //out of range
+      contentsRating: 7, //out of range
+      styleRating: 1,
+      slidesRating: 1,
       userId: 2,
       presentationId: 3,
     };
@@ -85,13 +91,17 @@ describe('RatingController', () => {
       const mockRatings = [
         new Rating({
           id: 1,
-          rating: 1,
+          contentsRating: 1,
+          styleRating: 1,
+          slidesRating: 1,
           userId: 2,
           presentationId: 3,
         }),
         new Rating({
           id: 2,
-          rating: 4,
+          contentsRating: 4,
+          styleRating: 4,
+          slidesRating: 3,
           userId: 4,
           presentationId: 3,
         }),
@@ -128,7 +138,9 @@ describe('RatingController', () => {
     it('should return one rating by id (normal case)', async () => {
       const mockRating = new Rating({
         id: 1,
-        rating: 1,
+        contentsRating: 1,
+        styleRating: 1,
+        slidesRating: 1,
         userId: 2,
         presentationId: 3,
       });
@@ -164,13 +176,17 @@ describe('RatingController', () => {
     it('should update an rating successfully (normal case)', async () => {
       const id = 1;
       const updateDto = {
-        rating: 5,
+        contentsRating: 5,
+        styleRating: 5,
+        slidesRating: 5,
         userId: 2,
         presentationId: 3,
       };
       const mockUpdatedRating = new Rating({
         id,
-        rating: 5,
+        contentsRating: 5,
+        styleRating: 5,
+        slidesRating: 5,
         userId: 2,
         presentationId: 3,
       });
@@ -185,10 +201,12 @@ describe('RatingController', () => {
 
     it('should handle partial update (edge case)', async () => {
       const id = 2;
-      const updateDto = { rating: 2 }; // minimal gültiges DTO
+      const updateDto = { contentsRating: 2 }; // minimal gültiges DTO
       const mockUpdatedRating = new Rating({
         id,
-        rating: 2,
+        contentsRating: 2,
+        styleRating: 4,
+        slidesRating: 3,
         userId: 4,
         presentationId: 3,
       });
@@ -203,7 +221,7 @@ describe('RatingController', () => {
 
     it('should handle error when updating rating (error case)', async () => {
       const id = 3;
-      const updateDto = { rating: 10 }; // invalid rating
+      const updateDto = { contentsRating: 10 }; // invalid rating
       const errorMessage = 'Invalid rating value';
 
       jest.spyOn(service, 'update').mockRejectedValue(new Error(errorMessage));

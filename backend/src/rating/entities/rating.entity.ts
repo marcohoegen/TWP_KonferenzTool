@@ -4,7 +4,9 @@ import { User } from 'src/user/entities/user.entity';
 
 export class Rating implements PrismaRating {
   id: number;
-  rating: number;
+  contentsRating: number;
+  styleRating: number;
+  slidesRating: number;
   userId: number;
   presentationId: number;
   createdAt: Date;
