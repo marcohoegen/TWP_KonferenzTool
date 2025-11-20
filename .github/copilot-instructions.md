@@ -167,9 +167,12 @@ createAdmin.mutate({
 
 ### Component Conventions
 
-- Reusable components in `src/common/` (ButtonStandard, InputFieldBasic, etc.)
-- Page components in `src/pages/`
-- Tailwind CSS for styling (configured in `vite.config.ts`)
+- **Reusable components** in `src/common/` - Originally static WindUI components, adapted to accept props for reusability
+- **Custom components** in `src/components/` - Project-specific components created by the team
+- **Pattern**: Components take props like `children`, `onClick`, etc. instead of hardcoded values
+- **Example**: `ButtonStandard` accepts `children` prop for button text
+- **Page components** in `src/pages/`
+- **Styling**: Tailwind CSS (configured in `vite.config.ts`)
 
 ### Routing
 
@@ -214,14 +217,27 @@ React Router setup in `App.tsx`:
 4. **Port conflicts** - Ensure 3000, 5173, 5432 are free before `docker-compose up`
 5. **Migration drift** - If DB schema mismatches, check `docker exec -it nest-backend npx prisma migrate status`
 
-## Testing
+## Testing & Debugging
 
 - Backend: `npm test` (Jest unit tests) / `npm run test:e2e`
-- Frontend: (No test setup documented yet)
-- Manual testing via Swagger UI at `/api`
+- Manual testing via Swagger UI at `http://localhost:3000/api`
+- Frontend: No test setup yet
+
+## Windows-Specific Commands
+
+When working on Windows with PowerShell, use semicolons (`;`) to chain commands:
+
+```powershell
+# Navigate and run command
+cd frontend ; npm run openapi:gen
+
+# Rebuild containers
+docker-compose down ; docker-compose up --build
+```
 
 ## Project Context
 
 - **Team:** 8 students at Ernst-Abbe-Hochschule Jena
 - **Purpose:** Technical-economic project (TWP module)
 - **Goals:** Self-hosted, privacy-compliant, easy deployment
+

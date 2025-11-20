@@ -39,7 +39,9 @@ describe('RatingService', () => {
   describe('create()', () => {
     it('should create an rating (normal case)', async () => {
       const dto: CreateRatingDto = {
-        rating: 1,
+        contentsRating: 1,
+        styleRating: 1,
+        slidesRating: 1,
         userId: 2,
         presentationId: 3,
       };
@@ -57,7 +59,9 @@ describe('RatingService', () => {
 
     it('should create an rating with minimal valid data (edge case)', async () => {
       const dto: CreateRatingDto = {
-        rating: 1,
+        contentsRating: 1,
+        styleRating: 1,
+        slidesRating: 1,
         userId: 2,
         presentationId: 3,
       };
@@ -72,7 +76,9 @@ describe('RatingService', () => {
 
     it('should throw if prisma.create fails (error case)', async () => {
       const dto: CreateRatingDto = {
-        rating: 1,
+        contentsRating: 1,
+        styleRating: 1,
+        slidesRating: 1,
         userId: 2,
         presentationId: 3,
       };
@@ -89,8 +95,8 @@ describe('RatingService', () => {
   describe('findAll()', () => {
     it('should return all ratings (normal case)', async () => {
       const mockRatings = [
-        { id: 1, name: 'Torsten', email: 'torsten@test.com' },
-        { id: 2, name: 'Anna', email: 'anna@test.com' },
+        { id: 1, contentsRating: 1, styleRating: 1, slidesRating: 1 },
+        { id: 2, contentsRating: 4, styleRating: 4, slidesRating: 3 },
       ];
       (prisma.rating.findMany as jest.Mock).mockResolvedValue(mockRatings);
 
@@ -121,7 +127,7 @@ describe('RatingService', () => {
 
   describe('findOne()', () => {
     it('should return an rating by id (normal case)', async () => {
-      const mockRating = { id: 1, name: 'Torsten', email: 'torsten@test.com' };
+      const mockRating = { id: 1, contentsRating: 1, styleRating: 1, slidesRating: 1 };
       (prisma.rating.findUnique as jest.Mock).mockResolvedValue(mockRating);
 
       const result = await service.findOne(1);
@@ -150,8 +156,8 @@ describe('RatingService', () => {
 
   describe('update()', () => {
     it('should update an existing rating (normal case)', async () => {
-      const dto: UpdateRatingDto = { rating: 3 };
-      const mockRating = { id: 1, name: 'Sven', email: 'a@b.c' };
+      const dto: UpdateRatingDto = { contentsRating: 3 } as any;
+      const mockRating = { id: 1, contentsRating: 3, styleRating: 2, slidesRating: 4 };
 
       (prisma.rating.findUnique as jest.Mock).mockResolvedValue(mockRating);
       (prisma.rating.update as jest.Mock).mockResolvedValue(mockRating);
@@ -168,7 +174,7 @@ describe('RatingService', () => {
     it('should throw NotFoundException if rating does not exist (edge case)', async () => {
       (prisma.rating.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.update(99, { rating: 1 })).rejects.toThrow(
+      await expect(service.update(99, { contentsRating: 1 } as any)).rejects.toThrow(
         new Error('Rating with ID 99 not found'),
       );
     });
@@ -179,7 +185,7 @@ describe('RatingService', () => {
         new Error('DB error'),
       );
 
-      await expect(service.update(1, { rating: 1 })).rejects.toThrow(
+      await expect(service.update(1, { contentsRating: 1 } as any)).rejects.toThrow(
         'DB error',
       );
     });

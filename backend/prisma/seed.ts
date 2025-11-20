@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
+import { CreateRatingDto } from 'src/rating/dto/create-rating.dto';
 
 // npx prisma db seed --> Erstellung von zufälligen, neuen Testdaten - neu generierter Seed wird in seed-info.json gespeichert
 // SEED=12345 npx prisma db seed --> Verwendung des angegebenen Seeds
@@ -104,7 +105,11 @@ async function main() {
       prisma.user.create({
         data: {
           email: faker.internet.email(),
-          code: faker.string.alphanumeric(5),
+          code: Array.from({ length: 5 }, () =>
+            faker.helpers.arrayElement(
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
+            ),
+          ).join(''),
           conferenceId: conference.id,
         },
       }),
@@ -136,19 +141,16 @@ async function main() {
     }),
   );
 
-  // Ratings (jeder User bewertet alle Präsentationen, außer die eigenen)
-  const ratings: {
-    rating: number;
-    userId: number;
-    presentationId: number;
-  }[] = [];
-
+  // Ratings ((User - 1) * Vortrag)
+  const ratings: CreateRatingDto[] = [];
   for (const presentation of presentations) {
     const presenterIds = presentation.presenters.map((p) => p.id);
 
     for (const user of users.filter((u) => !presenterIds.includes(u.id))) {
       ratings.push({
-        rating: faker.number.int({ min: 1, max: 10 }),
+        contentsRating: faker.number.int({ min: 1, max: 5 }),
+        styleRating: faker.number.int({ min: 1, max: 5 }),
+        slidesRating: faker.number.int({ min: 1, max: 5 }),
         userId: user.id,
         presentationId: presentation.id,
       });
