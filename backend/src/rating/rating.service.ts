@@ -19,7 +19,9 @@ export class RatingService {
     return await this.prisma.rating.findMany({
       select: {
         id: true,
-        rating: true,
+        contentsRating: true,
+        styleRating: true,
+        slidesRating: true,
         userId: true,
         presentationId: true,
       },
@@ -31,7 +33,9 @@ export class RatingService {
       where: { id },
       select: {
         id: true,
-        rating: true,
+        contentsRating: true,
+        styleRating: true,
+        slidesRating: true,
         userId: true,
         presentationId: true,
       },
