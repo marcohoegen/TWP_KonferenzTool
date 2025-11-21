@@ -12,10 +12,14 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { LoginUserDto } from './dto/login-user.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -27,6 +31,12 @@ export class UserController {
       code: createUser.code,
       conferenceId: createUser.conferenceId,
     });
+  }
+
+  @Post('login')
+  async loginUser(@Body() LoginUserDto: LoginUserDto) {
+    const user = await this.authService.validateUserCode(LoginUserDto);
+    return this.authService.loginUser(user);
   }
 
   @Get()
