@@ -18,33 +18,24 @@ const AdminLogin = () => {
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer); 
+      return () => clearTimeout(timer);
     }
   }, [error]);
 
   const handleLogin = async () => {
-  setError(null);
-  
-  return new Promise((resolve, reject) => {
-    loginMutation.mutate(
-      { email, password },
-      {
-        onSuccess: (data) => {
-          if (data.success) {
-            navigate("/newconference");
-          } else {
-            setError("Falsche E-Mail oder Passwort");
-          }
-          resolve(undefined);
-        },
-        onError: () => {
-          setError("Falsche E-Mail oder Passwort");
-          reject();
-        },
+    setError(null);
+
+    try {
+      const data = await loginMutation.mutateAsync({ email, password });
+      if (data.success) {
+        navigate("/newconference");
+      } else {
+        setError("Falsche E-Mail oder Passwort");
       }
-    );
-  });
-};
+    } catch {
+      setError("Falsche E-Mail oder Passwort");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
