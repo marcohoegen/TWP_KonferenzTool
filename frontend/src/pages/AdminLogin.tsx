@@ -5,49 +5,35 @@ import InputFieldPassword from "../common/InputFieldPassword";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ErrorPopup from "../common/ErrorPopup";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
+import { useAdminAdminControllerLogin } from "../api/generate/hooks/AdminService.hooks";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const loginMutation = useAdminAdminControllerLogin();
 
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer); 
+      return () => clearTimeout(timer);
     }
   }, [error]);
 
   const handleLogin = async () => {
     setError(null);
-    setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Login fehlgeschlagen. Bitte überprüfe deine Daten.");
-      }
-
-      const data = await response.json();
-
+      const data = await loginMutation.mutateAsync({ email, password });
       if (data.success) {
         navigate("/newconference");
       } else {
-        throw new Error("Login fehlgeschlagen");
+        setError("Falsche E-Mail oder Passwort");
       }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } catch {
+      setError("Falsche E-Mail oder Passwort");
     }
   };
 
@@ -76,7 +62,6 @@ const AdminLogin = () => {
         <ButtonLoadingAnimated
           text="Einloggen"
           loadingText="Wird geladen..."
-          loading={loading}
           onClick={handleLogin}
         />
       </div>
