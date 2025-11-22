@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Min,
+  IsArray,
+  IsOptional,
+} from 'class-validator';
 
 export class CreatePresentationDto {
   @IsString()
@@ -9,6 +16,12 @@ export class CreatePresentationDto {
   @Min(1)
   agendaPosition: number;
 
+  @IsNotEmpty()
+  @IsNumber()
   conferenceId: number;
-  userId: number;
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  presenterIds?: number[];
 }
