@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from '.prisma/client/default.js';
 
 @Injectable()
 export class PresentationService {
@@ -11,7 +12,7 @@ export class PresentationService {
     const { conferenceId, presenterIds, ...presentationData } =
       createPresentationDto;
 
-    return await this.prisma.presentation.create({
+    const Presentation = await this.prisma.presentation.create({
       data: {
         ...presentationData,
         presenters: presenterIds?.length
@@ -26,7 +27,7 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: false,
+            code: true,
             conferenceId: true,
             createdAt: true,
           },
@@ -34,6 +35,12 @@ export class PresentationService {
         ratings: true,
       },
     });
+
+    Presentation.presenters.map((presenter) => {
+      (presenter as User).code = '';
+    });
+
+    return Presentation;
   }
 
   async findAll() {
@@ -48,7 +55,6 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: false,
             conferenceId: true,
             createdAt: true,
           },
@@ -72,7 +78,6 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: true,
             conferenceId: true,
             createdAt: true,
           },
@@ -119,7 +124,6 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: true,
             conferenceId: true,
             createdAt: true,
           },
@@ -155,7 +159,6 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: true,
             conferenceId: true,
             createdAt: true,
           },
@@ -178,7 +181,6 @@ export class PresentationService {
           select: {
             id: true,
             email: true,
-            code: true,
             conferenceId: true,
             createdAt: true,
           },

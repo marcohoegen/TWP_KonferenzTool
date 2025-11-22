@@ -74,7 +74,13 @@ describe('PresentationController', () => {
 
       const result = await controller.create(dto);
 
-      expect(result).toEqual(mockCreated);
+      expect(result).toEqual({
+        ...mockCreated,
+        presenters: [
+          { ...mockCreated.presenters[0], code: '' },
+          { ...mockCreated.presenters[1], code: '' },
+        ],
+      });
       expect(service.create).toHaveBeenCalledWith(dto);
     });
 

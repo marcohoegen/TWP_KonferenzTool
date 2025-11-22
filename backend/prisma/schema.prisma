@@ -28,7 +28,7 @@ model AdminPasswordTest {
   adminId Int @unique
   password String
   createdAt DateTime @default(now())
-  admin Admin @relation(fields: [adminId], references: [id])
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 model Conference {

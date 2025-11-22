@@ -65,13 +65,18 @@ describe('UserService', () => {
 
       expect(result).toEqual(mockUser);
       expect(prisma.user.create).toHaveBeenCalledWith({
-        data: dto,
+        data: {
+          email: dto.email,
+          conference: {
+            connect: { id: dto.conferenceId },
+          },
+        },
         include: {
           presentations: {
             select: {
               id: true,
               title: true,
-              agendaPosition: true,
+              agendaPosition: 1,
               conferenceId: true,
               createdAt: true,
             },

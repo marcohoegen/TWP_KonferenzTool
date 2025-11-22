@@ -55,7 +55,6 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
     const processedData: Record<string, string | number | number[]> = {};
     fields.forEach((field) => {
       const value = formData[field.key];
-      if ((!value || value === "") && field.required) return;
 
       if (field.type === "number") {
         processedData[field.key] = parseInt(value || "0", 10);
@@ -212,31 +211,33 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
                       required={field.required}
                     />
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {parseNumberArrayString(formData[field.key]).map((n) => (
-                        <span
-                          key={n}
-                          className="inline-flex items-center gap-2 bg-slate-100 rounded px-2 py-1 text-sm"
-                        >
-                          <span>{n}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const arr = parseNumberArrayString(
-                                formData[field.key]
-                              );
-                              const filtered = arr.filter((x) => x !== n);
-                              setFormData({
-                                ...formData,
-                                [field.key]: filtered.join(","),
-                              });
-                            }}
-                            className="text-red-500 hover:opacity-80"
-                            aria-label={`Entferne ${n}`}
+                      {parseNumberArrayString(formData[field.key]).map(
+                        (n, idx) => (
+                          <span
+                            key={`${n}-${idx}`}
+                            className="inline-flex items-center gap-2 bg-slate-100 rounded px-2 py-1 text-sm"
                           >
-                            ×
-                          </button>
-                        </span>
-                      ))}
+                            <span>{n}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const arr = parseNumberArrayString(
+                                  formData[field.key]
+                                );
+                                const filtered = arr.filter((x) => x !== n);
+                                setFormData({
+                                  ...formData,
+                                  [field.key]: filtered.join(","),
+                                });
+                              }}
+                              className="text-red-500 hover:opacity-80"
+                              aria-label={`Entferne ${n}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        )
+                      )}
                     </div>
                   </div>
                 ) : (

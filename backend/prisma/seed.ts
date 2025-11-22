@@ -63,6 +63,7 @@ async function main() {
         const plainPassword = faker.internet.password({
           length: faker.number.int({ min: 6, max: 16 }), //zufällige Länge zwischen
           memorable: false,
+          // eslint-disable-next-line no-useless-escape
           pattern: /[A-Za-z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
         });
 
@@ -122,7 +123,7 @@ async function main() {
     Array.from({ length: numberOfPresentations }).map((_, i) => {
       // Wähle 1-3 zufällige User als Präsentatoren
       const numberOfPresenters = faker.number.int({ min: 1, max: 3 });
-      const shuffledUsers = users.sort(() => 0.5 - Math.random());
+      const shuffledUsers = faker.helpers.shuffle(users);
       const selectedPresenters = shuffledUsers.slice(0, numberOfPresenters);
 
       return prisma.presentation.create({

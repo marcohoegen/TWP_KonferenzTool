@@ -21,22 +21,7 @@ export class PresentationController {
   async create(
     @Body() createPresentationDto: CreatePresentationDto,
   ): Promise<Presentation> {
-    const created = (await this.presentationService.create(
-      createPresentationDto,
-    )) as Presentation;
-
-    // Add code as empty string for each presenter without mutating the original object
-    const presentersWithCode =
-      created.presenters && Array.isArray(created.presenters)
-        ? created.presenters.map((presenter) => ({
-            ...presenter,
-            code: '',
-          }))
-        : created.presenters;
-
-    const result: Presentation = { ...created, presenters: presentersWithCode };
-
-    return result;
+    return await this.presentationService.create(createPresentationDto);
   }
 
   @Get()

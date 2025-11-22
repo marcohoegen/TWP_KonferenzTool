@@ -111,7 +111,7 @@ export const presentationConfig: ResourceConfig = {
       key: "presenterIds",
       label: "Presenter ID",
       type: "numberArray",
-      required: true,
+      required: false,
     },
   ],
   useFindAll: usePresentationPresentationControllerFindAll,

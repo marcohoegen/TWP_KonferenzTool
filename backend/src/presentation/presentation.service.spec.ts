@@ -77,7 +77,7 @@ describe('PresentationService', () => {
         data: {
           title: 'Keynote',
           agendaPosition: 1,
-          conferenceId: 10,
+          conference: { connect: { id: 10 } },
           presenters: {
             connect: [{ id: 5 }, { id: 6 }],
           },
@@ -87,7 +87,6 @@ describe('PresentationService', () => {
             select: {
               id: true,
               email: true,
-              code: true,
               conferenceId: true,
               createdAt: true,
             },
@@ -100,7 +99,7 @@ describe('PresentationService', () => {
     it('should create a presentation without presenters (edge case)', async () => {
       const dto: CreatePresentationDto = {
         title: 'A',
-        agendaPosition: 0,
+        agendaPosition: 1,
         conferenceId: 1,
       };
       const mockCreated = {
@@ -293,7 +292,6 @@ describe('PresentationService', () => {
             select: {
               id: true,
               email: true,
-              code: true,
               conferenceId: true,
               createdAt: true,
             },
@@ -398,7 +396,6 @@ describe('PresentationService', () => {
             select: {
               id: true,
               email: true,
-              code: true,
               conferenceId: true,
               createdAt: true,
             },
@@ -456,7 +453,6 @@ describe('PresentationService', () => {
             select: {
               id: true,
               email: true,
-              code: true,
               conferenceId: true,
               createdAt: true,
             },

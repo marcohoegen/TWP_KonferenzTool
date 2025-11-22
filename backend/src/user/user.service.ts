@@ -60,7 +60,6 @@ export class UserService {
       select: {
         id: true,
         email: true,
-        code: true,
         conferenceId: true,
         createdAt: true,
         presentations: {
@@ -82,7 +81,6 @@ export class UserService {
       select: {
         id: true,
         email: true,
-        code: true,
         conferenceId: true,
         createdAt: true,
         presentations: {
