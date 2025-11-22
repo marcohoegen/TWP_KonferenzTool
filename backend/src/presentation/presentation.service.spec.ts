@@ -59,7 +59,7 @@ describe('PresentationService', () => {
       const result = await service.create(dto);
       expect(result).toEqual(mockCreated);
       expect(prisma.presentation.create).toHaveBeenCalledWith({
-        data: { ...dto, status: PresentationStatus.ACTIVE },
+        data: { ...dto },
       });
     });
 
