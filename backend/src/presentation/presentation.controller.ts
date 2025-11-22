@@ -30,7 +30,6 @@ export class PresentationController {
       title: createPresentation.title,
       agendaPosition: createPresentation.agendaPosition,
       conferenceId: createPresentation.conferenceId,
-      userId: createPresentation.userId,
       status: createPresentation.status,
     });
   }
@@ -45,16 +44,14 @@ export class PresentationController {
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
           conferenceId: presentation.conferenceId,
-          userId: presentation.userId,
           status: presentation.status,
         }),
     );
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Presentation> {
-    const presentation = await this.presentationService.findOne(id);
-    return new Presentation(presentation);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.presentationService.findOne(id);
   }
 
   @Patch(':id')
@@ -71,7 +68,6 @@ export class PresentationController {
       title: updatedPresentation.title,
       agendaPosition: updatedPresentation.agendaPosition,
       conferenceId: updatedPresentation.conferenceId,
-      userId: updatedPresentation.userId,
       status: updatedPresentation.status,
     });
   }
@@ -81,5 +77,24 @@ export class PresentationController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<{ message: string }> {
     return this.presentationService.remove(id);
+  }
+
+  @Post(':presentationId/presenter/:userId')
+  async addPresenter(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.presentationService.addPresenter(presentationId, userId);
+  }
+
+  @Delete(':presentationId/presenter/:userId')
+  async removePresenter(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.presentationService.removePresenter(
+      presentationId,
+      userId,
+    );
   }
 }

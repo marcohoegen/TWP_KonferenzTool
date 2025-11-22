@@ -41,11 +41,12 @@ export class AdminService {
     if (!adminExists) {
       throw new NotFoundException(`Admin with ID ${id} not found`);
     }
-    const data = { ...updateAdminDto };
+
+    const hashed = await bcrypt.hash(updateAdminDto.password as string, 10);
 
     return this.prisma.admin.update({
       where: { id },
-      data,
+      data: { ...updateAdminDto, password: hashed },
     });
   }
 

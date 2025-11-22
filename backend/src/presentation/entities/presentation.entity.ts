@@ -1,4 +1,7 @@
-import { Presentation as PrismaPresentation, PresentationStatus } from '@prisma/client';
+import {
+  Presentation as PrismaPresentation,
+  PresentationStatus,
+} from '@prisma/client';
 import { Conference } from 'src/conference/entities/conference.entity';
 import { Rating } from 'src/rating/entities/rating.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -8,11 +11,10 @@ export class Presentation implements PrismaPresentation {
   title: string;
   agendaPosition: number;
   conferenceId: number;
-  userId: number;
   status: PresentationStatus;
   createdAt: Date;
   conference?: Conference;
-  user?: User;
+  presenters?: User[];
   ratings?: Rating[];
 
   constructor(partial: Partial<Presentation>) {

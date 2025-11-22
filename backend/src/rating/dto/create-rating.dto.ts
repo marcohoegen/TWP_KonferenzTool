@@ -1,4 +1,4 @@
-import { Max, Min } from 'class-validator';
+import { IsNotEmpty, Max, Min } from 'class-validator';
 
 export class CreateRatingDto {
   @Min(1)
@@ -13,6 +13,9 @@ export class CreateRatingDto {
   @Max(5)
   slidesRating: number;
 
+  @IsNotEmpty()
   userId: number;
+
+  @IsNotEmpty()
   presentationId: number;
 }
