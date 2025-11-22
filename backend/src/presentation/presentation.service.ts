@@ -50,15 +50,14 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
-        createdAt: true,
         presenters: {
           select: {
             id: true,
             email: true,
             conferenceId: true,
-            createdAt: true,
           },
         },
+        status: true,
         ratings: true,
       },
       orderBy: { agendaPosition: 'asc' },
@@ -73,15 +72,14 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
-        createdAt: true,
         presenters: {
           select: {
             id: true,
             email: true,
             conferenceId: true,
-            createdAt: true,
           },
         },
+        status: true,
         ratings: true,
       },
     });

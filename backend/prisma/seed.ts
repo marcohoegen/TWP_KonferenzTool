@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PresentationStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -131,6 +131,7 @@ async function main() {
           title: faker.lorem.sentence(),
           agendaPosition: i + 1,
           conferenceId: conference.id,
+          status: PresentationStatus.INACTIVE,
           presenters: {
             connect: selectedPresenters.map((user) => ({ id: user.id })),
           },

@@ -61,6 +61,7 @@ model Presentation {
   title String
   agendaPosition Int
   createdAt DateTime @default(now())
+  status PresentationStatus @default(INACTIVE)
 //Fremdschlüssel
   conferenceId Int
   conference Conference @relation(fields: [conferenceId], references: [id])
@@ -70,6 +71,11 @@ model Presentation {
 
   //bidirektionale Fremdschlüsselbeziehung
   ratings Rating[]
+}
+
+enum PresentationStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model Rating {

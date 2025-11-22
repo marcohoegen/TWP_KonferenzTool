@@ -3,6 +3,22 @@ import { PresentationController } from './presentation.controller';
 import { PresentationService } from './presentation.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
+import { Presentation } from './entities/presentation.entity';
+import { PresentationStatus } from '@prisma/client';
+
+// Helper factory to always provide required fields
+const makePresentation = (partial: Partial<Presentation> = {}) =>
+  new Presentation({
+    id: 1,
+    title: 'Default Title',
+    agendaPosition: 1,
+    conferenceId: 1,
+    userId: 1,
+    status: PresentationStatus.ACTIVE,
+    createdAt: undefined,
+    ratings: undefined,
+    ...partial,
+  });
 
 describe('PresentationController', () => {
   let controller: PresentationController;
@@ -111,6 +127,7 @@ describe('PresentationController', () => {
         agendaPosition: -1,
         conferenceId: 1,
       };
+
       jest
         .spyOn(service, 'create')
         .mockRejectedValue(new Error('Invalid presentation data'));
@@ -160,6 +177,7 @@ describe('PresentationController', () => {
           ratings: [],
         },
       ];
+
       jest.spyOn(service, 'findAll').mockResolvedValue(mockPresentations);
 
       const result = await controller.findAll();
@@ -271,7 +289,8 @@ describe('PresentationController', () => {
 
     it('should handle partial update without changing presenters (edge case)', async () => {
       const dto: UpdatePresentationDto = { agendaPosition: 2 };
-      const mockUpdated = {
+
+      const mockUpdated = makePresentation({
         id: 2,
         title: 'Partial',
         agendaPosition: 3,
@@ -296,6 +315,7 @@ describe('PresentationController', () => {
 
     it('should handle service error on update (error case)', async () => {
       const dto: UpdatePresentationDto = { title: 'Fail' };
+
       jest
         .spyOn(service, 'update')
         .mockRejectedValue(new Error('Update failed'));
@@ -332,7 +352,7 @@ describe('PresentationController', () => {
       await expect(controller.remove(99)).rejects.toThrow('Not found');
     });
   });
-
+  
   // ---------- ADD PRESENTER ----------
   describe('addPresenter()', () => {
     it('should add a presenter to a presentation (normal case)', async () => {

@@ -3,9 +3,11 @@ import {
   IsNumber,
   IsString,
   Min,
-  IsArray,
+  IsEnum,
   IsOptional,
+  IsArray,
 } from 'class-validator';
+import { PresentationStatus } from '@prisma/client';
 
 export class CreatePresentationDto {
   @IsString()
@@ -24,4 +26,8 @@ export class CreatePresentationDto {
   @IsOptional()
   @IsNumber({}, { each: true })
   presenterIds?: number[];
+
+  @IsOptional()
+  @IsEnum(PresentationStatus)
+  status?: PresentationStatus;
 }
