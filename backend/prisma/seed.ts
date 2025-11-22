@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PresentationStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -125,7 +125,7 @@ async function main() {
           agendaPosition: i + 1,
           conferenceId: conference.id,
           userId: user.id,
-          status: "INACTIVE"
+          status: PresentationStatus.INACTIVE,
         },
       }),
     ),
