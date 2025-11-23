@@ -36,12 +36,12 @@ export class AuthService {
   async validateUser(loginDto: LoginAdminDto) {
     const admin = await this.adminService.findByEmail(loginDto.email);
     if (!admin) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const match = await bcrypt.compare(loginDto.password, admin.password);
     if (!match) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return {
@@ -63,7 +63,7 @@ export class AuthService {
   async validateUserCode(loginDto: LoginUserDto) {
     const user = await this.userService.findOneByCode(loginDto.code);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return {
