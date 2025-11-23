@@ -61,21 +61,20 @@ export class AuthService {
   // USER Authentication-----------------------------------------------
 
   async validateUserCode(loginDto: LoginUserDto) {
-    const user = await this.userService.findOneByEmail(loginDto.email);
-    if (!user || user.code !== loginDto.code) {
-      throw new UnauthorizedException('Invalid credentials');
+    const user = await this.userService.findOneByCode(loginDto.code);
+    if (!user) {
+      throw new Error('Invalid credentials');
     }
 
     return {
       id: user.id,
       email: user.email,
       conferenceId: user.conferenceId,
-      code: user.code,
     };
   }
 
   async loginUser(user: User) {
-    const payload = { sub: user.id, email: user.email, conferenceId: user.conferenceId };
+    const payload = { sub: user.id, code: user.code };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
