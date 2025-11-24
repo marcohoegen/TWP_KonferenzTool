@@ -17,7 +17,7 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-// ADMIN Authentication----------------------------------------------
+  // ADMIN Authentication----------------------------------------------
 
   async register(createAdminDto: CreateAdminDto) {
     const existing = await this.adminService.findByEmail(createAdminDto.email);
@@ -57,7 +57,7 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
-  
+
   // USER Authentication-----------------------------------------------
 
   async validateUserCode(loginDto: LoginUserDto) {

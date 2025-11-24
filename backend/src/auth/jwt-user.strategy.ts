@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import express from 'express';
@@ -14,20 +14,20 @@ export class JwtUserStrategy extends PassportStrategy(Strategy, 'userjwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: express.Request) => {
-                  let token = null;
-                  if (req && req.cookies) {
-                    token = req.cookies['userjwt'];
-                  }
-                  return token;
-                },
+          let token = null;
+          if (req && req.cookies) {
+            token = req.cookies['userjwt'];
+          }
+          return token;
+        },
       ]),
       ignoreExpiration: false,
-      secretOrKey: jwtSecret, // selbes Secret wie Admin-Login
+      secretOrKey: jwtSecret, // Uses same secret as admin login
     });
   }
 
-  // Wird automatisch ausgeführt, wenn ein gültiger JWT gefunden wurde
-    validate(payload: { sub: number, code: string }) {
+  // Automatically executed when a valid JWT is found
+  validate(payload: { sub: number; code: string }) {
     return { id: payload.sub, code: payload.code };
   }
 }

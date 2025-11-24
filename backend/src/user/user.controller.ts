@@ -23,7 +23,8 @@ import { JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService,
+  constructor(
+    private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
 
@@ -39,45 +40,39 @@ export class UserController {
     });
   }
 
- /* @Post('login')
-  async loginUser(@Body() loginUserDto: LoginUserDto) {
-    const user = await this.authService.validateUserCode(loginUserDto);
-    return this.authService.loginUser(new User(user));
-  }*/
-
   @Post('login')
-    @HttpCode(200)
-    async login(
-      @Body() loginDto: LoginUserDto,
-      @Res({ passthrough: true }) res: express.Response,
-    ) {
-      const validated = await this.authService.validateUserCode(loginDto);
-      const user = new User(validated);
-  
-      const { access_token } = await this.authService.loginUser(user);
-  
-      res.cookie('userjwt', access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
-      });
-  
-      return { success: true };
-    }
-  
-    @UseGuards(JwtUserAuthGuard)
-    @Get('me')
-    me(@Req() req: express.Request) {
-      return req.user;
-    }
-  
-    @Post('logout')
-    @HttpCode(200)
-    logout(@Res({ passthrough: true }) res: express.Response) {
-      res.clearCookie('userjwt');
-      return { success: true };
-    }
+  @HttpCode(200)
+  async login(
+    @Body() loginDto: LoginUserDto,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const validated = await this.authService.validateUserCode(loginDto);
+    const user = new User(validated);
+
+    const { access_token } = await this.authService.loginUser(user);
+
+    res.cookie('userjwt', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    });
+
+    return { success: true };
+  }
+
+  @UseGuards(JwtUserAuthGuard)
+  @Get('me')
+  me(@Req() req: express.Request) {
+    return req.user;
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  logout(@Res({ passthrough: true }) res: express.Response) {
+    res.clearCookie('userjwt');
+    return { success: true };
+  }
 
   @Get()
   async findAll(): Promise<User[]> {

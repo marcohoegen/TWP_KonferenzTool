@@ -71,9 +71,10 @@ export class UserService {
 
   async findOneByCode(code: string) {
     return await this.prisma.user.findUnique({
-      where: { code } });
+      where: { code },
+    });
   }
-  
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const userExists = await this.prisma.user.findUnique({
       where: { id },
