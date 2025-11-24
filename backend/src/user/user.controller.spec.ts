@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -15,6 +14,8 @@ describe('UserController', () => {
       findOne: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
+      addPresentation: jest.fn(),
+      removePresentation: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -35,14 +36,29 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a new user (normal case)', async () => {
+  it('should create a new user with presentations (normal case)', async () => {
     const dto: CreateUserDto = {
       email: 'testMail@email.com',
       code: '12345',
       conferenceId: 1,
     };
-    const mockCreatedUser = new User({ id: 1, ...dto });
-    jest.spyOn(service, 'create').mockResolvedValue(mockCreatedUser);
+    const mockCreatedUser = {
+      id: 1,
+      email: 'testMail@email.com',
+      code: '12345',
+      conferenceId: 1,
+      createdAt: new Date(),
+      presentations: [
+        {
+          id: 1,
+          title: 'Talk 1',
+          agendaPosition: 1,
+          conferenceId: 1,
+          createdAt: new Date(),
+        },
+      ],
+    };
+    jest.spyOn(service, 'create').mockResolvedValue(mockCreatedUser as any);
 
     const result = await controller.create(dto);
 
@@ -50,14 +66,21 @@ describe('UserController', () => {
     expect(service.create).toHaveBeenCalledWith(dto);
   });
 
-  it('should create a new user (edge case with minimal valid data)', async () => {
+  it('should create a new user without presentations (edge case)', async () => {
     const dto: CreateUserDto = {
       email: 'testMail2@email.com',
       code: '12445',
       conferenceId: 1,
     };
-    const mockCreatedUser = new User({ id: 2, ...dto });
-    jest.spyOn(service, 'create').mockResolvedValue(mockCreatedUser);
+    const mockCreatedUser = {
+      id: 2,
+      email: 'testMail2@email.com',
+      code: '12445',
+      conferenceId: 1,
+      createdAt: new Date(),
+      presentations: [],
+    };
+    jest.spyOn(service, 'create').mockResolvedValue(mockCreatedUser as any);
 
     const result = await controller.create(dto);
 
@@ -81,22 +104,34 @@ describe('UserController', () => {
   //Tests for findAll()
 
   describe('findAll()', () => {
-    it('should return a list of users (normal case)', async () => {
+    it('should return a list of users with presentations (normal case)', async () => {
       const mockUsers = [
-        new User({
+        {
           id: 1,
           email: 'Test@1.de',
           code: 'abc12',
           conferenceId: 1,
-        }),
-        new User({
+          createdAt: new Date(),
+          presentations: [
+            {
+              id: 1,
+              title: 'Talk 1',
+              agendaPosition: 1,
+              conferenceId: 1,
+              createdAt: new Date(),
+            },
+          ],
+        },
+        {
           id: 2,
           email: 'Test@2.de',
           code: 'dfc13',
           conferenceId: 1,
-        }),
+          createdAt: new Date(),
+          presentations: [],
+        },
       ];
-      jest.spyOn(service, 'findAll').mockResolvedValue(mockUsers);
+      jest.spyOn(service, 'findAll').mockResolvedValue(mockUsers as any);
 
       const result = await controller.findAll();
 
@@ -125,14 +160,31 @@ describe('UserController', () => {
   //Tests for findOne()
 
   describe('findOne()', () => {
-    it('should return one user by id (normal case)', async () => {
-      const mockUser = new User({
+    it('should return one user with presentations by id (normal case)', async () => {
+      const mockUser = {
         id: 1,
         email: 'Test@1.de',
         code: 'abc12',
         conferenceId: 1,
-      });
-      jest.spyOn(service, 'findOne').mockResolvedValue(mockUser);
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+          {
+            id: 2,
+            title: 'Talk 2',
+            agendaPosition: 2,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
+      jest.spyOn(service, 'findOne').mockResolvedValue(mockUser as any);
 
       const result = await controller.findOne(1);
 
@@ -145,7 +197,7 @@ describe('UserController', () => {
 
       const result = await controller.findOne(999);
 
-      expect(result).toEqual(new User(null as any));
+      expect(result).toEqual(null);
       expect(service.findOne).toHaveBeenCalledWith(999);
     });
 
@@ -168,14 +220,24 @@ describe('UserController', () => {
         code: '12345',
         conferenceId: 1,
       };
-      const mockUpdatedUser = new User({
+      const mockUpdatedUser = {
         id: 1,
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 1,
-      });
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
 
-      jest.spyOn(service, 'update').mockResolvedValue(mockUpdatedUser);
+      jest.spyOn(service, 'update').mockResolvedValue(mockUpdatedUser as any);
 
       const result = await controller.update(id, updateDto);
 
@@ -185,15 +247,17 @@ describe('UserController', () => {
 
     it('should handle partial update (edge case)', async () => {
       const id = 2;
-      const updateDto = { conferenceId: 2 }; // minimal gültiges DTO
-      const mockUpdatedUser = new User({
+      const updateDto = { conferenceId: 2 };
+      const mockUpdatedUser = {
         id: 1,
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 2,
-      });
+        createdAt: new Date(),
+        presentations: [],
+      };
 
-      jest.spyOn(service, 'update').mockResolvedValue(mockUpdatedUser);
+      jest.spyOn(service, 'update').mockResolvedValue(mockUpdatedUser as any);
 
       const result = await controller.update(id, updateDto);
 
@@ -250,6 +314,99 @@ describe('UserController', () => {
 
       await expect(controller.remove(id)).rejects.toThrow(errorMessage);
       expect(service.remove).toHaveBeenCalledWith(id);
+    });
+  });
+
+  //Tests for addPresentation()
+
+  describe('addPresentation()', () => {
+    it('should add a presentation to a user (normal case)', async () => {
+      const mockUpdatedUser = {
+        id: 1,
+        email: 'Test@1.de',
+        code: 'abc12',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+          {
+            id: 2,
+            title: 'Talk 2',
+            agendaPosition: 2,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
+      jest
+        .spyOn(service, 'addPresentation')
+        .mockResolvedValue(mockUpdatedUser as any);
+
+      const result = await controller.addPresentation(1, 2);
+
+      expect(result).toEqual(mockUpdatedUser);
+      expect(service.addPresentation).toHaveBeenCalledWith(1, 2);
+    });
+
+    it('should handle error when adding presentation (error case)', async () => {
+      const errorMessage = 'Presentation not found';
+      jest
+        .spyOn(service, 'addPresentation')
+        .mockRejectedValue(new Error(errorMessage));
+
+      await expect(controller.addPresentation(1, 999)).rejects.toThrow(
+        errorMessage,
+      );
+      expect(service.addPresentation).toHaveBeenCalledWith(1, 999);
+    });
+  });
+
+  //Tests for removePresentation()
+
+  describe('removePresentation()', () => {
+    it('should remove a presentation from a user (normal case)', async () => {
+      const mockUpdatedUser = {
+        id: 1,
+        email: 'Test@1.de',
+        code: 'abc12',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
+      jest
+        .spyOn(service, 'removePresentation')
+        .mockResolvedValue(mockUpdatedUser as any);
+
+      const result = await controller.removePresentation(1, 2);
+
+      expect(result).toEqual(mockUpdatedUser);
+      expect(service.removePresentation).toHaveBeenCalledWith(1, 2);
+    });
+
+    it('should handle error when removing presentation (error case)', async () => {
+      const errorMessage = 'Presentation not found';
+      jest
+        .spyOn(service, 'removePresentation')
+        .mockRejectedValue(new Error(errorMessage));
+
+      await expect(controller.removePresentation(1, 999)).rejects.toThrow(
+        errorMessage,
+      );
+      expect(service.removePresentation).toHaveBeenCalledWith(1, 999);
     });
   });
 });

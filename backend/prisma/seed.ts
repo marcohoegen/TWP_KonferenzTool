@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PresentationStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -63,6 +63,7 @@ async function main() {
         const plainPassword = faker.internet.password({
           length: faker.number.int({ min: 6, max: 16 }), //zufällige Länge zwischen
           memorable: false,
+          // eslint-disable-next-line no-useless-escape
           pattern: /[A-Za-z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
         });
 
@@ -116,24 +117,38 @@ async function main() {
     ),
   );
 
-  // Presentations (je User eine)
+  // Presentations mit mehreren Presenters (m:n Beziehung)
+  const numberOfPresentations = faker.number.int({ min: 15, max: 25 });
   const presentations = await Promise.all(
-    users.map((user, i) =>
-      prisma.presentation.create({
+    Array.from({ length: numberOfPresentations }).map((_, i) => {
+      // Wähle 1-3 zufällige User als Präsentatoren
+      const numberOfPresenters = faker.number.int({ min: 1, max: 3 });
+      const shuffledUsers = faker.helpers.shuffle(users);
+      const selectedPresenters = shuffledUsers.slice(0, numberOfPresenters);
+
+      return prisma.presentation.create({
         data: {
           title: faker.lorem.sentence(),
           agendaPosition: i + 1,
           conferenceId: conference.id,
-          userId: user.id,
+          status: PresentationStatus.INACTIVE,
+          presenters: {
+            connect: selectedPresenters.map((user) => ({ id: user.id })),
+          },
         },
-      }),
-    ),
+        include: {
+          presenters: true,
+        },
+      });
+    }),
   );
 
   // Ratings ((User - 1) * Vortrag)
   const ratings: CreateRatingDto[] = [];
   for (const presentation of presentations) {
-    for (const user of users.filter((u) => u.id !== presentation.userId)) {
+    const presenterIds = presentation.presenters.map((p) => p.id);
+
+    for (const user of users.filter((u) => !presenterIds.includes(u.id))) {
       ratings.push({
         contentsRating: faker.number.int({ min: 1, max: 5 }),
         styleRating: faker.number.int({ min: 1, max: 5 }),

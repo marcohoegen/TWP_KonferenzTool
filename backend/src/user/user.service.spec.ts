@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
 
 describe('UserService', () => {
   let service: UserService;
@@ -37,13 +36,28 @@ describe('UserService', () => {
   // Tests for create user
 
   describe('create()', () => {
-    it('should create an user (normal case)', async () => {
+    it('should create a user with presentations (normal case)', async () => {
       const dto: CreateUserDto = {
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 1,
       };
-      const mockUser = { id: 1, ...dto };
+      const mockUser = {
+        id: 1,
+        email: 'testMail@email.com',
+        code: '12345',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
 
       (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
@@ -51,17 +65,40 @@ describe('UserService', () => {
 
       expect(result).toEqual(mockUser);
       expect(prisma.user.create).toHaveBeenCalledWith({
-        data: dto,
+        data: {
+          email: dto.email,
+          conference: {
+            connect: { id: dto.conferenceId },
+          },
+        },
+        include: {
+          presentations: {
+            select: {
+              id: true,
+              title: true,
+              agendaPosition: 1,
+              conferenceId: true,
+              createdAt: true,
+            },
+          },
+        },
       });
     });
 
-    it('should create an user with minimal valid data (edge case)', async () => {
+    it('should create a user without presentations (edge case)', async () => {
       const dto: CreateUserDto = {
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 1,
       };
-      const mockUser = { id: 2, ...dto };
+      const mockUser = {
+        id: 2,
+        email: 'testMail@email.com',
+        code: '12345',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [],
+      };
 
       (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
@@ -87,20 +124,32 @@ describe('UserService', () => {
   // Tests for find all users
 
   describe('findAll()', () => {
-    it('should return all users (normal case)', async () => {
+    it('should return all users with presentations (normal case)', async () => {
       const mockUsers = [
-        new User({
+        {
           id: 1,
           email: 'Test@1.de',
           code: 'abc12',
           conferenceId: 1,
-        }),
-        new User({
+          createdAt: new Date(),
+          presentations: [
+            {
+              id: 1,
+              title: 'Talk 1',
+              agendaPosition: 1,
+              conferenceId: 1,
+              createdAt: new Date(),
+            },
+          ],
+        },
+        {
           id: 2,
           email: 'Test@2.de',
           code: 'dfc13',
           conferenceId: 1,
-        }),
+          createdAt: new Date(),
+          presentations: [],
+        },
       ];
       (prisma.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
 
@@ -130,13 +179,30 @@ describe('UserService', () => {
   // Tests for find one user
 
   describe('findOne()', () => {
-    it('should return an user by id (normal case)', async () => {
-      const mockUser = new User({
+    it('should return a user with presentations by id (normal case)', async () => {
+      const mockUser = {
         id: 1,
         email: 'Test@1.de',
         code: 'abc12',
         conferenceId: 1,
-      });
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+          {
+            id: 2,
+            title: 'Talk 2',
+            agendaPosition: 2,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
       const result = await service.findOne(1);
@@ -144,7 +210,7 @@ describe('UserService', () => {
       expect(result).toEqual(mockUser);
     });
 
-    it('should throw NotFoundException if user not found (edge case)', async () => {
+    it('should throw Error if user not found (edge case)', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null as any);
 
       await expect(service.findOne(99)).rejects.toThrow(
@@ -164,21 +230,31 @@ describe('UserService', () => {
   // Tests for update user
 
   describe('update()', () => {
-    it('should update an existing user (normal case)', async () => {
+    it('should update an existing user with presentations (normal case)', async () => {
       const id = 1;
       const updateDto = {
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 1,
       };
-      const mockUpdatedUser = new User({
+      const mockUpdatedUser = {
         id: 1,
         email: 'testMail@email.com',
         code: '12345',
         conferenceId: 1,
-      });
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
 
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUpdatedUser);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
       (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
       const result = await service.update(id, updateDto);
@@ -187,13 +263,24 @@ describe('UserService', () => {
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: updateDto,
+        include: {
+          presentations: {
+            select: {
+              id: true,
+              title: true,
+              agendaPosition: true,
+              conferenceId: true,
+              createdAt: true,
+            },
+          },
+        },
       });
     });
 
-    it('should throw NotFoundException if user does not exist (edge case)', async () => {
+    it('should throw Error if user does not exist (edge case)', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null as any);
 
-      await expect(service.update(99, null as any)).rejects.toThrow(
+      await expect(service.update(99, {} as any)).rejects.toThrow(
         new Error('User with ID 99 not found'),
       );
     });
@@ -204,14 +291,14 @@ describe('UserService', () => {
         new Error('DB error'),
       );
 
-      await expect(service.update(1, null as any)).rejects.toThrow('DB error');
+      await expect(service.update(1, {} as any)).rejects.toThrow('DB error');
     });
   });
 
   // Tests for remove user
 
   describe('remove()', () => {
-    it('should delete an user (normal case)', async () => {
+    it('should delete a user (normal case)', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
       (prisma.user.delete as jest.Mock).mockResolvedValue({});
 
@@ -223,7 +310,7 @@ describe('UserService', () => {
       });
     });
 
-    it('should throw NotFoundException if user not found (edge case)', async () => {
+    it('should throw Error if user not found (edge case)', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.remove(99)).rejects.toThrow(
@@ -238,6 +325,127 @@ describe('UserService', () => {
       );
 
       await expect(service.remove(1)).rejects.toThrow('DB error');
+    });
+  });
+
+  // Tests for addPresentation
+
+  describe('addPresentation()', () => {
+    it('should add a presentation to a user (normal case)', async () => {
+      const mockUpdatedUser = {
+        id: 1,
+        email: 'Test@1.de',
+        code: 'abc12',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+          {
+            id: 2,
+            title: 'Talk 2',
+            agendaPosition: 2,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
+      (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
+
+      const result = await service.addPresentation(1, 2);
+
+      expect(result).toEqual(mockUpdatedUser);
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          presentations: {
+            connect: { id: 2 },
+          },
+        },
+        include: {
+          presentations: {
+            select: {
+              id: true,
+              title: true,
+              agendaPosition: true,
+              conferenceId: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+    });
+
+    it('should handle error when adding presentation (error case)', async () => {
+      (prisma.user.update as jest.Mock).mockRejectedValue(
+        new Error('Presentation not found'),
+      );
+
+      await expect(service.addPresentation(1, 999)).rejects.toThrow(
+        'Presentation not found',
+      );
+    });
+  });
+
+  // Tests for removePresentation
+
+  describe('removePresentation()', () => {
+    it('should remove a presentation from a user (normal case)', async () => {
+      const mockUpdatedUser = {
+        id: 1,
+        email: 'Test@1.de',
+        code: 'abc12',
+        conferenceId: 1,
+        createdAt: new Date(),
+        presentations: [
+          {
+            id: 1,
+            title: 'Talk 1',
+            agendaPosition: 1,
+            conferenceId: 1,
+            createdAt: new Date(),
+          },
+        ],
+      };
+      (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
+
+      const result = await service.removePresentation(1, 2);
+
+      expect(result).toEqual(mockUpdatedUser);
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          presentations: {
+            disconnect: { id: 2 },
+          },
+        },
+        include: {
+          presentations: {
+            select: {
+              id: true,
+              title: true,
+              agendaPosition: true,
+              conferenceId: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+    });
+
+    it('should handle error when removing presentation (error case)', async () => {
+      (prisma.user.update as jest.Mock).mockRejectedValue(
+        new Error('Presentation not found'),
+      );
+
+      await expect(service.removePresentation(1, 999)).rejects.toThrow(
+        'Presentation not found',
+      );
     });
   });
 });
