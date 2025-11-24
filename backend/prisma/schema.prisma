@@ -28,7 +28,7 @@ model AdminPasswordTest {
   adminId Int @unique
   password String
   createdAt DateTime @default(now())
-  admin Admin @relation(fields: [adminId], references: [id])
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 model Conference {
@@ -51,7 +51,7 @@ model User {
 //Fremdschlüssel
   conferenceId Int
   conference Conference @relation(fields: [conferenceId], references: [id])
-//bidirektionale Fremdschlüsselbeziehung
+// Many-to-many: a user can be presenter for many presentations
   presentations Presentation[]
   ratings Rating[]
 }
@@ -61,14 +61,21 @@ model Presentation {
   title String
   agendaPosition Int
   createdAt DateTime @default(now())
+  status PresentationStatus @default(INACTIVE)
 //Fremdschlüssel
   conferenceId Int
   conference Conference @relation(fields: [conferenceId], references: [id])
 
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-//bidirektionale Fremdschlüsselbeziehung
+  // Many-to-many relation: multiple users can be presenters of a presentation
+  presenters User[]
+
+  //bidirektionale Fremdschlüsselbeziehung
   ratings Rating[]
+}
+
+enum PresentationStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model Rating {

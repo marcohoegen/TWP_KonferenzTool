@@ -17,6 +17,8 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    const { conferenceId, ...userData } = createUserDto;
+
     let personCode: string = '';
     let isUnique = false;
 
@@ -31,18 +33,24 @@ export class UserService {
       }
     }
 
-    const data = {
-      ...createUserDto,
-      code: personCode,
-    };
-
     return await this.prisma.user.create({
-      data,
-      select: {
-        id: true,
-        email: true,
-        code: true,
-        conferenceId: true,
+      data: {
+        ...userData,
+        code: personCode,
+        conference: {
+          connect: { id: conferenceId },
+        },
+      },
+      include: {
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
       },
     });
   }
@@ -52,8 +60,17 @@ export class UserService {
       select: {
         id: true,
         email: true,
-        code: true,
         conferenceId: true,
+        createdAt: true,
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
       },
     });
   }
@@ -61,7 +78,21 @@ export class UserService {
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, email: true, code: true, conferenceId: true },
+      select: {
+        id: true,
+        email: true,
+        conferenceId: true,
+        createdAt: true,
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+      },
     });
     if (!user) {
       throw new Error(`User with ID ${id} not found`);
@@ -86,6 +117,17 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data,
+      include: {
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+      },
     });
   }
 
@@ -99,5 +141,50 @@ export class UserService {
 
     await this.prisma.user.delete({ where: { id } });
     return { message: `User with ID ${id} deleted.` };
+  }
+
+  // Zusätzliche Hilfsmethoden für die n:m-Beziehung
+  async addPresentation(userId: number, presentationId: number) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        presentations: {
+          connect: { id: presentationId },
+        },
+      },
+      include: {
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+  }
+
+  async removePresentation(userId: number, presentationId: number) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        presentations: {
+          disconnect: { id: presentationId },
+        },
+      },
+      include: {
+        presentations: {
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
   }
 }

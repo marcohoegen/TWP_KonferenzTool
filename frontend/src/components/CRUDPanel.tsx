@@ -27,6 +27,17 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
 
+  // helper to parse comma separated number strings into number[] (filters invalid)
+  function parseNumberArrayString(value?: string) {
+    if (!value) return [];
+    return value
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .map((s) => parseInt(s, 10))
+      .filter((n) => !Number.isNaN(n));
+  }
+
   // Use the passed hooks - they expect (undefined, undefined) for query hooks
   const queryResult = useFindAll();
   const items = queryResult?.data;
@@ -41,13 +52,14 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
     setError("");
 
     // Convert data types as needed
-    const processedData: Record<string, string | number> = {};
+    const processedData: Record<string, string | number | number[]> = {};
     fields.forEach((field) => {
       const value = formData[field.key];
-      if (!value && field.required) return;
 
       if (field.type === "number") {
-        processedData[field.key] = parseInt(value, 10);
+        processedData[field.key] = parseInt(value || "0", 10);
+      } else if (field.type === "numberArray") {
+        processedData[field.key] = parseNumberArrayString(value);
       } else if (field.type === "date") {
         // Convert to ISO string if it's a date
         processedData[field.key] = value;
@@ -89,7 +101,7 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
     });
   }
 
-  function handleEdit(item: Record<string, string | number>) {
+  function handleEdit(item: Record<string, string | number | number[]>) {
     setEditingId(item.id as number);
     // Convert to strings for form inputs
     const editData: Record<string, string> = {};
@@ -100,6 +112,15 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
           // Format date for input type="date"
           const dateValue = new Date(value as string);
           editData[field.key] = dateValue.toISOString().split("T")[0];
+        } else if (field.type === "numberArray") {
+          // Convert number[] to comma separated string
+          if (Array.isArray(value)) {
+            editData[field.key] = (value as number[]).join(",");
+          } else if (typeof value === "string") {
+            editData[field.key] = value;
+          } else {
+            editData[field.key] = String(value);
+          }
         } else {
           editData[field.key] = String(value);
         }
@@ -174,6 +195,51 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
                       </option>
                     ))}
                   </select>
+                ) : field.type === "numberArray" ? (
+                  <div>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded p-2"
+                      value={formData[field.key] || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [field.key]: e.target.value,
+                        })
+                      }
+                      placeholder={field.placeholder || "z.B. 1,2,3"}
+                      required={field.required}
+                    />
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {parseNumberArrayString(formData[field.key]).map(
+                        (n, idx) => (
+                          <span
+                            key={`${n}-${idx}`}
+                            className="inline-flex items-center gap-2 bg-slate-100 rounded px-2 py-1 text-sm"
+                          >
+                            <span>{n}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const arr = parseNumberArrayString(
+                                  formData[field.key]
+                                );
+                                const filtered = arr.filter((x) => x !== n);
+                                setFormData({
+                                  ...formData,
+                                  [field.key]: filtered.join(","),
+                                });
+                              }}
+                              className="text-red-500 hover:opacity-80"
+                              aria-label={`Entferne ${n}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <input
                     type={field.type}
@@ -223,6 +289,13 @@ export default function CRUDPanel({ config }: CRUDPanelProps) {
                       displayValue = new Date(
                         value as string
                       ).toLocaleDateString();
+                    }
+                    if (field.type === "numberArray") {
+                      if (Array.isArray(value)) {
+                        displayValue = (value as number[]).join(", ");
+                      } else {
+                        displayValue = String(value);
+                      }
                     }
 
                     return (
