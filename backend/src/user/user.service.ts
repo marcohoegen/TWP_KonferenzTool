@@ -181,4 +181,25 @@ export class UserService {
       },
     });
   }
+
+  //Hilfsmethode um User via Email zu finden (für Code-Mail-Versand)
+   async findByEmail(email: string) {
+    return await this.prisma.user.findFirst({ 
+      where: { email },
+      select: { id: true, email: true, code: true } });
+  }
+
+  async findCodeByUserId(userId: number) {
+    return await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, code: true },
+    });
+  }
+
+  async updateCodeSentAt(userId: number) {
+  return this.prisma.user.update({
+    where: { id: userId },
+    data: { codeSentAt: new Date() },
+  });
+}
 }
