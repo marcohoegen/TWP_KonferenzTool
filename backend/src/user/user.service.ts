@@ -209,4 +209,11 @@ export class UserService {
       data: { codeSentAt: new Date() },
     });
   }
+
+  async findUsersByConferenceId(conferenceId: number) {
+    return await this.prisma.user.findMany({
+      where: { conferenceId },
+      select: { id: true, email: true, code: true },
+    });
+  }
 }

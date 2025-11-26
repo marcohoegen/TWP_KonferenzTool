@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '.prisma/client/default.js';
+import { PresentationStatus, User } from '.prisma/client/default.js';
 
 @Injectable()
 export class PresentationService {
@@ -90,6 +90,14 @@ export class PresentationService {
     return presentation;
   }
 
+  async findPresentationsByConferenceId(conferenceId: number) {
+    return await this.prisma.presentation.findMany({
+      where: { conferenceId },
+      select: { id: true, title: true, agendaPosition: true, status: true },
+      orderBy: { agendaPosition: 'asc' },
+    });
+  }
+
   async update(id: number, updatePresentationDto: UpdatePresentationDto) {
     const presentationExists = await this.prisma.presentation.findUnique({
       where: { id },
@@ -117,6 +125,69 @@ export class PresentationService {
     return this.prisma.presentation.update({
       where: { id },
       data: updateData,
+      include: {
+        presenters: {
+          select: {
+            id: true,
+            email: true,
+            conferenceId: true,
+            createdAt: true,
+          },
+        },
+        ratings: true,
+      },
+    });
+  }
+
+  async updateStatus(id: number, status: string) {
+    const presentation = await this.prisma.presentation.findUnique({
+      where: { id },
+      select: { id: true, conferenceId: true, status: true },
+    });
+
+    if (!presentation) {
+      throw new NotFoundException(`Presentation with ID ${id} not found`);
+    }
+
+    const newStatus =
+      String(status).toUpperCase() === 'ACTIVE'
+        ? PresentationStatus.ACTIVE
+        : PresentationStatus.INACTIVE;
+
+    // If activating, deactivate all other presentations in the same conference
+    if (newStatus === PresentationStatus.ACTIVE) {
+      const results = await this.prisma.$transaction([
+        this.prisma.presentation.updateMany({
+          where: {
+            conferenceId: presentation.conferenceId,
+            id: { not: id },
+            status: PresentationStatus.ACTIVE,
+          },
+          data: { status: PresentationStatus.INACTIVE },
+        }),
+        this.prisma.presentation.update({
+          where: { id },
+          data: { status: newStatus },
+          include: {
+            presenters: {
+              select: {
+                id: true,
+                email: true,
+                conferenceId: true,
+                createdAt: true,
+              },
+            },
+            ratings: true,
+          },
+        }),
+      ]);
+      return results[1];
+    }
+
+    // If deactivating, just update this presentation
+    return await this.prisma.presentation.update({
+      where: { id },
+      data: { status: newStatus },
       include: {
         presenters: {
           select: {
