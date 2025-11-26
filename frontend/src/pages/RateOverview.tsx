@@ -5,6 +5,7 @@ import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import BasicSpinner from "../common/BasicSpinner";
 import { usePresentationPresentationControllerFindOne } from "../api/generate/hooks/PresentationService.hooks";
 import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
+import type { Presentation } from "../api/generate";
 
 export default function RateOverview() {
   const navigate = useNavigate();
@@ -19,8 +20,7 @@ export default function RateOverview() {
   // Monitor presentation status - redirect to waiting room if it becomes inactive
   usePresentationStatusCheck(presentationId);
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const presentation = data as any;
+  const presentation = data as Presentation;
 
   // Extract presenter name from the presenters array (first presenter's email or fallback)
   const presenterName = presentation?.presenters?.[0]?.email || "Presenter";

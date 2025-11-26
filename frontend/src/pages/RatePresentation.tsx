@@ -1,14 +1,12 @@
-// API Integration: Submit ratings to POST /rating endpoint
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import InputRating from "../components/InputRating";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { RatingService } from "../api/generate/services/RatingService";
-import { UserService } from "../api/generate/services/UserService";
-import { useMutation } from "@tanstack/react-query";
 import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
+import { useRatingRatingControllerCreate, useRatingRatingControllerFindAll, useRatingRatingControllerUpdate } from "../api/generate/hooks/RatingService.hooks";
+import type { UpdateRatingDto } from "../api/generate";
+import { useUserUserControllerMe } from "../api/generate/hooks/UserService.hooks";
 
 interface RatingsState {
   content: number;
@@ -28,15 +26,16 @@ export default function RatePresentation() {
     slides: location.state?.ratings?.slides || 0,
   });
   const [error, setError] = useState<string | null>(null);
+  const [isClicked, setIsClicked] = useState(false);
 
   // Monitor presentation status - redirect to waiting room if it becomes inactive
   usePresentationStatusCheck(presentationId);
 
-  // Mutation hook for creating ratings using RatingService
-  // Note: Using unknown for data type due to mismatch between backend DTO and generated model
-  const createRatingMutation = useMutation({
-    mutationFn: (data: unknown) => RatingService.ratingControllerCreate(data as Parameters<typeof RatingService.ratingControllerCreate>[0]),
-  });
+  // Mutation hooks for create and update (must be at top level)
+  const createRating = useRatingRatingControllerCreate();
+  const updateRating = useRatingRatingControllerUpdate();
+  const findAllRatings = useRatingRatingControllerFindAll();
+  const findMe = useUserUserControllerMe();
 
   // Update ratings if location.state changes (coming from Edit)
   useEffect(() => {
@@ -51,53 +50,58 @@ export default function RatePresentation() {
 
   const handleSubmit = async () => {
     setError(null);
+    setIsClicked(true);
     
     if (!presentationId) {
       setError("No presentation selected");
+      setIsClicked(false);
       return;
     }
 
     // Validate all ratings are filled
     if (!ratings.content || !ratings.style || !ratings.slides) {
       setError("Please rate all categories before submitting");
+      setIsClicked(false);
       return;
     }
 
     try {
       // Get the authenticated user's ID from service method
-      const user = (await UserService.userControllerMe()) as { id?: number };
+      const user = findMe.data as { id?: number };
       
       if (!user?.id) {
         setError("Unable to get user information. Please log in again.");
+        setIsClicked(false);
         return;
       }
 
-      // Check if rating already exists for this user and presentation
-      const existingRatings = await RatingService.ratingControllerFindAll();
-      const existingRating = existingRatings.find(
-        (r: { userId: number; presentationId: number }) => 
-          r.userId === user.id && r.presentationId === Number(presentationId)
+      // Find existing rating by fetching all ratings and filtering
+      const allRatings = findAllRatings.data || [];
+      const existingRating = allRatings.find(
+        (r) => r.userId === user.id && r.presentationId === Number(presentationId)
       );
 
-      if (existingRating) {
+      if (existingRating && existingRating.id) {
         // Update existing rating
-        await RatingService.ratingControllerUpdate(
-          (existingRating as { id: number }).id,
-          {
-            contentsRating: ratings.content,
-            styleRating: ratings.style,
-            slidesRating: ratings.slides,
-          }
-        );
+        const UpdateDto: UpdateRatingDto = {
+          contentsRating: ratings.content,
+          styleRating: ratings.style,
+          slidesRating: ratings.slides,
+        };
+        await updateRating.mutateAsync([
+          existingRating.id,
+          UpdateDto,
+        ]);
       } else {
         // Create new rating
-        await createRatingMutation.mutateAsync({
+        const CreateDto = {
+          userId: user.id,
           presentationId: Number(presentationId),
           contentsRating: ratings.content,
           styleRating: ratings.style,
           slidesRating: ratings.slides,
-          userId: user.id,
-        });
+        };
+        await createRating.mutateAsync(CreateDto);
       }
 
       // Navigate to thanks page with ratings for Edit flow
@@ -105,18 +109,17 @@ export default function RatePresentation() {
         state: { 
           ratings, 
           presentationId,
-          userId: user.id 
         } 
       });
     } catch (err: unknown) {
       const error = err as { body?: { message?: string } };
+      console.log(err);
       setError(error?.body?.message || "Failed to submit rating");
     }
   };
 
   // Check if all ratings are filled
   const isComplete = ratings.content > 0 && ratings.style > 0 && ratings.slides > 0;
-  const isSubmitting = createRatingMutation.isPending;
 
   return (
     <div className="flex flex-col items-center mt-12 px-4 pb-12">
@@ -169,9 +172,9 @@ export default function RatePresentation() {
         <div className="mt-8 w-full">
           <ButtonRoundedLgPrimaryBasic 
             onClick={handleSubmit}
-            disabled={!isComplete || isSubmitting}
+            disabled={!isComplete && isClicked}
           >
-            {isSubmitting ? "Sending..." : "Send Feedback"}
+            Send Feedback
           </ButtonRoundedLgPrimaryBasic>
           
           {!isComplete && (

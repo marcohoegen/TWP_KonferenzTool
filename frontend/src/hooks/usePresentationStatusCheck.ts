@@ -12,12 +12,13 @@ export function usePresentationStatusCheck(presentationId: string | undefined) {
   const presentationNum = presentationId ? Number(presentationId) : null;
   const hasNavigatedRef = useRef(false); // Prevent duplicate navigation
 
-  // Poll presentation status every 5 seconds
+    const isEnabled = presentationNum !== null && presentationNum !== undefined;
+  // Poll presentation status every 5 seconds if enabled
   const { data: presentation } = usePresentationPresentationControllerFindOne(
-    presentationNum !== null ? [presentationNum] : undefined,
+    isEnabled ? [presentationNum] : undefined,
     { 
-      enabled: presentationNum !== null,
-      refetchInterval: 5000 
+      enabled: isEnabled,
+      ...(isEnabled && { refetchInterval: 5000 })
     }
   );
 
@@ -27,7 +28,6 @@ export function usePresentationStatusCheck(presentationId: string | undefined) {
 
     const status = (presentation as { status?: string }).status;
     if (status === "INACTIVE") {
-      console.log("Presentation became inactive, redirecting to waiting room");
       hasNavigatedRef.current = true;
       navigate("/rate/wait");
     }

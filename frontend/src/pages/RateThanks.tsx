@@ -1,5 +1,3 @@
-// API Integration: Display thank you and allow Edit with saved ratings
-
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";

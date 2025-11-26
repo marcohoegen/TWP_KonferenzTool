@@ -180,10 +180,10 @@ export default function App() {
         <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
         {/* Rating Workflow Routes */}
         <Route path="/rate/login" element={<RateLogin />} />
-        <Route path="/rate/wait/:presentationId?" element={<RateWaitingRoom />} />
+        <Route path="/rate/wait" element={<RateWaitingRoom />} />
         <Route path="/rate/overview/:presentationId?" element={<RateOverview />} />
         <Route path="/rate/presentation/:presentationId" element={<RatePresentation />} />
-        <Route path="/rate/thanks" element={<RateThanks />} />
+        <Route path="/rate/thanks/:presentationId" element={<RateThanks />} />
       </Routes>
     </Router>
   );
