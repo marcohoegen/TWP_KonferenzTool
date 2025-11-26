@@ -48,6 +48,7 @@ model User {
   email String
   code String @unique
   createdAt DateTime @default(now())
+  codeSentAt DateTime?
 //Fremdschlüssel
   conferenceId Int
   conference Conference @relation(fields: [conferenceId], references: [id])

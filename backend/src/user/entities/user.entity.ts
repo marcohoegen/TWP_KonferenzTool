@@ -9,6 +9,7 @@ export class User implements PrismaUser {
   code: string;
   conferenceId: number;
   createdAt: Date;
+  codeSentAt: Date | null;
   confernce?: Conference;
   presentations?: Presentation[];
   ratings?: Rating[];
