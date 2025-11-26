@@ -17,6 +17,11 @@ import ConferenceCRUD from "./pages/ConferenceCRUD";
 import PresentationCRUD from "./pages/PresentationCRUD";
 import RatingCRUD from "./pages/RatingCRUD";
 import UserCRUD from "./pages/UserCRUD";
+import RateLogin from "./pages/RateLogin";
+import RateWaitingRoom from "./pages/RateWaitingRoom";
+import RateOverview from "./pages/RateOverview";
+import RatePresentation from "./pages/RatePresentation";
+import RateThanks from "./pages/RateThanks";
 import TopMenuBar from "./components/TopMenuBar";
 import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
@@ -44,6 +49,7 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
   
   const menuItems = useMemo(() => [
     { label: "Home", path: "/" },
+    { label: "Rate Presentation", path: "/rate/login" },
     { label: "Userverwaltung", path: "/userpanel" },
     { label: "New Conference", path: "/newconference" },
     { label: "Admin CRUD", path: "/crud/admins" },
@@ -101,6 +107,10 @@ const HomePage = () => {
       >
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
           Admin Login
+        </ButtonRoundedLgPrimaryBasic>
+
+        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/rate/login")}>
+          Rate Presentation
         </ButtonRoundedLgPrimaryBasic>
 
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/userpanel")}>
@@ -168,6 +178,12 @@ export default function App() {
         <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
         <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
         <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
+        {/* Rating Workflow Routes */}
+        <Route path="/rate/login" element={<RateLogin />} />
+        <Route path="/rate/wait/:presentationId?" element={<RateWaitingRoom />} />
+        <Route path="/rate/overview/:presentationId?" element={<RateOverview />} />
+        <Route path="/rate/presentation/:presentationId" element={<RatePresentation />} />
+        <Route path="/rate/thanks" element={<RateThanks />} />
       </Routes>
     </Router>
   );

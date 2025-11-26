@@ -22,7 +22,13 @@ export function createQueryHook<TData, TArgs extends any[]>(
   ) {
     return useQuery({
       queryKey: args ? [key, ...args] : [key],
-      queryFn: () => fetcher(...((args ?? []) as TArgs)),
+      queryFn: () => {
+        // Handle undefined args - don't try to spread undefined
+        if (!args) {
+          return fetcher(...([] as TArgs));
+        }
+        return fetcher(...(args as TArgs));
+      },
       ...options,
     });
   };
