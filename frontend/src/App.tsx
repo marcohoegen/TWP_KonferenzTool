@@ -20,9 +20,16 @@ import UserCRUD from "./pages/UserCRUD";
 import TopMenuBar from "./components/TopMenuBar";
 import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
+import { AdminAuth } from "./pages/AdminAuth";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
-function PageWithMenu({ children, title }: { children: ReactNode; title: string }) {
+function PageWithMenu({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
   const navigate = useNavigate();
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -33,33 +40,36 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
       // Use 1120px to match Tailwind md breakpoint (70rem)
       setIsDesktop(window.innerWidth >= 1120);
     };
-    
+
     // Check on mount
     checkScreenSize();
-    
+
     // Add resize listener
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
-  
-  const menuItems = useMemo(() => [
-    { label: "Home", path: "/" },
-    { label: "Userverwaltung", path: "/userpanel" },
-    { label: "New Conference", path: "/newconference" },
-    { label: "Admin CRUD", path: "/crud/admins" },
-    { label: "Konferenz CRUD", path: "/crud/conferences" },
-    { label: "Präsentationen CRUD", path: "/crud/presentations" },
-    { label: "Bewertungen CRUD", path: "/crud/ratings" },
-    { label: "Benutzer CRUD", path: "/crud/users" },
-    { label: "Beispielkomponenten", path: "/componentshowcase" },
-  ], []);
+
+  const menuItems = useMemo(
+    () => [
+      { label: "Home", path: "/" },
+      { label: "Userverwaltung", path: "/userpanel" },
+      { label: "New Conference", path: "/newconference" },
+      { label: "Admin CRUD", path: "/crud/admins" },
+      { label: "Konferenz CRUD", path: "/crud/conferences" },
+      { label: "Präsentationen CRUD", path: "/crud/presentations" },
+      { label: "Bewertungen CRUD", path: "/crud/ratings" },
+      { label: "Benutzer CRUD", path: "/crud/users" },
+      { label: "Beispielkomponenten", path: "/componentshowcase" },
+    ],
+    []
+  );
 
   return (
     <>
       {/* Mobile menu bar - hidden on desktop (md breakpoint and up) */}
       <div className="md:hidden">
-        <TopMenuBar 
-          pageTitle={title} 
+        <TopMenuBar
+          pageTitle={title}
           menuItems={menuItems}
           onNavigate={(path) => navigate(path)}
         />
@@ -71,11 +81,11 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
       </div>
 
       {/* Content area - with padding for mobile top bar or desktop sidebar */}
-      <div 
+      <div
         className="pt-16 md:pt-0"
-        style={{ 
+        style={{
           paddingLeft: isDesktop ? `${sidebarWidth}px` : 0,
-          transition: isDesktop ? 'padding-left 75ms' : 'none'
+          transition: isDesktop ? "padding-left 75ms" : "none",
         }}
       >
         {children}
@@ -158,16 +168,80 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
+        <Route
+          path="/"
+          element={
+            <PageWithMenu title="Home">
+              <HomePage />
+            </PageWithMenu>
+          }
+        />
         <Route path="/adminseite" element={<AdminSeite />} />
-        <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
-        <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
-        <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
-        <Route path="/crud/admins" element={<PageWithMenu title="Admin CRUD"><AdminCRUD /></PageWithMenu>} />
-        <Route path="/crud/conferences" element={<PageWithMenu title="Konferenz CRUD"><ConferenceCRUD /></PageWithMenu>} />
-        <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
-        <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
-        <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
+        <Route
+          path="/userpanel"
+          element={
+            <PageWithMenu title="Userverwaltung">
+              <UserPanel />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/newconference"
+          element={
+            <PageWithMenu title="New Conference">
+              <NewConference />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/componentshowcase"
+          element={
+            <PageWithMenu title="Beispielkomponenten">
+              <ComponentShowCase />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/crud/admins"
+          element={
+            <PageWithMenu title="Admin CRUD">
+              <AdminCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/crud/conferences"
+          element={
+            <PageWithMenu title="Konferenz CRUD">
+              <ConferenceCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/crud/presentations"
+          element={
+            <PageWithMenu title="Präsentationen CRUD">
+              <PresentationCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/crud/ratings"
+          element={
+            <PageWithMenu title="Bewertungen CRUD">
+              <RatingCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/crud/users"
+          element={
+            <PageWithMenu title="Benutzer CRUD">
+              <UserCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route path="/admin/auth" element={<AdminAuth />} />
       </Routes>
     </Router>
   );
