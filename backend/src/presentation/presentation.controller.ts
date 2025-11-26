@@ -54,6 +54,15 @@ export class PresentationController {
     return await this.presentationService.findOne(id);
   }
 
+  @Get('conference/:conferenceId')
+  async findPresentationsByConferenceId(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+  ) {
+    return await this.presentationService.findPresentationsByConferenceId(
+      conferenceId,
+    );
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -62,6 +71,24 @@ export class PresentationController {
     const updatedPresentation = await this.presentationService.update(
       id,
       updatePresentationDto,
+    );
+    return new Presentation({
+      id: updatedPresentation.id,
+      title: updatedPresentation.title,
+      agendaPosition: updatedPresentation.agendaPosition,
+      conferenceId: updatedPresentation.conferenceId,
+      status: updatedPresentation.status,
+    });
+  }
+
+  @Patch('status/:id')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: string,
+  ): Promise<Presentation> {
+    const updatedPresentation = await this.presentationService.updateStatus(
+      id,
+      status,
     );
     return new Presentation({
       id: updatedPresentation.id,

@@ -77,6 +77,13 @@ export class UserController {
     return await this.userService.findOne(id);
   }
 
+  @Get('conference/:conferenceId')
+  async findUsersByConferenceId(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+  ) {
+    return await this.userService.findUsersByConferenceId(conferenceId);
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
