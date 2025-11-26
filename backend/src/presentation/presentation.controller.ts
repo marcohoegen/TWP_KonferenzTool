@@ -11,6 +11,7 @@ import {
 import { PresentationService } from './presentation.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
 import { Presentation } from './entities/presentation.entity';
 
 @Controller('presentation')
@@ -49,18 +50,29 @@ export class PresentationController {
     );
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.presentationService.findOne(id);
-  }
-
   @Get('conference/:conferenceId')
   async findPresentationsByConferenceId(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
-  ) {
-    return await this.presentationService.findPresentationsByConferenceId(
-      conferenceId,
+  ): Promise<Presentation[]> {
+    return (
+      await this.presentationService.findPresentationsByConferenceId(
+        conferenceId,
+      )
+    ).map(
+      (presentation) =>
+        new Presentation({
+          id: presentation.id,
+          title: presentation.title,
+          agendaPosition: presentation.agendaPosition,
+          conferenceId: presentation.conferenceId,
+          status: presentation.status,
+        }),
     );
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.presentationService.findOne(id);
   }
 
   @Patch(':id')
@@ -84,11 +96,11 @@ export class PresentationController {
   @Patch('status/:id')
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: string,
+    @Body() updateStatusDto: UpdateStatusDto,
   ): Promise<Presentation> {
     const updatedPresentation = await this.presentationService.updateStatus(
       id,
-      status,
+      updateStatusDto.status,
     );
     return new Presentation({
       id: updatedPresentation.id,

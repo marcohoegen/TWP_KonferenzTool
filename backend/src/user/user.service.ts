@@ -213,7 +213,14 @@ export class UserService {
   async findUsersByConferenceId(conferenceId: number) {
     return await this.prisma.user.findMany({
       where: { conferenceId },
-      select: { id: true, email: true, code: true },
+      select: {
+        id: true,
+        email: true,
+        code: true,
+        conferenceId: true,
+        createdAt: true,
+        codeSentAt: true,
+      },
     });
   }
 }
