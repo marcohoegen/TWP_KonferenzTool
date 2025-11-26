@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import confeedlogo from "../assets/confeedlogo.svg";
+import confeedMinimal from "../assets/confeedMinimal.svg";
 import InputRating from "../components/InputRating";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
-import { useRatingRatingControllerCreate, useRatingRatingControllerFindAll, useRatingRatingControllerUpdate } from "../api/generate/hooks/RatingService.hooks";
+import {
+  useRatingRatingControllerCreate,
+  useRatingRatingControllerFindAll,
+  useRatingRatingControllerUpdate,
+} from "../api/generate/hooks/RatingService.hooks";
 import type { UpdateRatingDto } from "../api/generate";
 import { useUserUserControllerMe } from "../api/generate/hooks/UserService.hooks";
 
@@ -51,7 +55,7 @@ export default function RatePresentation() {
   const handleSubmit = async () => {
     setError(null);
     setIsClicked(true);
-    
+
     if (!presentationId) {
       setError("No presentation selected");
       setIsClicked(false);
@@ -68,7 +72,7 @@ export default function RatePresentation() {
     try {
       // Get the authenticated user's ID from service method
       const user = findMe.data as { id?: number };
-      
+
       if (!user?.id) {
         setError("Unable to get user information. Please log in again.");
         setIsClicked(false);
@@ -78,7 +82,8 @@ export default function RatePresentation() {
       // Find existing rating by fetching all ratings and filtering
       const allRatings = findAllRatings.data || [];
       const existingRating = allRatings.find(
-        (r) => r.userId === user.id && r.presentationId === Number(presentationId)
+        (r) =>
+          r.userId === user.id && r.presentationId === Number(presentationId)
       );
 
       if (existingRating && existingRating.id) {
@@ -88,10 +93,7 @@ export default function RatePresentation() {
           styleRating: ratings.style,
           slidesRating: ratings.slides,
         };
-        await updateRating.mutateAsync([
-          existingRating.id,
-          UpdateDto,
-        ]);
+        await updateRating.mutateAsync([existingRating.id, UpdateDto]);
       } else {
         // Create new rating
         const CreateDto = {
@@ -105,11 +107,11 @@ export default function RatePresentation() {
       }
 
       // Navigate to thanks page with ratings for Edit flow
-      navigate("/rate/thanks", { 
-        state: { 
-          ratings, 
+      navigate("/rate/thanks", {
+        state: {
+          ratings,
           presentationId,
-        } 
+        },
       });
     } catch (err: unknown) {
       const error = err as { body?: { message?: string } };
@@ -119,16 +121,17 @@ export default function RatePresentation() {
   };
 
   // Check if all ratings are filled
-  const isComplete = ratings.content > 0 && ratings.style > 0 && ratings.slides > 0;
+  const isComplete =
+    ratings.content > 0 && ratings.style > 0 && ratings.slides > 0;
 
   return (
-    <div className="flex flex-col items-center mt-12 px-4 pb-12">
-      <img 
-        src={confeedlogo} 
-        alt="Confeed Logo" 
-        className="w-[85vw] max-w-xs h-auto mx-auto mb-8" 
+    <div className="flex flex-col items-center px-4 pb-12">
+      <img
+        src={confeedMinimal}
+        alt="Confeed Logo"
+        className="w-[55vw] max-w-xs h-auto mx-auto mb-8"
       />
-      
+
       <div className="w-full max-w-md space-y-8">
         {/* Content Rating */}
         <div aria-label="Content rating">
@@ -164,19 +167,17 @@ export default function RatePresentation() {
         </div>
 
         {/* Error message */}
-        {error && (
-          <p className="text-red-500 text-sm text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         {/* Submit Button */}
         <div className="mt-8 w-full">
-          <ButtonRoundedLgPrimaryBasic 
+          <ButtonRoundedLgPrimaryBasic
             onClick={handleSubmit}
             disabled={!isComplete && isClicked}
           >
             Send Feedback
           </ButtonRoundedLgPrimaryBasic>
-          
+
           {!isComplete && (
             <p className="text-sm text-gray-500 text-center mt-2">
               Please rate all categories before submitting

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import confeedlogo from "../assets/confeedlogo.svg";
+import confeedlogo from "../assets/confeedMinimal.svg";
 import InputFieldLogin from "../components/InputFieldLogin";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
 import { useUserUserControllerLogin } from "../api/generate/hooks/UserService.hooks";
@@ -37,7 +37,7 @@ export default function RateLogin() {
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
-      <img src={confeedlogo} alt="Confeed Logo" className="h-40 w-auto" />
+      <img src={confeedlogo} alt="Confeed Logo" className="w-[50vw] h-auto" />
       <h1 className="text-xl font-semibold mt-4">User Login</h1>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">

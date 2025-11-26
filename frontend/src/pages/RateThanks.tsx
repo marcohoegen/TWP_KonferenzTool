@@ -1,12 +1,14 @@
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import confeedlogo from "../assets/confeedlogo.svg";
+import confeedMinimal from "../assets/confeedMinimal.svg";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
 
 export default function RateThanks() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { presentationId: paramPresentationId } = useParams<{ presentationId: string }>();
+  const { presentationId: paramPresentationId } = useParams<{
+    presentationId: string;
+  }>();
 
   // Get ratings and presentationId from location.state (passed from RatePresentation)
   const ratings = location.state?.ratings;
@@ -19,26 +21,27 @@ export default function RateThanks() {
     // Navigate back to rating page with saved ratings via location.state
     if (presentationId) {
       navigate(`/rate/presentation/${presentationId}`, {
-        state: { ratings }
+        state: { ratings },
       });
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4">
-      <img 
-        src={confeedlogo} 
-        alt="Confeed Logo" 
-        className="w-[85vw] max-w-xs h-auto mx-auto mb-8" 
+    <div className="flex flex-col items-center px-4 pb-12">
+      <img
+        src={confeedMinimal}
+        alt="Confeed Logo"
+        className="w-[55vw] max-w-xs h-auto mx-auto mb-8"
       />
-      
+
       <div className="text-center max-w-md">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
           Thanks for Voting
         </h1>
-        
+
         <p className="text-lg text-gray-600 mb-8">
-          Your feedback has been recorded and will help improve future presentations.
+          Your feedback has been recorded and will help improve future
+          presentations.
         </p>
 
         {/* Display submitted ratings summary */}
@@ -52,13 +55,13 @@ export default function RateThanks() {
             </div>
           </div>
         )}
-        
+
         <div className="w-full">
           <ButtonRoundedLgPrimaryBasic onClick={handleEdit}>
             Edit
           </ButtonRoundedLgPrimaryBasic>
         </div>
-        
+
         <p className="text-sm text-gray-500 mt-4">
           Click Edit to modify your ratings
         </p>

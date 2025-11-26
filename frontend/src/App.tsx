@@ -5,13 +5,14 @@ import {
   Route,
   useNavigate,
   BrowserRouter,
+  useParams,
 } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import AdminRegister from "./pages/AdminRegister";
 import UserPanel from "./pages/UserPanel";
-import confeedlogo from "./assets/confeedlogo.svg";
+import confeedlogo from "./assets/confeedMinimal.svg";
 import NewConference from "./pages/NewConference";
 import ComponentShowCase from "./pages/ComponentShowcase";
 import AdminCRUD from "./pages/AdminCRUD";
@@ -27,16 +28,21 @@ import RateThanks from "./pages/RateThanks";
 import TopMenuBar from "./components/TopMenuBar";
 import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
+import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
+import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({
   children,
   title,
+  menuItems,
 }: {
   children: ReactNode;
   title: string;
+  menuItems?: { label: string; path: string }[];
 }) {
   const navigate = useNavigate();
+  const { conferenceId } = useParams<{ conferenceId?: string }>();
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -55,7 +61,7 @@ function PageWithMenu({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  const menuItems = useMemo(
+  const defaultMenuItems = useMemo(
     () => [
       { label: "Conferences", path: "/admin/dashboard" },
       { label: "Settings", path: "/settings" },
@@ -64,20 +70,32 @@ function PageWithMenu({
     []
   );
 
+  const activeMenuItems = useMemo(() => {
+    const items = menuItems || defaultMenuItems;
+    // Replace :conferenceId with actual conferenceId from URL params
+    if (conferenceId) {
+      return items.map((item) => ({
+        ...item,
+        path: item.path.replace(":conferenceId", conferenceId),
+      }));
+    }
+    return items;
+  }, [menuItems, defaultMenuItems, conferenceId]);
+
   return (
     <>
       {/* Mobile menu bar - hidden on desktop (md breakpoint and up) */}
       <div className="md:hidden">
         <TopMenuBar
           pageTitle={title}
-          menuItems={menuItems}
+          menuItems={activeMenuItems}
           onNavigate={(path) => navigate(path)}
         />
       </div>
 
       {/* Desktop sidebar - hidden on mobile, shown on desktop */}
       <div className="hidden md:block">
-        <Sidebar menuItems={menuItems} onWidthChange={setSidebarWidth} />
+        <Sidebar menuItems={activeMenuItems} onWidthChange={setSidebarWidth} />
       </div>
 
       {/* Content area - with padding for mobile top bar or desktop sidebar */}
@@ -164,40 +182,73 @@ const HomePage = () => {
 };
 
 export default function App() {
+  const AdminMainMenu = [
+    { label: "Conferences", path: "/admin/dashboard" },
+    { label: "Settings", path: "/settings" },
+    { label: "Logout", path: "/logout" },
+  ];
+
+  const AdminConferenceMenu = [
+    { label: "Benutzer-Verwaltung", path: "/admin/:conferenceId/users" },
+    {
+      label: "Präsentations-Verwaltung",
+      path: "/admin/:conferenceId/presentations",
+    },
+    { label: "Zurück zu Konferenzen", path: "/admin/dashboard" },
+  ];
+
   return (
-    // <Router>
-    //   <Routes>
-    //     <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
-    //     <Route path="/adminseite" element={<AdminSeite />} />
-    //     <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
-    //     <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
-    //     <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
-    //     <Route path="/crud/admins" element={<PageWithMenu title="Admin CRUD"><AdminCRUD /></PageWithMenu>} />
-    //     <Route path="/crud/conferences" element={<PageWithMenu title="Konferenz CRUD"><ConferenceCRUD /></PageWithMenu>} />
-    //     <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
-    //     <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
-    //     <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
-    //     {/* Rating Workflow Routes */}
-    //
-    //     <Route path="/rate/wait" element={<RateWaitingRoom />} />
-    //     <Route path="/rate/overview/:presentationId?" element={<RateOverview />} />
-    //     <Route path="/rate/presentation/:presentationId" element={<RatePresentation />} />
-    //     <Route path="/rate/thanks/:presentationId" element={<RateThanks />} />
-    //   </Routes>
-    // </Router>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<RateLogin />} />
+
+        {/* Admin Ansichten */}
+
+        <Route path="/admin/register" element={<AdminRegister />} />
         <Route path="/admin/login" element={<AdminSeite />} />
         <Route
           path="/admin/dashboard"
           element={
-            <PageWithMenu title="Conferences">
+            <PageWithMenu title="Conferences" menuItems={AdminMainMenu}>
               <ConferenceCRUD />
             </PageWithMenu>
           }
         />
-        <Route path="/admin/:conferenceId" element={<div>Test</div>} />
+        <Route
+          path="/admin/:conferenceId/users"
+          element={
+            <PageWithMenu
+              title="Benutzer-Verwaltung"
+              menuItems={AdminConferenceMenu}
+            >
+              <ConferenceDashboardUserView />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/admin/:conferenceId/presentations"
+          element={
+            <PageWithMenu
+              title="Präsentations-Verwaltung"
+              menuItems={AdminConferenceMenu}
+            >
+              <ConferenceDashboardPresentationView />
+            </PageWithMenu>
+          }
+        />
+
+        {/* User Ansichten */}
+
+        <Route path="/rate/wait" element={<RateWaitingRoom />} />
+        <Route
+          path="/rate/overview/:presentationId?"
+          element={<RateOverview />}
+        />
+        <Route
+          path="/rate/presentation/:presentationId"
+          element={<RatePresentation />}
+        />
+        <Route path="/rate/thanks" element={<RateThanks />} />
       </Routes>
     </BrowserRouter>
   );

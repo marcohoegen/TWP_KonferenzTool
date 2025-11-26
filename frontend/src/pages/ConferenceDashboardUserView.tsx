@@ -1,45 +1,40 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import CardBasic from "../common/CardBasic";
 import ErrorPopup from "../common/ErrorPopup";
 import BasicSpinner from "../common/BasicSpinner";
 import toolIcon from "../assets/toolOptionIcon.svg";
 import trashIcon from "../assets/trashbinIcon.svg";
-import arrowRightIcon from "../assets/eyeIcon.svg";
+import envelopeIcon from "../assets/envelope.svg";
 import {
-  useConferenceConferenceControllerFindAll,
-  useConferenceConferenceControllerCreate,
-  useConferenceConferenceControllerUpdate,
-  useConferenceConferenceControllerRemove,
-} from "../api/generate/hooks/ConferenceService.hooks";
+  useUserUserControllerFindUsersByConferenceId,
+  useUserUserControllerCreate,
+  useUserUserControllerUpdate,
+  useUserUserControllerRemove,
+} from "../api/generate/hooks/UserService.hooks";
+import { useEmailEmailControllerSendOneCodeByUserId } from "../api/generate/hooks/EmailService.hooks";
+import type { User } from "../api/generate/models/User";
 
-interface Conference {
-  id: number;
-  name: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-}
+export default function ConferenceDashboardUserView() {
+  const { conferenceId } = useParams<{ conferenceId: string }>();
+  const conferenceIdNum = Number(conferenceId);
 
-export default function ConferenceCRUD() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-    startDate: "",
-    endDate: "",
+    email: "",
+    code: "",
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  // Use hooks
-  const { data: conferences, isLoading } =
-    useConferenceConferenceControllerFindAll(undefined, undefined);
-  const createMutation = useConferenceConferenceControllerCreate();
-  const updateMutation = useConferenceConferenceControllerUpdate();
-  const removeMutation = useConferenceConferenceControllerRemove();
+  // Use hooks - passing conferenceId to get users for this specific conference
+  const { data: users, isLoading } =
+    useUserUserControllerFindUsersByConferenceId([conferenceIdNum], undefined);
+  const createMutation = useUserUserControllerCreate();
+  const updateMutation = useUserUserControllerUpdate();
+  const removeMutation = useUserUserControllerRemove();
+  const sendEmailMutation = useEmailEmailControllerSendOneCodeByUserId();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +52,8 @@ export default function ConferenceCRUD() {
         },
       });
     } else {
-      createMutation.mutate(formData, {
+      const payload = { email: formData.email, conferenceId: conferenceIdNum };
+      createMutation.mutate(payload, {
         onSuccess: () => {
           resetForm();
         },
@@ -72,7 +68,7 @@ export default function ConferenceCRUD() {
 
   function handleDelete(id: number, e: React.MouseEvent) {
     e.stopPropagation();
-    if (!confirm("Diese Konferenz wirklich löschen?")) return;
+    if (!confirm("Diesen Benutzer wirklich löschen?")) return;
     removeMutation.mutate(id, {
       onError: (err: unknown) => {
         setError(err instanceof Error ? err.message : "Fehler beim Löschen");
@@ -80,25 +76,18 @@ export default function ConferenceCRUD() {
     });
   }
 
-  function handleEdit(conference: Conference, e: React.MouseEvent) {
+  function handleEdit(user: User, e: React.MouseEvent) {
     e.stopPropagation();
-    setEditingId(conference.id);
+    setEditingId(user.id);
     setFormData({
-      name: conference.name,
-      location: conference.location,
-      startDate: new Date(conference.startDate).toISOString().split("T")[0],
-      endDate: new Date(conference.endDate).toISOString().split("T")[0],
+      email: user.email,
+      code: user.code,
     });
     setShowForm(true);
   }
 
-  function handleView(id: number, e: React.MouseEvent) {
-    e.stopPropagation();
-    navigate(`/admin/${id}/users`);
-  }
-
   function resetForm() {
-    setFormData({ name: "", location: "", startDate: "", endDate: "" });
+    setFormData({ email: "", code: "" });
     setEditingId(null);
     setShowForm(false);
     setError("");
@@ -109,18 +98,68 @@ export default function ConferenceCRUD() {
     resetForm();
   }
 
+  function handleSendEmail(userId: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    sendEmailMutation.mutate(userId, {
+      onSuccess: () => {
+        alert("Code erfolgreich gesendet!");
+      },
+      onError: (err: unknown) => {
+        setError(
+          err instanceof Error ? err.message : "Fehler beim Senden der E-Mail"
+        );
+      },
+    });
+  }
+
+  function sendAllEmails() {
+    if (!users || users.length === 0) {
+      setError("Keine Benutzer vorhanden");
+      return;
+    }
+    if (!confirm(`Codes an alle ${users.length} Benutzer senden?`)) return;
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    users.forEach((user) => {
+      sendEmailMutation.mutate(user.id, {
+        onSuccess: () => {
+          successCount++;
+          if (successCount + errorCount === users.length) {
+            alert(
+              `Codes gesendet: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`
+            );
+          }
+        },
+        onError: () => {
+          errorCount++;
+          if (successCount + errorCount === users.length) {
+            alert(
+              `Codes gesendet: ${successCount} erfolgreich, ${errorCount} fehlgeschlagen`
+            );
+          }
+        },
+      });
+    });
+  }
+
   return (
     <div className="p-4">
       <div className="mb-5">
-        <h1 className="text-center text-2xl font-semibold">
-          Konferenz-Verwaltung
-        </h1>
-        <div className="mt-3 max-w-lg mx-auto">
+        <div className="mt-3 max-w-lg mx-auto space-y-2">
           <ButtonRoundedLgPrimaryBasic
             className="w-full"
             onClick={() => setShowForm(true)}
           >
-            Neue Konferenz erstellen
+            Neuen Benutzer erstellen
+          </ButtonRoundedLgPrimaryBasic>
+          <ButtonRoundedLgPrimaryBasic
+            className="w-full"
+            onClick={sendAllEmails}
+            disabled={!users || users.length === 0}
+          >
+            Codes an alle Benutzer senden
           </ButtonRoundedLgPrimaryBasic>
         </div>
       </div>
@@ -147,68 +186,22 @@ export default function ConferenceCRUD() {
             </button>
 
             <h2 className="mb-4 text-xl font-bold">
-              {editingId ? "Konferenz bearbeiten" : "Neue Konferenz erstellen"}
+              {editingId ? "Benutzer bearbeiten" : "Neuen Benutzer erstellen"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
               <div>
                 <label className="block mb-1 font-medium">
-                  Konferenzname <span className="text-red-500">*</span>
+                  E-Mail <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   className="w-full border border-gray-300 rounded p-2"
-                  value={formData.name}
+                  value={formData.email}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="Konferenzname"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  Ort <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded p-2"
-                  value={formData.location}
-                  onChange={(e) =>
-                    setFormData({ ...formData, location: e.target.value })
-                  }
-                  placeholder="Ort"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  Startdatum <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded p-2"
-                  value={formData.startDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium">
-                  Enddatum <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded p-2"
-                  value={formData.endDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
+                  placeholder="benutzer@example.com"
                   required
                 />
               </div>
@@ -230,32 +223,33 @@ export default function ConferenceCRUD() {
         </div>
       )}
 
-      {/* Conference Cards */}
+      {/* User Cards */}
       <div className="flex flex-wrap gap-4 justify-center">
         {isLoading ? (
           <BasicSpinner />
-        ) : conferences && conferences.length > 0 ? (
-          conferences.map((conference: Conference) => (
-            <CardBasic key={conference.id} title={conference.name}>
+        ) : users && users.length > 0 ? (
+          users.map((user: User) => (
+            <CardBasic key={user.id} title={user.email}>
               <div className="space-y-2 text-sm text-left">
                 <div>
-                  <strong>Ort:</strong> {conference.location}
+                  <strong>Code:</strong> {user.code}
                 </div>
                 <div>
-                  <strong>Startdatum:</strong>{" "}
-                  {new Date(conference.startDate).toLocaleDateString()}
+                  <strong>Konferenz ID:</strong> {user.conferenceId}
                 </div>
-                <div>
-                  <strong>Enddatum:</strong>{" "}
-                  {new Date(conference.endDate).toLocaleDateString()}
-                </div>
+                {user.codeSentAt && (
+                  <div>
+                    <strong>Code gesendet am:</strong>{" "}
+                    {new Date(user.codeSentAt).toLocaleString()}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between mt-4 w-full">
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={(e) => handleEdit(conference, e)}
+                    onClick={(e) => handleEdit(user, e)}
                     aria-label="Bearbeiten"
                     className="p-2 rounded hover:bg-slate-100"
                   >
@@ -264,7 +258,7 @@ export default function ConferenceCRUD() {
 
                   <button
                     type="button"
-                    onClick={(e) => handleDelete(conference.id, e)}
+                    onClick={(e) => handleDelete(user.id, e)}
                     aria-label="Löschen"
                     className="p-2 rounded hover:bg-slate-100"
                   >
@@ -274,21 +268,25 @@ export default function ConferenceCRUD() {
 
                 <button
                   type="button"
-                  onClick={(e) => handleView(conference.id, e)}
-                  aria-label="Ansehen"
+                  onClick={(e) => handleSendEmail(user.id, e)}
+                  aria-label="Code senden"
                   className="p-2 rounded hover:bg-slate-100"
-                  title="Konferenz öffnen"
+                  title="Code per E-Mail senden"
                 >
-                  <img src={arrowRightIcon} alt="Öffnen" className="h-8 w-8" />
+                  <img
+                    src={envelopeIcon}
+                    alt="E-Mail senden"
+                    className="h-8 w-8"
+                  />
                 </button>
               </div>
             </CardBasic>
           ))
         ) : (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-lg font-medium">Keine Konferenzen vorhanden</p>
+            <p className="text-lg font-medium">Keine Benutzer vorhanden</p>
             <p className="text-sm mt-2">
-              Erstellen Sie Ihre erste Konferenz mit dem Button oben
+              Erstellen Sie den ersten Benutzer mit dem Button oben
             </p>
           </div>
         )}

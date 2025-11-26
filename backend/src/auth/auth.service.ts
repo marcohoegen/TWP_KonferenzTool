@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AdminService } from '../admin/admin.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -22,7 +26,7 @@ export class AuthService {
   async register(createAdminDto: CreateAdminDto) {
     const existing = await this.adminService.findByEmail(createAdminDto.email);
     if (existing) {
-      throw new Error('Email already in use');
+      throw new ConflictException('Email already in use');
     }
 
     const admin = await this.adminService.create(createAdminDto);

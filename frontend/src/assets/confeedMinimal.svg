@@ -1,0 +1,24 @@
+<svg width="250" height="200" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient y2="100%" x2="100%" y1="0%" x1="0%" id="gradient1">
+   <stop stop-color="#06B6D4" offset="0%"/>
+   <stop stop-color="#3B82F6" offset="100%"/>
+  </linearGradient>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_1">
+   <rect id="svg_2" opacity="0.9" fill="url(#gradient1)" rx="30" height="160" width="240" y="5" x="5"/>
+   <path id="svg_3" opacity="0.9" fill="url(#gradient1)" d="m65,165l-10,30l30,-30l-20,0z"/>
+   <g id="svg_4">
+    <path id="svg_5" fill="#FCD34D" d="m55,69l4,12l12,0l-10,8l4,12l-10,-8l-10,8l4,-12l-10,-8l12,0l4,-12z"/>
+   </g>
+   <g id="svg_6">
+    <path id="svg_7" fill="#FCD34D" d="m125,69l4,12l12,0l-10,8l4,12l-10,-8l-10,8l4,-12l-10,-8l12,0l4,-12z"/>
+   </g>
+   <g id="svg_8">
+    <path id="svg_9" fill="#FCD34D" d="m195,69l4,12l12,0l-10,8l4,12l-10,-8l-10,8l4,-12l-10,-8l12,0l4,-12z"/>
+   </g>
+  </g>
+ </g>
+</svg>
