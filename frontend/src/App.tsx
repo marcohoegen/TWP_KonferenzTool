@@ -8,6 +8,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
+import AdminRegister from "./pages/AdminRegister";
 import UserPanel from "./pages/UserPanel";
 import confeedlogo from "./assets/confeedlogo.svg";
 import NewConference from "./pages/NewConference";
@@ -160,6 +161,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
         <Route path="/adminseite" element={<AdminSeite />} />
+        <Route path="/admin-register" element={<AdminRegister />} />
         <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
         <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
         <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
