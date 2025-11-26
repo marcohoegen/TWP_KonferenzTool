@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
@@ -10,13 +9,13 @@ export default function RateLogin() {
   const [userCode, setUserCode] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   // Mutation hook for login
   const loginMutation = useUserUserControllerLogin();
 
   const handleSubmit = async () => {
     setLoginError(null);
-    
+
     // Validate: exactly 5 characters
     if (userCode.trim().length !== 5) {
       setLoginError("Personal code must be exactly 5 characters");
@@ -38,12 +37,8 @@ export default function RateLogin() {
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
-      <img 
-        src={confeedlogo} 
-        alt="Confeed Logo" 
-        className="w-[85vw] max-w-xs h-auto mx-auto" 
-      />
-      <h2 className="text-xl font-semibold mt-4">User Login</h2>
+      <img src={confeedlogo} alt="Confeed Logo" className="h-40 w-auto" />
+      <h1 className="text-xl font-semibold mt-4">User Login</h1>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
         <InputFieldLogin
@@ -59,10 +54,19 @@ export default function RateLogin() {
 
       <div className="mt-6 w-full max-w-md">
         <ButtonLoadingAnimated
-          text="Enter"
+          text="Login"
           loadingText="Loading..."
           onClick={handleSubmit}
         />
+      </div>
+
+      <div className="mt-8 text-center">
+        <button
+          onClick={() => navigate("/admin/login")}
+          className="text-sm text-gray-600 hover:text-gray-900 underline transition-colors cursor-pointer"
+        >
+          Admin? Click here to login
+        </button>
       </div>
     </div>
   );

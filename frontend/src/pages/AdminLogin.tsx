@@ -28,7 +28,7 @@ const AdminLogin = () => {
     try {
       const data = await loginMutation.mutateAsync({ email, password });
       if (data.success) {
-        navigate("/newconference");
+        navigate("/admin/dashboard");
       } else {
         setError("Falsche E-Mail oder Passwort");
       }
@@ -39,7 +39,11 @@ const AdminLogin = () => {
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
-      <img src={confeedlogo} alt="Confeed Logo" className="w-[85vw] max-w-xs h-auto mx-auto" />
+      <img
+        src={confeedlogo}
+        alt="Confeed Logo"
+        className="w-[85vw] max-w-xs h-auto mx-auto"
+      />
       <h2 className="text-xl font-semibold mt-4">Admin-Login</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">

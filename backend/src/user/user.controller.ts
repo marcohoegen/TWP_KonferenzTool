@@ -72,16 +72,18 @@ export class UserController {
     return await this.userService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.findOne(id);
-  }
-
   @Get('conference/:conferenceId')
   async findUsersByConferenceId(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
-  ) {
-    return await this.userService.findUsersByConferenceId(conferenceId);
+  ): Promise<User[]> {
+    return (await this.userService.findUsersByConferenceId(conferenceId)).map(
+      (user) => new User(user),
+    );
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findOne(id);
   }
 
   @Patch(':id')

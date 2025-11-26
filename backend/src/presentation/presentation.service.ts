@@ -93,7 +93,13 @@ export class PresentationService {
   async findPresentationsByConferenceId(conferenceId: number) {
     return await this.prisma.presentation.findMany({
       where: { conferenceId },
-      select: { id: true, title: true, agendaPosition: true, status: true },
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        conferenceId: true,
+        status: true,
+      },
       orderBy: { agendaPosition: 'asc' },
     });
   }
@@ -139,7 +145,7 @@ export class PresentationService {
     });
   }
 
-  async updateStatus(id: number, status: string) {
+  async updateStatus(id: number, status: PresentationStatus) {
     const presentation = await this.prisma.presentation.findUnique({
       where: { id },
       select: { id: true, conferenceId: true, status: true },
@@ -149,10 +155,7 @@ export class PresentationService {
       throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
 
-    const newStatus =
-      String(status).toUpperCase() === 'ACTIVE'
-        ? PresentationStatus.ACTIVE
-        : PresentationStatus.INACTIVE;
+    const newStatus = status;
 
     // If activating, deactivate all other presentations in the same conference
     if (newStatus === PresentationStatus.ACTIVE) {
@@ -168,16 +171,12 @@ export class PresentationService {
         this.prisma.presentation.update({
           where: { id },
           data: { status: newStatus },
-          include: {
-            presenters: {
-              select: {
-                id: true,
-                email: true,
-                conferenceId: true,
-                createdAt: true,
-              },
-            },
-            ratings: true,
+          select: {
+            id: true,
+            title: true,
+            agendaPosition: true,
+            conferenceId: true,
+            status: true,
           },
         }),
       ]);
@@ -188,16 +187,12 @@ export class PresentationService {
     return await this.prisma.presentation.update({
       where: { id },
       data: { status: newStatus },
-      include: {
-        presenters: {
-          select: {
-            id: true,
-            email: true,
-            conferenceId: true,
-            createdAt: true,
-          },
-        },
-        ratings: true,
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        conferenceId: true,
+        status: true,
       },
     });
   }
