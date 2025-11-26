@@ -7,17 +7,20 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PresentationService } from './presentation.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { Presentation } from './entities/presentation.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('presentation')
 export class PresentationController {
   constructor(private readonly presentationService: PresentationService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createPresentationDto: CreatePresentationDto,
@@ -75,6 +78,7 @@ export class PresentationController {
     return await this.presentationService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -93,6 +97,7 @@ export class PresentationController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('status/:id')
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
@@ -111,6 +116,7 @@ export class PresentationController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
@@ -118,6 +124,7 @@ export class PresentationController {
     return this.presentationService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':presentationId/presenter/:userId')
   async addPresenter(
     @Param('presentationId', ParseIntPipe) presentationId: number,
@@ -126,6 +133,7 @@ export class PresentationController {
     return await this.presentationService.addPresenter(presentationId, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':presentationId/presenter/:userId')
   async removePresenter(
     @Param('presentationId', ParseIntPipe) presentationId: number,

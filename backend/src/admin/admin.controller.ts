@@ -69,6 +69,7 @@ export class AdminController {
     return { success: true };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Admin[]> {
     const admins = await this.adminService.findAll();
@@ -82,12 +83,14 @@ export class AdminController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Admin> {
     const admin = await this.adminService.findOne(id);
     return new Admin(admin);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -101,6 +104,7 @@ export class AdminController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
