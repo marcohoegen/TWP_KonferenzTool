@@ -1,4 +1,11 @@
-import { Controller, Post, Body, NotFoundException, ParseIntPipe, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  NotFoundException,
+  ParseIntPipe,
+  Param,
+} from '@nestjs/common';
 import { EmailService } from './email.service';
 import { UserService } from 'src/user/user.service';
 
@@ -6,17 +13,10 @@ import { UserService } from 'src/user/user.service';
 export class EmailController {
   constructor(
     private readonly emailService: EmailService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {}
 
-  //send a basic email
- @Post('send')
-  async sendEmail(@Body() body: { to: string; subject: string; text: string }) {
-    await this.emailService.sendEmail(body.to, body.subject, body.text);
-    return { success: true, message: `Email sent to ${body.to}` };
-  }
-
- //send a code-mail to a specific user
+  //send a code-mail to a specific user
   @Post('send-code')
   async sendCodeEmail(@Body('email') email: string) {
     const user = await this.userService.findByEmail(email);
@@ -30,6 +30,9 @@ export class EmailController {
   @Post('send-code/:userId')
   async sendOneCodeByUserId(@Param('userId', ParseIntPipe) userId: number) {
     await this.emailService.sendOneCodeByUserId(userId);
-    return { success: true, message: `Code email sent to user with ID ${userId}` };
+    return {
+      success: true,
+      message: `Code email sent to user with ID ${userId}`,
+    };
   }
 }
