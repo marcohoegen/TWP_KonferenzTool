@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useNavigate,
+  BrowserRouter,
 } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
@@ -28,7 +29,13 @@ import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
-function PageWithMenu({ children, title }: { children: ReactNode; title: string }) {
+function PageWithMenu({
+  children,
+  title,
+}: {
+  children: ReactNode;
+  title: string;
+}) {
   const navigate = useNavigate();
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -39,34 +46,30 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
       // Use 1120px to match Tailwind md breakpoint (70rem)
       setIsDesktop(window.innerWidth >= 1120);
     };
-    
+
     // Check on mount
     checkScreenSize();
-    
+
     // Add resize listener
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
-  
-  const menuItems = useMemo(() => [
-    { label: "Home", path: "/" },
-    { label: "Rate Presentation", path: "/rate/login" },
-    { label: "Userverwaltung", path: "/userpanel" },
-    { label: "New Conference", path: "/newconference" },
-    { label: "Admin CRUD", path: "/crud/admins" },
-    { label: "Konferenz CRUD", path: "/crud/conferences" },
-    { label: "Präsentationen CRUD", path: "/crud/presentations" },
-    { label: "Bewertungen CRUD", path: "/crud/ratings" },
-    { label: "Benutzer CRUD", path: "/crud/users" },
-    { label: "Beispielkomponenten", path: "/componentshowcase" },
-  ], []);
+
+  const menuItems = useMemo(
+    () => [
+      { label: "Conferences", path: "/admin/dashboard" },
+      { label: "Settings", path: "/settings" },
+      { label: "Logout", path: "/logout" },
+    ],
+    []
+  );
 
   return (
     <>
       {/* Mobile menu bar - hidden on desktop (md breakpoint and up) */}
       <div className="md:hidden">
-        <TopMenuBar 
-          pageTitle={title} 
+        <TopMenuBar
+          pageTitle={title}
           menuItems={menuItems}
           onNavigate={(path) => navigate(path)}
         />
@@ -78,11 +81,11 @@ function PageWithMenu({ children, title }: { children: ReactNode; title: string 
       </div>
 
       {/* Content area - with padding for mobile top bar or desktop sidebar */}
-      <div 
+      <div
         className="pt-16 md:pt-0"
-        style={{ 
+        style={{
           paddingLeft: isDesktop ? `${sidebarWidth}px` : 0,
-          transition: isDesktop ? 'padding-left 75ms' : 'none'
+          transition: isDesktop ? "padding-left 75ms" : "none",
         }}
       >
         {children}
@@ -96,8 +99,6 @@ const HomePage = () => {
 
   return (
     <div className="p-4">
-      <h2>Confeed</h2>
-
       <div
         style={{
           marginTop: "20px",
@@ -106,6 +107,12 @@ const HomePage = () => {
           gap: "20px",
         }}
       >
+        <img
+          src={confeedlogo}
+          alt="Confeed Logo"
+          className="logo confeed"
+          width={400}
+        />
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
           Admin Login
         </ButtonRoundedLgPrimaryBasic>
@@ -121,8 +128,6 @@ const HomePage = () => {
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/newconference")}>
           New Conference
         </ButtonRoundedLgPrimaryBasic>
-
-        <h3 className="mt-4 font-bold">CRUD Verwaltung</h3>
 
         <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/admins")}>
           Admin CRUD
@@ -153,13 +158,6 @@ const HomePage = () => {
         >
           Beispielkomponenten
         </ButtonRoundedLgPrimaryBasic>
-
-        <img
-          src={confeedlogo}
-          alt="Confeed Logo"
-          className="logo confeed"
-          width={400}
-        />
       </div>
     </div>
   );
@@ -167,26 +165,40 @@ const HomePage = () => {
 
 export default function App() {
   return (
-    <Router>
+    // <Router>
+    //   <Routes>
+    //     <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
+    //     <Route path="/adminseite" element={<AdminSeite />} />
+    //     <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
+    //     <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
+    //     <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
+    //     <Route path="/crud/admins" element={<PageWithMenu title="Admin CRUD"><AdminCRUD /></PageWithMenu>} />
+    //     <Route path="/crud/conferences" element={<PageWithMenu title="Konferenz CRUD"><ConferenceCRUD /></PageWithMenu>} />
+    //     <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
+    //     <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
+    //     <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
+    //     {/* Rating Workflow Routes */}
+    //
+    //     <Route path="/rate/wait" element={<RateWaitingRoom />} />
+    //     <Route path="/rate/overview/:presentationId?" element={<RateOverview />} />
+    //     <Route path="/rate/presentation/:presentationId" element={<RatePresentation />} />
+    //     <Route path="/rate/thanks/:presentationId" element={<RateThanks />} />
+    //   </Routes>
+    // </Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PageWithMenu title="Home"><HomePage /></PageWithMenu>} />
-        <Route path="/adminseite" element={<AdminSeite />} />
-        <Route path="/admin-register" element={<AdminRegister />} />
-        <Route path="/userpanel" element={<PageWithMenu title="Userverwaltung"><UserPanel /></PageWithMenu>} />
-        <Route path="/newconference" element={<PageWithMenu title="New Conference"><NewConference /></PageWithMenu>} />
-        <Route path="/componentshowcase" element={<PageWithMenu title="Beispielkomponenten"><ComponentShowCase /></PageWithMenu>} />
-        <Route path="/crud/admins" element={<PageWithMenu title="Admin CRUD"><AdminCRUD /></PageWithMenu>} />
-        <Route path="/crud/conferences" element={<PageWithMenu title="Konferenz CRUD"><ConferenceCRUD /></PageWithMenu>} />
-        <Route path="/crud/presentations" element={<PageWithMenu title="Präsentationen CRUD"><PresentationCRUD /></PageWithMenu>} />
-        <Route path="/crud/ratings" element={<PageWithMenu title="Bewertungen CRUD"><RatingCRUD /></PageWithMenu>} />
-        <Route path="/crud/users" element={<PageWithMenu title="Benutzer CRUD"><UserCRUD /></PageWithMenu>} />
-        {/* Rating Workflow Routes */}
-        <Route path="/rate/login" element={<RateLogin />} />
-        <Route path="/rate/wait" element={<RateWaitingRoom />} />
-        <Route path="/rate/overview/:presentationId?" element={<RateOverview />} />
-        <Route path="/rate/presentation/:presentationId" element={<RatePresentation />} />
-        <Route path="/rate/thanks/:presentationId" element={<RateThanks />} />
+        <Route path="/" element={<RateLogin />} />
+        <Route path="/admin/login" element={<AdminSeite />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <PageWithMenu title="Conferences">
+              <ConferenceCRUD />
+            </PageWithMenu>
+          }
+        />
+        <Route path="/admin/:conferenceId" element={<div>Test</div>} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
