@@ -77,8 +77,12 @@ const AdminRegister = () => {
         password,
       });
       setSuccess(true);
-    } catch {
-      setError("Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.";
+      setError(message);
     }
   };
 
