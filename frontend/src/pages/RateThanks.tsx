@@ -1,32 +1,28 @@
-// TODO: load saved votes via useRatingFindByUserOrPresentation(...) and set context.
-// Future API integration:
-// - On mount, fetch saved ratings: const { data } = useRatingRatingControllerFindByUserOrPresentation({ userCode, presentationId })
-// - Populate context with saved values: setRating("content", data.content), etc.
-// - This allows the Edit button to show previously submitted ratings
-// Example API response:
-// {
-//   "id": "uuid",
-//   "presentationId": "uuid",
-//   "userCode": "ABC123",
-//   "content": 4,
-//   "style": 5,
-//   "slides": 3,
-//   "createdAt": "2025-11-21T10:30:00Z"
-// }
+// API Integration: Display thank you and allow Edit with saved ratings
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { useRatingContext } from "../context/RatingContext";
+import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
 
 export default function RateThanks() {
   const navigate = useNavigate();
-  const { presentationId } = useRatingContext();
+  const location = useLocation();
+  const { presentationId: paramPresentationId } = useParams<{ presentationId: string }>();
+
+  // Get ratings and presentationId from location.state (passed from RatePresentation)
+  const ratings = location.state?.ratings;
+  const presentationId = location.state?.presentationId || paramPresentationId;
+
+  // Monitor presentation status - redirect to waiting room if it becomes inactive
+  usePresentationStatusCheck(presentationId);
 
   const handleEdit = () => {
-    // Navigate back to rating page with preserved state
+    // Navigate back to rating page with saved ratings via location.state
     if (presentationId) {
-      navigate(`/rate/presentation/${presentationId}`);
+      navigate(`/rate/presentation/${presentationId}`, {
+        state: { ratings }
+      });
     }
   };
 
@@ -46,6 +42,18 @@ export default function RateThanks() {
         <p className="text-lg text-gray-600 mb-8">
           Your feedback has been recorded and will help improve future presentations.
         </p>
+
+        {/* Display submitted ratings summary */}
+        {ratings && (
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-2">Your ratings:</p>
+            <div className="flex justify-center gap-6 text-sm">
+              <span>Content: {ratings.content}★</span>
+              <span>Style: {ratings.style}★</span>
+              <span>Slides: {ratings.slides}★</span>
+            </div>
+          </div>
+        )}
         
         <div className="w-full">
           <ButtonRoundedLgPrimaryBasic onClick={handleEdit}>

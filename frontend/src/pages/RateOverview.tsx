@@ -1,46 +1,59 @@
-// TODO: Use presentation fetch hook e.g. usePresentationFindOne(presentationId).
-// Future API integration:
-// - Fetch presentation data: const { data } = usePresentationPresentationControllerFindOne(presentationId)
-// - Display real presenter name from data.presenterName
-// - Display real topic from data.title or data.topic
-// - Check if rating is already released/active: if (data.ratingReleased) navigate to rating page
-// Example API response shape:
-// {
-//   "id": "uuid",
-//   "presenterName": "Jane Doe",
-//   "title": "How to TWP",
-//   "isActive": true,
-//   "ratingReleased": true
-// }
 
 import { useNavigate, useParams } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { useRatingContext } from "../context/RatingContext";
+import BasicSpinner from "../common/BasicSpinner";
+import { usePresentationPresentationControllerFindOne } from "../api/generate/hooks/PresentationService.hooks";
+import { usePresentationStatusCheck } from "../hooks/usePresentationStatusCheck";
 
 export default function RateOverview() {
   const navigate = useNavigate();
   const { presentationId } = useParams<{ presentationId: string }>();
-  const { presenterName, presentationTopic } = useRatingContext();
 
-  // TODO: Fetch presentation data from backend
-  // useEffect(() => {
-  //   const fetchPresentation = async () => {
-  //     const { data } = await usePresentationFindOne(presentationId);
-  //     setPresenterInfo({ name: data.presenterName, topic: data.title });
-  //   };
-  //   fetchPresentation();
-  // }, [presentationId]);
+  const presentationNum = presentationId ? Number(presentationId) : null;
+  const { data, isLoading, error } = usePresentationPresentationControllerFindOne(
+    presentationNum !== null ? [presentationNum] : undefined,
+    { enabled: presentationNum !== null }
+  );
 
-  // For now, use placeholder data if not set
-  const displayPresenterName = presenterName || "Presenter Name";
-  const displayTopic = presentationTopic || "Presentation Topic";
+  // Monitor presentation status - redirect to waiting room if it becomes inactive
+  usePresentationStatusCheck(presentationId);
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const presentation = data as any;
+
+  // Extract presenter name from the presenters array (first presenter's email or fallback)
+  const presenterName = presentation?.presenters?.[0]?.email || "Presenter";
+  const presentationTitle = presentation?.title || "Presentation";
 
   const handleEnterFeedback = () => {
     if (presentationId) {
       navigate(`/rate/presentation/${presentationId}`);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <BasicSpinner />
+        <p className="mt-4 text-gray-600">Loading presentation...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <p className="text-red-500 text-center">Failed to load presentation details.</p>
+        <button 
+          onClick={() => navigate("/rate/wait")}
+          className="mt-4 text-sky-500 underline"
+        >
+          Back to waiting room
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
@@ -56,11 +69,11 @@ export default function RateOverview() {
         </p>
         
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          {displayPresenterName}
+          {presenterName}
         </h2>
         
         <p className="text-xl text-gray-700 mb-8">
-          {displayTopic}
+          {presentationTitle}
         </p>
         
         <div className="w-full">

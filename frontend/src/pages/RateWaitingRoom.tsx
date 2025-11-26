@@ -1,34 +1,34 @@
-// TODO: Poll backend or subscribe via SSE/WebSocket to detect active presentation (replace local toggle).
-// Future API integration:
-// - Poll every 5-10 seconds: const { data } = usePresentationCheckActive(presentationId)
-// - Or subscribe via WebSocket/SSE for real-time updates
-// - When data.isActive becomes true, auto-redirect to overview
-// - Example polling implementation:
-//   useEffect(() => {
-//     const interval = setInterval(async () => {
-//       const { isActive } = await checkPresentationActive(presentationId);
-//       if (isActive) navigate(`/rate/overview/${presentationId}`);
-//     }, 5000); // Poll every 5 seconds
-//     return () => clearInterval(interval);
-//   }, [presentationId]);
+// API Integration: Poll presentations to detect active presentation
 
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
-import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import BasicSpinner from "../common/BasicSpinner";
+import { usePresentationPresentationControllerFindAll } from "../api/generate/hooks/PresentationService.hooks";
 
 export default function RateWaitingRoom() {
-  const [isActive, setIsActive] = useState(false);
   const navigate = useNavigate();
-  const { presentationId } = useParams<{ presentationId: string }>();
 
-  // Auto-redirect when presentation becomes active
+  // Poll presentations every 5 seconds to detect when one becomes active
+  const { data: presentations } = usePresentationPresentationControllerFindAll(
+    undefined,
+    { refetchInterval: 5000 }
+  );
+
+  // Auto-redirect when a presentation becomes active
   useEffect(() => {
-    if (isActive && presentationId) {
-      navigate(`/rate/overview/${presentationId}`);
+    if (!presentations) return;
+    
+    // Find presentation with status "ACTIVE" (enum: PresentationStatus.ACTIVE)
+    // The backend returns presentations with a "status" field
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const activePresentation = presentations.find((p: any) => p.status === "ACTIVE");
+    
+    if (activePresentation) {
+      console.log("Active presentation found:", activePresentation);
+      navigate(`/rate/overview/${activePresentation.id}`);
     }
-  }, [isActive, presentationId, navigate]);
+  }, [presentations, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
@@ -40,25 +40,13 @@ export default function RateWaitingRoom() {
       
       <div className="text-center">
         <p className="text-xl font-medium text-gray-700">
-          Please wait until admin opens the feedback
+          Please wait until feedback opens :)
         </p>
         
         {/* Loading spinner */}
         <div className="mt-6 flex justify-center">
           <BasicSpinner />
         </div>
-      </div>
-
-      {/* Debug toggle button - remove in production */}
-      <div className="mt-12">
-        <ButtonRoundedLgPrimaryBasic 
-          onClick={() => setIsActive(true)}
-        >
-          [Debug] Activate Presentation
-        </ButtonRoundedLgPrimaryBasic>
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          Development toggle - remove when API is integrated
-        </p>
       </div>
     </div>
   );

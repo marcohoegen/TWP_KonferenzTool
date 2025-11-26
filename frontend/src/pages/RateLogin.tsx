@@ -1,39 +1,39 @@
-// TODO: Replace local verify with generated hook e.g. useAuthVerifyUserCode(userCode).
-// Future API integration:
-// - Call useAuthAuthControllerVerifyUserCode(userCode) to validate the code
-// - On success, receive presentationId and navigate to waiting room
-// - Handle error states (invalid code, network errors)
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import confeedlogo from "../assets/confeedlogo.svg";
 import InputFieldLogin from "../components/InputFieldLogin";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
-import { useRatingContext } from "../context/RatingContext";
+import { useUserUserControllerLogin } from "../api/generate/hooks/UserService.hooks";
 
 export default function RateLogin() {
   const [userCode, setUserCode] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setUserCode: setContextUserCode, setPresentationId } = useRatingContext();
+  
+  // Mutation hook for login
+  const loginMutation = useUserUserControllerLogin();
 
-  const handleSubmit = () => {
-    // Basic validation: non-empty
-    if (!userCode.trim()) {
+  const handleSubmit = async () => {
+    setLoginError(null);
+    
+    // Validate: exactly 5 characters
+    if (userCode.trim().length !== 5) {
+      setLoginError("Personal code must be exactly 5 characters");
       return;
     }
 
-    // Store user code in context
-    setContextUserCode(userCode);
-    
-    // TODO: Replace with actual API call to verify user code
-    // const { data } = await verifyUserCodeMutation.mutateAsync({ code: userCode });
-    // setPresentationId(data.presentationId);
-    
-    // For now, use a mock presentationId
-    setPresentationId("mock-presentation-id");
-    
-    // Navigate to waiting room
-    navigate(`/rate/wait/mock-presentation-id`);
+    try {
+      // Use mutation hook to login
+      await loginMutation.mutateAsync({ code: userCode.trim() });
+
+      // Login successful - cookie is set by backend
+      // Navigate to waiting room (no presentationId yet, will poll for active)
+      navigate("/rate/wait");
+    } catch {
+      // Always show user-friendly message regardless of backend error
+      setLoginError("Invalid code. Please try again.");
+    }
   };
 
   return (
@@ -52,6 +52,9 @@ export default function RateLogin() {
           value={userCode}
           onChange={(e) => setUserCode(e.target.value)}
         />
+        {loginError && (
+          <p className="text-red-500 text-sm text-center">{loginError}</p>
+        )}
       </div>
 
       <div className="mt-6 w-full max-w-md">
