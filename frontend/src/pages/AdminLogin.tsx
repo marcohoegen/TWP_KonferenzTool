@@ -66,6 +66,15 @@ const AdminLogin = () => {
         />
       </div>
 
+      <div className="mt-4 w-full max-w-md">
+        <button
+          onClick={() => navigate("/admin-register")}
+          className="w-full py-2 px-4 rounded bg-transparent hover:bg-transparent text-sky-600 hover:underline font-medium transition"
+        >
+          Noch nicht registriert?
+        </button>
+      </div>
+
       {error && (
         <div className="mt-4 w-full max-w-md">
           <ErrorPopup
