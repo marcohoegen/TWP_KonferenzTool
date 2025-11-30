@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import confeedLogo from "../assets/confeedlogo.svg";
+import confeedLogo from "../assets/confeedMinimal.svg";
 
 interface SidebarProps {
   menuItems: Array<{ label: string; path: string }>;
@@ -16,7 +16,7 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      
+
       const newWidth = e.clientX;
       // Constrain width between 200px and 400px
       if (newWidth >= 200 && newWidth <= 400) {
@@ -32,14 +32,14 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
       };
     }
   }, [isResizing, onWidthChange]);
@@ -47,13 +47,13 @@ export default function Sidebar({ menuItems, onWidthChange }: SidebarProps) {
   // Cleanup on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
     };
   }, []);
 
   return (
-    <aside 
+    <aside
       style={{ width: `${sidebarWidth}px` }}
       className="fixed left-0 top-0 h-screen bg-white border-r-2 border-sky-500 flex flex-col transition-none"
     >

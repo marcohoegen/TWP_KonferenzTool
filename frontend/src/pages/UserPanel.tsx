@@ -1,4 +1,4 @@
-import confeedlogo from "../assets/confeedlogo.svg";
+import confeedlogo from "../assets/confeedMinimal.svg";
 import ButtonGreenRed from "../common/ButtonGreenRed";
 import ButtonImport from "../common/ButtonImport";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";

@@ -1,5 +1,5 @@
 import ButtonMenu from "./ButtonMenu";
-import confeedLogo from "../assets/confeedlogo.svg";
+import confeedLogo from "../assets/confeedMinimal.svg";
 
 interface TopMenuBarProps {
   pageTitle: string;
@@ -18,12 +18,14 @@ export default function TopMenuBar({
       <div className="flex items-center flex-shrink-0">
         <img src={confeedLogo} alt="Confeed Logo" className="h-12 w-auto" />
       </div>
-      
+
       {/* Page title in center */}
       <div className="flex-1 text-center">
-        <span className="text-base font-medium text-gray-900">{pageTitle}</span>
+        <span className="text-2xl font-semibold text-gray-900">
+          {pageTitle}
+        </span>
       </div>
-      
+
       {/* Menu button on right */}
       <div className="flex items-center flex-shrink-0">
         <ButtonMenu items={menuItems} size={24} onNavigate={onNavigate} />

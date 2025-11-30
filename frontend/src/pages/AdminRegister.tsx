@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import InputFieldLogin from "../components/InputFieldLogin";
 import InputFieldPassword from "../common/InputFieldPassword";
-import confeedlogo from "../assets/confeedlogo.svg";
+import confeedlogo from "../assets/confeedMinimal.svg";
 import ErrorPopup from "../common/ErrorPopup";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
 import { useAdminAdminControllerCreate } from "../api/generate/hooks/AdminService.hooks";
@@ -29,8 +29,8 @@ const AdminRegister = () => {
     if (success) {
       const timer = setTimeout(() => {
         setSuccess(false);
-        navigate("/adminseite");
-      }, 2000);
+        navigate("/admin/login");
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
@@ -88,7 +88,11 @@ const AdminRegister = () => {
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
-      <img src={confeedlogo} alt="Confeed Logo" className="w-[85vw] max-w-xs h-auto mx-auto" />
+      <img
+        src={confeedlogo}
+        alt="Confeed Logo"
+        className="w-[85vw] max-w-xs h-auto mx-auto"
+      />
       <h2 className="text-xl font-semibold mt-4">Admin-Registrierung</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
@@ -128,7 +132,7 @@ const AdminRegister = () => {
 
       <div className="mt-4 w-full max-w-md">
         <button
-          onClick={() => navigate("/adminseite")}
+          onClick={() => navigate("/admin/login")}
           className="w-full py-2 px-4 rounded bg-transparent hover:bg-transparent text-sky-600 hover:underline font-medium transition"
         >
           Zurück zum Login

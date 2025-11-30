@@ -51,7 +51,7 @@ model User {
   codeSentAt DateTime?
 //Fremdschlüssel
   conferenceId Int
-  conference Conference @relation(fields: [conferenceId], references: [id])
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
 // Many-to-many: a user can be presenter for many presentations
   presentations Presentation[]
   ratings Rating[]
@@ -65,7 +65,7 @@ model Presentation {
   status PresentationStatus @default(INACTIVE)
 //Fremdschlüssel
   conferenceId Int
-  conference Conference @relation(fields: [conferenceId], references: [id])
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
 
   // Many-to-many relation: multiple users can be presenters of a presentation
   presenters User[]
@@ -87,8 +87,8 @@ model Rating {
   createdAt DateTime @default(now())
 //Fremdschlüssel
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   presentationId Int
-  presentation Presentation @relation(fields: [presentationId], references: [id])  
+  presentation Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)  
 }
