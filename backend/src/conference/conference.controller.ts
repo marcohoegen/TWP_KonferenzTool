@@ -7,16 +7,19 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ConferenceService } from './conference.service';
 import { CreateConferenceDto } from './dto/create-conference.dto';
 import { UpdateConferenceDto } from './dto/update-conference.dto';
 import { Conference } from './entities/conference.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('conference')
 export class ConferenceController {
   constructor(private readonly conferenceService: ConferenceService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createConferenceDto: CreateConferenceDto,
@@ -54,6 +57,7 @@ export class ConferenceController {
     return new Conference(conference);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -72,6 +76,7 @@ export class ConferenceController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
