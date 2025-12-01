@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
@@ -51,6 +52,22 @@ export class RatingController {
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Rating> {
     const rating = await this.ratingService.findOne(id);
     return new Rating(rating);
+  }
+
+  @Get('presentation/:presentationId')
+  async findStatsByPresentationId(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Query('minRatings', ParseIntPipe) minRatings: number = 1,
+  ) {
+    return this.ratingService.getStatisticsForPresentation(
+      presentationId,
+      minRatings,
+    );
+  }
+
+  @Get('presentations/ranking')
+  async getRanking(@Query('minRatings', ParseIntPipe) minRatings: number = 1) {
+    return this.ratingService.getRankingForPresentations(minRatings);
   }
 
   @Patch(':id')
