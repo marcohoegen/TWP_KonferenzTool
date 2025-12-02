@@ -58,8 +58,13 @@ function renderStarRating(rating: number) {
         .map((_, i) => (
           <span key={`full-${i}`} className="text-yellow-400">★</span>
         ))}
-      {/* Half star */}
-      {hasHalfStar && <span className="text-yellow-400">⯨</span>}
+      {/* Half star - using visually distinctive character */}
+      {hasHalfStar && (
+        <span className="text-yellow-400 relative">
+          <span className="absolute inset-0 overflow-hidden w-1/2">★</span>
+          <span className="text-gray-300">★</span>
+        </span>
+      )}
       {/* Empty stars */}
       {Array(emptyStars)
         .fill(0)
