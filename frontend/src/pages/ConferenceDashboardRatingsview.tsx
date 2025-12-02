@@ -43,6 +43,32 @@ function formatNumberDE(value: number): string {
   return value.toFixed(2).replace(".", ",");
 }
 
+// Helper function to render star rating with partial fill
+function renderStarRating(rating: number) {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return (
+    <div className="flex gap-0.5">
+      {/* Full stars */}
+      {Array(fullStars)
+        .fill(0)
+        .map((_, i) => (
+          <span key={`full-${i}`} className="text-yellow-400">★</span>
+        ))}
+      {/* Half star */}
+      {hasHalfStar && <span className="text-yellow-400">⯨</span>}
+      {/* Empty stars */}
+      {Array(emptyStars)
+        .fill(0)
+        .map((_, i) => (
+          <span key={`empty-${i}`} className="text-gray-300">★</span>
+        ))}
+    </div>
+  );
+}
+
 export default function ConferenceDashboardRatingsview() {
   const { conferenceId } = useParams<{ conferenceId: string }>();
 
@@ -176,19 +202,22 @@ export default function ConferenceDashboardRatingsview() {
     const maxCount = Math.max(...histogramArray, 1);
 
     return (
-      <div className="mb-2 md:mb-3">
-        <h5 className="text-xs md:text-sm font-semibold text-slate-700 mb-1 md:mb-2">{label}</h5>
-        <div className="flex items-end gap-1 md:gap-2 h-20 md:h-24">
+      <div className="mb-4">
+        <h5 className="text-xs font-semibold text-slate-700 mb-2">{label}</h5>
+        <div className="flex items-end justify-between gap-2 h-32">
           {histogramArray.map((count, index) => {
             const heightPercent = (count / maxCount) * 100;
             return (
               <div key={index} className="flex flex-col items-center flex-1">
-                <span className="text-xs text-slate-600 mb-1">{count}</span>
-                <div
-                  className="w-full bg-sky-500 rounded-t"
-                  style={{ height: `${heightPercent}%`, minHeight: count > 0 ? "2px" : "0" }}
-                ></div>
-                <span className="text-xs text-slate-500 mt-1">{index + 1}★</span>
+                <span className="text-xs text-slate-600 mb-1 font-semibold">{count}</span>
+                <div className="w-full bg-sky-500 rounded-t flex-1 flex items-end justify-center" style={{ minHeight: "4px", maxHeight: "100px" }}>
+                  {/* Use flex-grow instead of percentage height */}
+                  <div
+                    className="w-full bg-sky-500 rounded-t transition-all"
+                    style={{ height: `${heightPercent}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-slate-500 mt-2">{index + 1}★</span>
               </div>
             );
           })}
@@ -331,8 +360,8 @@ export default function ConferenceDashboardRatingsview() {
                     <div className="text-3xl font-bold text-sky-600">
                       {formatNumberDE(item.overallAverage)}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">
-                      ★★★★★
+                    <div className="text-sm mt-2">
+                      {renderStarRating(item.overallAverage)}
                     </div>
                   </div>
                 </div>
