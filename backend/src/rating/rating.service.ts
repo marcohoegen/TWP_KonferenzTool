@@ -159,10 +159,11 @@ export class RatingService {
     };
   }
 
-  // Method to get overall ranking for all presentations
+  // Method to get overall ranking for all presentations (optionally filtered by conference)
 
-  async getRankingForPresentations(minRatings: number = 1) {
+  async getRankingForPresentations(minRatings: number = 1, conferenceId?: number) {
     const presentations = await this.prisma.presentation.findMany({
+      where: conferenceId ? { conferenceId } : undefined,
       include: { ratings: true, presenters: true },
     });
 

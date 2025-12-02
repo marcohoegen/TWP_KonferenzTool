@@ -71,8 +71,10 @@ export class RatingController {
   async getRanking(
     @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
     minRatings: number,
+    @Query('conferenceId', new DefaultValuePipe(undefined), ParseIntPipe)
+    conferenceId?: number,
   ) {
-    return this.ratingService.getRankingForPresentations(minRatings);
+    return this.ratingService.getRankingForPresentations(minRatings, conferenceId);
   }
 
   @Patch(':id')
