@@ -19,7 +19,6 @@ interface RatingStats {
   median: number;
   histogram: Record<number, number>;
   histogramHeights: Record<number, number>;
-  maxHistogramValue: number;
 }
 
 interface PresentationRanking {
@@ -31,7 +30,6 @@ interface PresentationRanking {
   contentsRatingStats: RatingStats;
   styleRatingStats: RatingStats;
   slidesRatingStats: RatingStats;
-  globalMaxHistogramValue: number;
 }
 
 type SortField =
@@ -87,9 +85,12 @@ export default function ConferenceDashboardRatingsView() {
     data: rankingData,
     isLoading,
     error,
-  } = useRatingRatingControllerGetRanking([appliedMinRatings, conferenceId ? Number(conferenceId) : undefined], {
-    enabled: !!conferenceId,
-  });
+  } = useRatingRatingControllerGetRanking(
+    [appliedMinRatings, conferenceId ? Number(conferenceId) : undefined], 
+    {
+      enabled: !!conferenceId,
+    }
+  );
 
   // Parse ranking data and filter by conference
   const allRankings: PresentationRanking[] = rankingData || [];
@@ -125,9 +126,9 @@ export default function ConferenceDashboardRatingsView() {
       // Toggle direction if same field
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      // New field, default to ascending
+      // New field, set default direction based on field type
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection(field === "overallAverage" ? "desc" : "asc");
     }
   }
 
