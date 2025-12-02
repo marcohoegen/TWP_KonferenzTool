@@ -36,6 +36,7 @@ export class ConferenceController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<Conference[]> {
     const conferences = await this.conferenceService.findAll();
@@ -51,6 +52,7 @@ export class ConferenceController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Conference> {
     const conference = await this.conferenceService.findOne(id);

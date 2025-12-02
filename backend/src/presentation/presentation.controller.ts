@@ -14,7 +14,7 @@ import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { Presentation } from './entities/presentation.entity';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, JwtEitherAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('presentation')
 export class PresentationController {
@@ -38,6 +38,7 @@ export class PresentationController {
     });
   }
 
+  @UseGuards(JwtEitherAuthGuard)
   @Get()
   async findAll(): Promise<Presentation[]> {
     const presentations = await this.presentationService.findAll();
@@ -53,6 +54,7 @@ export class PresentationController {
     );
   }
 
+  @UseGuards(JwtEitherAuthGuard)
   @Get('conference/:conferenceId')
   async findPresentationsByConferenceId(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
@@ -73,6 +75,7 @@ export class PresentationController {
     );
   }
 
+  @UseGuards(JwtEitherAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.presentationService.findOne(id);
