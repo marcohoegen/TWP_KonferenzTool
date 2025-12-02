@@ -183,7 +183,6 @@ export class RatingService {
         median: number;
         histogram: Record<number, number>;
         histogramHeights: Record<number, number>;
-        maxHistogramValue: number;
       };
       styleRatingStats: {
         average: number;
@@ -192,7 +191,6 @@ export class RatingService {
         median: number;
         histogram: Record<number, number>;
         histogramHeights: Record<number, number>;
-        maxHistogramValue: number;
       };
       slidesRatingStats: {
         average: number;
@@ -201,9 +199,7 @@ export class RatingService {
         median: number;
         histogram: Record<number, number>;
         histogramHeights: Record<number, number>;
-        maxHistogramValue: number;
       };
-      globalMaxHistogramValue: number;
     }> = [];
 
     for (const p of presentations) {
@@ -219,16 +215,13 @@ export class RatingService {
       const styleStats = this.calculateStatistics(styleRatings);
       const slidesStats = this.calculateStatistics(slidesRatings);
 
-      // Calculate max histogram values for each category
+      // Calculate max histogram values for each category and global max
       const contentMaxHistogram = Math.max(...Object.values(contentStats.histogram || {}), 1);
       const styleMaxHistogram = Math.max(...Object.values(styleStats.histogram || {}), 1);
       const slidesMaxHistogram = Math.max(...Object.values(slidesStats.histogram || {}), 1);
-
-      // Calculate global max across all three categories for comparison
       const globalMaxHistogram = Math.max(contentMaxHistogram, styleMaxHistogram, slidesMaxHistogram);
 
       // Calculate bar heights (percentages) for each category using GLOBAL max
-      // This allows visual comparison between Contents, Style, and Slides histograms
       const contentHistogramHeights = this.calculateHistogramHeights(contentStats.histogram, globalMaxHistogram);
       const styleHistogramHeights = this.calculateHistogramHeights(styleStats.histogram, globalMaxHistogram);
       const slidesHistogramHeights = this.calculateHistogramHeights(slidesStats.histogram, globalMaxHistogram);
@@ -252,19 +245,15 @@ export class RatingService {
         contentsRatingStats: {
           ...contentStats,
           histogramHeights: contentHistogramHeights,
-          maxHistogramValue: contentMaxHistogram,
         },
         styleRatingStats: {
           ...styleStats,
           histogramHeights: styleHistogramHeights,
-          maxHistogramValue: styleMaxHistogram,
         },
         slidesRatingStats: {
           ...slidesStats,
           histogramHeights: slidesHistogramHeights,
-          maxHistogramValue: slidesMaxHistogram,
         },
-        globalMaxHistogramValue: globalMaxHistogram,
       });
     }
 
