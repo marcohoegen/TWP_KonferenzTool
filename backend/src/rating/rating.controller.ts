@@ -71,12 +71,12 @@ export class RatingController {
   async getRanking(
     @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
     minRatings: number,
-    @Query('conferenceId', new DefaultValuePipe(undefined), ParseIntPipe)
-    conferenceId?: number,
+    @Query('conferenceId') conferenceId?: string,
   ) {
+    const confId = conferenceId ? parseInt(conferenceId, 10) : undefined;
     return this.ratingService.getRankingForPresentations(
       minRatings,
-      conferenceId,
+      confId,
     );
   }
 

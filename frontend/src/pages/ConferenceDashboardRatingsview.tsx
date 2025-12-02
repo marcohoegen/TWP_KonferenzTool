@@ -18,6 +18,8 @@ interface RatingStats {
   max: number;
   median: number;
   histogram: Record<number, number>;
+  histogramHeights: Record<number, number>;
+  maxHistogramValue: number;
 }
 
 interface PresentationRanking {
@@ -29,6 +31,7 @@ interface PresentationRanking {
   contentsRatingStats: RatingStats;
   styleRatingStats: RatingStats;
   slidesRatingStats: RatingStats;
+  globalMaxHistogramValue: number;
 }
 
 type SortField =
@@ -193,31 +196,40 @@ export default function ConferenceDashboardRatingsview() {
     setExpandedCard(expandedCard === presentationId ? null : presentationId);
   }
 
-  // Render histogram - convert Record to array
-  function renderHistogram(histogram: Record<number, number> | undefined, label: string) {
-    if (!histogram || Object.keys(histogram).length === 0) return null;
+  // Render histogram - just display pre-calculated heights from backend
+  function renderHistogram(histogram: Record<number, number> | undefined, histogramHeights: Record<number, number> | undefined, label: string) {
+    if (!histogram || !histogramHeights || Object.keys(histogram).length === 0) return null;
 
     // Convert histogram object to array: [count_for_1star, count_for_2stars, ...]
     const histogramArray = [1, 2, 3, 4, 5].map(rating => histogram[rating] || 0);
-    const maxCount = Math.max(...histogramArray, 1);
+    const heightsArray = [1, 2, 3, 4, 5].map(rating => histogramHeights[rating] || 0);
 
     return (
-      <div className="mb-4">
+      <div className="mb-8">
         <h5 className="text-xs font-semibold text-slate-700 mb-2">{label}</h5>
-        <div className="flex items-end justify-between gap-2 h-32">
+        <div className="flex items-end justify-between gap-2 w-full" style={{ height: "120px", position: "relative", paddingTop: "20px", paddingBottom: "28px" }}>
           {histogramArray.map((count, index) => {
-            const heightPercent = (count / maxCount) * 100;
+            // Use pre-calculated height from backend - no frontend calculations
+            const displayHeight = heightsArray[index];
+            
             return (
-              <div key={index} className="flex flex-col items-center flex-1">
-                <span className="text-xs text-slate-600 mb-1 font-semibold">{count}</span>
-                <div className="w-full bg-sky-500 rounded-t flex-1 flex items-end justify-center" style={{ minHeight: "4px", maxHeight: "100px" }}>
-                  {/* Use flex-grow instead of percentage height */}
-                  <div
-                    className="w-full bg-sky-500 rounded-t transition-all"
-                    style={{ height: `${heightPercent}%` }}
-                  ></div>
+              <div key={index} className="flex flex-col items-center flex-1 h-full" style={{ position: "relative" }}>
+                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-slate-600 font-semibold whitespace-nowrap">
+                  {count}
                 </div>
-                <span className="text-xs text-slate-500 mt-2">{index + 1}★</span>
+                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-slate-500">
+                  {index + 1}★
+                </div>
+                <div
+                  className="w-full bg-sky-500 rounded-t transition-all"
+                  style={{ 
+                    height: `${displayHeight}%`,
+                    minHeight: displayHeight > 0 ? "2px" : "0px",
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0"
+                  }}
+                ></div>
               </div>
             );
           })}
@@ -423,9 +435,9 @@ export default function ConferenceDashboardRatingsview() {
                     Bewertungsverteilung
                   </h4>
                   <div className="space-y-4">
-                    {renderHistogram(item.contentsRatingStats.histogram, "Inhalt")}
-                    {renderHistogram(item.styleRatingStats.histogram, "Stil")}
-                    {renderHistogram(item.slidesRatingStats.histogram, "Folien")}
+                    {renderHistogram(item.contentsRatingStats.histogram, item.contentsRatingStats.histogramHeights, "Inhalt")}
+                    {renderHistogram(item.styleRatingStats.histogram, item.styleRatingStats.histogramHeights, "Stil")}
+                    {renderHistogram(item.slidesRatingStats.histogram, item.slidesRatingStats.histogramHeights, "Folien")}
                   </div>
                   
                   {/* Statistics */}

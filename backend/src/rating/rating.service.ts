@@ -182,6 +182,8 @@ export class RatingService {
         max: number;
         median: number;
         histogram: Record<number, number>;
+        histogramHeights: Record<number, number>;
+        maxHistogramValue: number;
       };
       styleRatingStats: {
         average: number;
@@ -189,6 +191,8 @@ export class RatingService {
         max: number;
         median: number;
         histogram: Record<number, number>;
+        histogramHeights: Record<number, number>;
+        maxHistogramValue: number;
       };
       slidesRatingStats: {
         average: number;
@@ -196,7 +200,10 @@ export class RatingService {
         max: number;
         median: number;
         histogram: Record<number, number>;
+        histogramHeights: Record<number, number>;
+        maxHistogramValue: number;
       };
+      globalMaxHistogramValue: number;
     }> = [];
 
     for (const p of presentations) {
@@ -211,6 +218,20 @@ export class RatingService {
       const contentStats = this.calculateStatistics(contentsRatings);
       const styleStats = this.calculateStatistics(styleRatings);
       const slidesStats = this.calculateStatistics(slidesRatings);
+
+      // Calculate max histogram values for each category
+      const contentMaxHistogram = Math.max(...Object.values(contentStats.histogram || {}), 1);
+      const styleMaxHistogram = Math.max(...Object.values(styleStats.histogram || {}), 1);
+      const slidesMaxHistogram = Math.max(...Object.values(slidesStats.histogram || {}), 1);
+
+      // Calculate global max across all three categories for comparison
+      const globalMaxHistogram = Math.max(contentMaxHistogram, styleMaxHistogram, slidesMaxHistogram);
+
+      // Calculate bar heights (percentages) for each category using GLOBAL max
+      // This allows visual comparison between Contents, Style, and Slides histograms
+      const contentHistogramHeights = this.calculateHistogramHeights(contentStats.histogram, globalMaxHistogram);
+      const styleHistogramHeights = this.calculateHistogramHeights(styleStats.histogram, globalMaxHistogram);
+      const slidesHistogramHeights = this.calculateHistogramHeights(slidesStats.histogram, globalMaxHistogram);
 
       const overallAverage = Number(
         (
@@ -228,14 +249,41 @@ export class RatingService {
         })),
         numberOfRatings: p.ratings.length,
         overallAverage,
-        contentsRatingStats: contentStats,
-        styleRatingStats: styleStats,
-        slidesRatingStats: slidesStats,
+        contentsRatingStats: {
+          ...contentStats,
+          histogramHeights: contentHistogramHeights,
+          maxHistogramValue: contentMaxHistogram,
+        },
+        styleRatingStats: {
+          ...styleStats,
+          histogramHeights: styleHistogramHeights,
+          maxHistogramValue: styleMaxHistogram,
+        },
+        slidesRatingStats: {
+          ...slidesStats,
+          histogramHeights: slidesHistogramHeights,
+          maxHistogramValue: slidesMaxHistogram,
+        },
+        globalMaxHistogramValue: globalMaxHistogram,
       });
     }
 
     ranking.sort((a, b) => b.overallAverage - a.overallAverage);
 
     return ranking;
+  }
+
+  // Helper method to calculate histogram bar heights as percentages
+  private calculateHistogramHeights(histogram: Record<number, number>, globalMaxCount: number): Record<number, number> {
+    const heights: Record<number, number> = {};
+    
+    for (let rating = 1; rating <= 5; rating++) {
+      const count = histogram[rating] || 0;
+      // Calculate percentage directly - pure proportional scaling
+      const heightPercent = globalMaxCount > 0 ? (count / globalMaxCount) * 100 : 0;
+      heights[rating] = Math.round(heightPercent * 100) / 100; // Round to 2 decimals
+    }
+    
+    return heights;
   }
 }
