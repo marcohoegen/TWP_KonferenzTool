@@ -360,9 +360,7 @@ export default function ConferenceDashboardRatingsView() {
 
       {/* Presentation Cards */}
       <div className="flex flex-wrap gap-4 justify-center">
-        {isLoading ? (
-          <BasicSpinner />
-        ) : sortedRankings.length > 0 ? (
+        {sortedRankings.length > 0 ? (
           sortedRankings.map((item) => (
             <CardBasic key={item.presentationId} title={`#${item.rank} - ${item.title}`}>
               <div className="space-y-2 text-sm text-left">
