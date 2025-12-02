@@ -8,6 +8,11 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { JwtUserStrategy } from './jwt-user.strategy';
 import { UserModule } from 'src/user/user.module';
 import { UserController } from 'src/user/user.controller';
+import {
+  JwtAuthGuard,
+  JwtUserAuthGuard,
+  JwtEitherAuthGuard,
+} from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -23,7 +28,14 @@ import { UserController } from 'src/user/user.controller';
     }),
   ],
   controllers: [AdminController, UserController],
-  providers: [AuthService, JwtStrategy, JwtUserStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtUserStrategy,
+    JwtAuthGuard,
+    JwtUserAuthGuard,
+    JwtEitherAuthGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, JwtUserAuthGuard, JwtEitherAuthGuard],
 })
 export class AuthModule {}
