@@ -30,6 +30,7 @@ import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
 import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
 import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
+import ConferenceDashboardRatingsview from "./pages/ConferenceDashboardRatingsview";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({
@@ -194,6 +195,10 @@ export default function App() {
       label: "Präsentations-Verwaltung",
       path: "/admin/:conferenceId/presentations",
     },
+    {
+      label: "Bewertungen & Analytics",
+      path: "/admin/:conferenceId/ratings",
+    },
     { label: "Zurück zu Konferenzen", path: "/admin/dashboard" },
   ];
 
@@ -233,6 +238,17 @@ export default function App() {
               menuItems={AdminConferenceMenu}
             >
               <ConferenceDashboardPresentationView />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/admin/:conferenceId/ratings"
+          element={
+            <PageWithMenu
+              title="Bewertungen & Analytics"
+              menuItems={AdminConferenceMenu}
+            >
+              <ConferenceDashboardRatingsview />
             </PageWithMenu>
           }
         />
