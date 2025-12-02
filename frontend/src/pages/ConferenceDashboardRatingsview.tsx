@@ -72,7 +72,7 @@ function renderStarRating(rating: number) {
   );
 }
 
-export default function ConferenceDashboardRatingsview() {
+export default function ConferenceDashboardRatingsView() {
   const { conferenceId } = useParams<{ conferenceId: string }>();
 
   // State management
