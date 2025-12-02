@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  DefaultValuePipe,
   Query,
 } from '@nestjs/common';
 import { RatingService } from './rating.service';
@@ -57,7 +58,8 @@ export class RatingController {
   @Get('presentation/:presentationId')
   async findStatsByPresentationId(
     @Param('presentationId', ParseIntPipe) presentationId: number,
-    @Query('minRatings', ParseIntPipe) minRatings: number = 1,
+    @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
+    minRatings: number,
   ) {
     return this.ratingService.getStatisticsForPresentation(
       presentationId,
@@ -66,7 +68,10 @@ export class RatingController {
   }
 
   @Get('presentations/ranking')
-  async getRanking(@Query('minRatings', ParseIntPipe) minRatings: number = 1) {
+  async getRanking(
+    @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
+    minRatings: number,
+  ) {
     return this.ratingService.getRankingForPresentations(minRatings);
   }
 
