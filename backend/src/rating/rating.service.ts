@@ -176,6 +176,9 @@ export class RatingService {
       presenters: Array<{ id: number; name: string }>;
       numberOfRatings: number;
       overallAverage: number;
+      overallMedian: number;
+      overallMin: number;
+      overallMax: number;
       contentsRatingStats: {
         average: number;
         min: number;
@@ -233,6 +236,22 @@ export class RatingService {
         ).toFixed(2),
       );
 
+      // Calculate true overall median from all ratings combined
+      const allRatings = [...contentsRatings, ...styleRatings, ...slidesRatings];
+      const sortedAllRatings = allRatings.sort((a, b) => a - b);
+      let overallMedian: number;
+      const midIndex = Math.floor(sortedAllRatings.length / 2);
+      if (sortedAllRatings.length % 2 === 0) {
+        overallMedian = (sortedAllRatings[midIndex - 1] + sortedAllRatings[midIndex]) / 2;
+      } else {
+        overallMedian = sortedAllRatings[midIndex];
+      }
+      overallMedian = Number(overallMedian.toFixed(2));
+
+      // Calculate overall min and max
+      const overallMin = Math.min(contentStats.min, styleStats.min, slidesStats.min);
+      const overallMax = Math.max(contentStats.max, styleStats.max, slidesStats.max);
+
       ranking.push({
         presentationId: p.id,
         title: p.title,
@@ -242,6 +261,9 @@ export class RatingService {
         })),
         numberOfRatings: p.ratings.length,
         overallAverage,
+        overallMedian,
+        overallMin,
+        overallMax,
         contentsRatingStats: {
           ...contentStats,
           histogramHeights: contentHistogramHeights,

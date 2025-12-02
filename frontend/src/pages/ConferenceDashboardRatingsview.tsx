@@ -27,6 +27,9 @@ interface PresentationRanking {
   presenters: PresenterInfo[];
   numberOfRatings: number;
   overallAverage: number;
+  overallMedian: number;
+  overallMin: number;
+  overallMax: number;
   contentsRatingStats: RatingStats;
   styleRatingStats: RatingStats;
   slidesRatingStats: RatingStats;
@@ -450,27 +453,15 @@ export default function ConferenceDashboardRatingsView() {
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="text-center">
                         <div className="text-slate-600">Min</div>
-                        <div className="font-semibold">{Math.min(
-                          item.contentsRatingStats.min,
-                          item.styleRatingStats.min,
-                          item.slidesRatingStats.min
-                        )}</div>
+                        <div className="font-semibold">{item.overallMin}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-slate-600">Median</div>
-                        <div className="font-semibold">{formatNumberDE(
-                          (item.contentsRatingStats.median +
-                            item.styleRatingStats.median +
-                            item.slidesRatingStats.median) / 3
-                        )}</div>
+                        <div className="font-semibold">{formatNumberDE(item.overallMedian)}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-slate-600">Max</div>
-                        <div className="font-semibold">{Math.max(
-                          item.contentsRatingStats.max,
-                          item.styleRatingStats.max,
-                          item.slidesRatingStats.max
-                        )}</div>
+                        <div className="font-semibold">{item.overallMax}</div>
                       </div>
                     </div>
                   </div>
