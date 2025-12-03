@@ -5,6 +5,9 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
+  @IsNotEmpty()
+  name: string;
+
   @IsNumber()
   conferenceId: number;
 }

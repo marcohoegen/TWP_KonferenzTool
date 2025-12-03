@@ -114,6 +114,7 @@ async function main() {
         prisma.user.create({
           data: {
             email: faker.internet.email(),
+            name: faker.person.fullName(),
             code: Array.from({ length: 5 }, () =>
               faker.helpers.arrayElement(
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),

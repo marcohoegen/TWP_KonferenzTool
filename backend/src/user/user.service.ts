@@ -59,6 +59,7 @@ export class UserService {
     return await this.prisma.user.findMany({
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
         createdAt: true,
@@ -80,6 +81,7 @@ export class UserService {
       where: { id },
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
         createdAt: true,
@@ -215,6 +217,7 @@ export class UserService {
       where: { conferenceId },
       select: {
         id: true,
+        name: true,
         email: true,
         code: true,
         conferenceId: true,
