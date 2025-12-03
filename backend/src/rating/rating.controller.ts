@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  DefaultValuePipe,
+  Query,
 } from '@nestjs/common';
 import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
@@ -45,6 +47,28 @@ export class RatingController {
           presentationId: rating.presentationId,
         }),
     );
+  }
+
+  @Get('presentation/:presentationId')
+  async findStatsByPresentationId(
+    @Param('presentationId', ParseIntPipe) presentationId: number,
+    @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
+    minRatings: number,
+  ) {
+    return this.ratingService.getStatisticsForPresentation(
+      presentationId,
+      minRatings,
+    );
+  }
+
+  @Get('presentations/ranking')
+  async getRanking(
+    @Query('minRatings', new DefaultValuePipe(1), ParseIntPipe)
+    minRatings: number,
+    @Query('conferenceId') conferenceId?: string,
+  ) {
+    const confId = conferenceId ? parseInt(conferenceId, 10) : undefined;
+    return this.ratingService.getRankingForPresentations(minRatings, confId);
   }
 
   @Get(':id')
