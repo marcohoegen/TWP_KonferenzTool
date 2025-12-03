@@ -12,6 +12,7 @@ import {
   useUserUserControllerCreate,
   useUserUserControllerUpdate,
   useUserUserControllerRemove,
+  useUserUserControllerUploadCsv,
 } from "../api/generate/hooks/UserService.hooks";
 import { useEmailEmailControllerSendOneCodeByUserId } from "../api/generate/hooks/EmailService.hooks";
 import type { User } from "../api/generate/models/User";
@@ -27,6 +28,8 @@ export default function ConferenceDashboardUserView() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [showCsvForm, setShowCsvForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Use hooks - passing conferenceId to get users for this specific conference
   const { data: users, isLoading } =
@@ -35,6 +38,7 @@ export default function ConferenceDashboardUserView() {
   const updateMutation = useUserUserControllerUpdate();
   const removeMutation = useUserUserControllerRemove();
   const sendEmailMutation = useEmailEmailControllerSendOneCodeByUserId();
+  const uploadCSVMutation = useUserUserControllerUploadCsv();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -143,16 +147,50 @@ export default function ConferenceDashboardUserView() {
     });
   }
 
+  function handleCsvSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedFile) {
+      setError("Bitte wählen Sie eine CSV-Datei aus");
+      return;
+    }
+
+    uploadCSVMutation.mutate([conferenceIdNum, { file: selectedFile }], {
+      onSuccess: (data) => {
+        alert(`${data.length} Benutzer erfolgreich erstellt!`);
+        setShowCsvForm(false);
+        setSelectedFile(null);
+      },
+      onError: (err: unknown) => {
+        setError(err instanceof Error ? err.message : "Fehler beim CSV-Upload");
+      },
+    });
+  }
+
+  function closeCsvForm() {
+    if (selectedFile && !confirm("Änderungen verwerfen?")) return;
+    setShowCsvForm(false);
+    setSelectedFile(null);
+    setError("");
+  }
+
   return (
     <div className="p-4">
       <div className="mb-5">
         <div className="mt-3 max-w-lg mx-auto space-y-2">
-          <ButtonRoundedLgPrimaryBasic
-            className="w-full"
-            onClick={() => setShowForm(true)}
-          >
-            Neuen Benutzer erstellen
-          </ButtonRoundedLgPrimaryBasic>
+          <div className="flex gap-4 justify-center">
+            <ButtonRoundedLgPrimaryBasic
+              className="w-5/8"
+              onClick={() => setShowForm(true)}
+            >
+              Neuen Benutzer erstellen
+            </ButtonRoundedLgPrimaryBasic>
+            <ButtonRoundedLgPrimaryBasic
+              className="w-3/8"
+              onClick={() => setShowCsvForm(true)}
+            >
+              CSV-Upload
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
           <ButtonRoundedLgPrimaryBasic
             className="w-full"
             onClick={sendAllEmails}
@@ -228,6 +266,83 @@ export default function ConferenceDashboardUserView() {
                 <ButtonRoundedLgPrimaryBasic
                   type="button"
                   onClick={resetForm}
+                  className="flex-1"
+                >
+                  Abbrechen
+                </ButtonRoundedLgPrimaryBasic>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CSV Upload Popup */}
+      {showCsvForm && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={closeCsvForm}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={closeCsvForm}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              aria-label="Schließen"
+            >
+              ×
+            </button>
+
+            <h2 className="mb-4 text-xl font-bold">
+              Benutzer per CSV hochladen
+            </h2>
+
+            <form onSubmit={handleCsvSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block mb-1 font-medium">
+                  CSV-Datei <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="w-full border border-gray-300 rounded p-2"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  required
+                />
+                {selectedFile && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Ausgewählt: {selectedFile.name}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded">
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>Format:</strong> Die CSV-Datei muss die Spalten "Name"
+                  und "Email" enthalten.
+                </p>
+                <a
+                  href="/src/assets/UserUploadTemplate.csv"
+                  download="UserUploadTemplate.csv"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  ↓ CSV-Vorlage herunterladen
+                </a>
+              </div>
+
+              <div className="flex gap-2">
+                <ButtonRoundedLgPrimaryBasic
+                  type="submit"
+                  className="flex-1"
+                  disabled={uploadCSVMutation.isPending}
+                >
+                  {uploadCSVMutation.isPending ? "Hochladen..." : "Hochladen"}
+                </ButtonRoundedLgPrimaryBasic>
+                <ButtonRoundedLgPrimaryBasic
+                  type="button"
+                  onClick={closeCsvForm}
                   className="flex-1"
                 >
                   Abbrechen
