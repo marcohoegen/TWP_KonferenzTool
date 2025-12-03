@@ -30,7 +30,7 @@ import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
 import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
 import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
-import ConferenceDashboardRatingsview from "./pages/ConferenceDashboardRatingsView";
+import ConferenceDashboardRatingsView from "./pages/ConferenceDashboardRatingsView";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({
@@ -248,7 +248,7 @@ export default function App() {
               title="Bewertungen & Analytics"
               menuItems={AdminConferenceMenu}
             >
-              <ConferenceDashboardRatingsview />
+              <ConferenceDashboardRatingsView />
             </PageWithMenu>
           }
         />

@@ -49,12 +49,6 @@ export class RatingController {
     );
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Rating> {
-    const rating = await this.ratingService.findOne(id);
-    return new Rating(rating);
-  }
-
   @Get('presentation/:presentationId')
   async findStatsByPresentationId(
     @Param('presentationId', ParseIntPipe) presentationId: number,
@@ -74,10 +68,13 @@ export class RatingController {
     @Query('conferenceId') conferenceId?: string,
   ) {
     const confId = conferenceId ? parseInt(conferenceId, 10) : undefined;
-    return this.ratingService.getRankingForPresentations(
-      minRatings,
-      confId,
-    );
+    return this.ratingService.getRankingForPresentations(minRatings, confId);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Rating> {
+    const rating = await this.ratingService.findOne(id);
+    return new Rating(rating);
   }
 
   @Patch(':id')
