@@ -67,6 +67,7 @@ export class PresentationController {
           id: presentation.id,
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
+          presenters: presentation.presenters ?? [],
           conferenceId: presentation.conferenceId,
           status: presentation.status,
         }),

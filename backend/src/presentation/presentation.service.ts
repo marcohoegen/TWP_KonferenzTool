@@ -53,6 +53,7 @@ export class PresentationService {
         presenters: {
           select: {
             id: true,
+            name: true,
             email: true,
             conferenceId: true,
           },
@@ -75,6 +76,7 @@ export class PresentationService {
         presenters: {
           select: {
             id: true,
+            name: true,
             email: true,
             conferenceId: true,
           },
@@ -97,6 +99,7 @@ export class PresentationService {
         id: true,
         title: true,
         agendaPosition: true,
+        presenters: true,
         conferenceId: true,
         status: true,
       },

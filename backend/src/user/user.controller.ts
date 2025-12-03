@@ -127,7 +127,6 @@ export class UserController {
   @Post('upload-csv/:conferenceId')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: 'multipart/form-data',
     schema: {
       type: 'object',
       properties: {

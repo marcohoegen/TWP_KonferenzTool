@@ -255,7 +255,7 @@ export default function ConferenceDashboardPresentationView() {
                     <option disabled>Keine Benutzer verfügbar</option>
                   )}
                 </select>
-                <p className="text-xs text-gray-500 mt-1 sm:invisible md:visible">
+                <p className="text-xs text-gray-500 mt-1 invisible md:visible">
                   Halten Sie Strg/Cmd gedrückt, um mehrere auszuwählen
                 </p>
               </div>
@@ -293,7 +293,7 @@ export default function ConferenceDashboardPresentationView() {
                   presentation.presenters.length > 0 && (
                     <div>
                       <strong>Präsentatoren:</strong>{" "}
-                      {presentation.presenters.map((p) => p.email).join(", ")}
+                      {presentation.presenters.map((p) => p.name).join(", ")}
                     </div>
                   )}
               </div>
