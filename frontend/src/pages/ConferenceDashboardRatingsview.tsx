@@ -5,7 +5,7 @@ import BasicSpinner from "../common/BasicSpinner";
 import ErrorPopup from "../common/ErrorPopup";
 import CardBasic from "../common/CardBasic";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { formatNumberDE, handleExportCSV } from "../helper/helper";
+import { formatNumberDE, handleExportCSV, calculateHistogramHeights } from "../helper/helper";
 
 // Type definitions matching backend response
 interface PresenterInfo {
@@ -19,7 +19,6 @@ interface RatingStats {
   max: number;
   median: number;
   histogram: Record<number, number>;
-  histogramHeights: Record<number, number>;
 }
 
 interface PresentationRanking {
@@ -152,7 +151,7 @@ export default function ConferenceDashboardRatingsView() {
     setExpandedCard(expandedCard === presentationId ? null : presentationId);
   }
 
-  // Render histogram - just display pre-calculated heights from backend
+  // Render histogram - display with pre-calculated heights
   function renderHistogram(histogram: Record<number, number> | undefined, histogramHeights: Record<number, number> | undefined, label: string) {
     if (!histogram || !histogramHeights || Object.keys(histogram).length === 0) return null;
 
@@ -165,7 +164,6 @@ export default function ConferenceDashboardRatingsView() {
         <h5 className="text-xs font-semibold text-slate-700 mb-2">{label}</h5>
         <div className="flex items-end justify-between gap-2 w-full" style={{ height: "120px", position: "relative", paddingTop: "20px", paddingBottom: "28px" }}>
           {histogramArray.map((count, index) => {
-            // Use pre-calculated height from backend - no frontend calculations
             const displayHeight = heightsArray[index];
             
             return (
@@ -389,9 +387,20 @@ export default function ConferenceDashboardRatingsView() {
                     Bewertungsverteilung
                   </h4>
                   <div className="space-y-4">
-                    {renderHistogram(item.contentsRatingStats.histogram, item.contentsRatingStats.histogramHeights, "Inhalt")}
-                    {renderHistogram(item.styleRatingStats.histogram, item.styleRatingStats.histogramHeights, "Stil")}
-                    {renderHistogram(item.slidesRatingStats.histogram, item.slidesRatingStats.histogramHeights, "Folien")}
+                    {(() => {
+                      const heights = calculateHistogramHeights(
+                        item.contentsRatingStats.histogram,
+                        item.styleRatingStats.histogram,
+                        item.slidesRatingStats.histogram
+                      );
+                      return (
+                        <>
+                          {renderHistogram(item.contentsRatingStats.histogram, heights.contentHeights, "Inhalt")}
+                          {renderHistogram(item.styleRatingStats.histogram, heights.styleHeights, "Stil")}
+                          {renderHistogram(item.slidesRatingStats.histogram, heights.slidesHeights, "Folien")}
+                        </>
+                      );
+                    })()}
                   </div>
                   
                   {/* Statistics */}

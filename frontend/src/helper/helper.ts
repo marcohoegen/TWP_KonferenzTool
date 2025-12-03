@@ -71,3 +71,41 @@ export function handleExportCSV(sortedRankings, conferenceId: string) {
   link.click();
   document.body.removeChild(link);
 }
+
+// Helper function to calculate histogram bar heights as percentages
+// Takes individual histograms and calculates heights relative to global max for visual comparison
+export function calculateHistogramHeights(
+  contentHistogram: Record<number, number>,
+  styleHistogram: Record<number, number>,
+  slidesHistogram: Record<number, number>
+): {
+  contentHeights: Record<number, number>;
+  styleHeights: Record<number, number>;
+  slidesHeights: Record<number, number>;
+} {
+  // Find max values for each category
+  const contentMax = Math.max(...Object.values(contentHistogram || {}), 1);
+  const styleMax = Math.max(...Object.values(styleHistogram || {}), 1);
+  const slidesMax = Math.max(...Object.values(slidesHistogram || {}), 1);
+
+  // Global max across all categories for visual comparison
+  const globalMax = Math.max(contentMax, styleMax, slidesMax);
+
+  // Calculate heights as percentages using global max
+  const calculateHeights = (histogram: Record<number, number>) => {
+    const heights: Record<number, number> = {};
+    for (let rating = 1; rating <= 5; rating++) {
+      const count = histogram[rating] || 0;
+      const heightPercent = globalMax > 0 ? (count / globalMax) * 100 : 0;
+      heights[rating] = Math.round(heightPercent * 100) / 100; // Round to 2 decimals
+    }
+    return heights;
+  };
+
+  return {
+    contentHeights: calculateHeights(contentHistogram),
+    styleHeights: calculateHeights(styleHistogram),
+    slidesHeights: calculateHeights(slidesHistogram),
+  };
+}
+
