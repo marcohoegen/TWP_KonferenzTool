@@ -2,6 +2,7 @@ import {
   Injectable,
   ExecutionContext,
   UnauthorizedException,
+  CanActivate,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -12,24 +13,29 @@ export class JwtAuthGuard extends AuthGuard('jwt') {}
 export class JwtUserAuthGuard extends AuthGuard('userjwt') {}
 
 @Injectable()
-export class JwtEitherAuthGuard {
+export class JwtEitherAuthGuard implements CanActivate {
   constructor(
     private readonly adminGuard: JwtAuthGuard,
     private readonly userGuard: JwtUserAuthGuard,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Normalize possible boolean or Promise<boolean> returns from inner guards
     try {
-      // Versuch: Admin-JWT
-      const admin = await this.adminGuard.canActivate(context);
+      const adminResult = this.adminGuard.canActivate(context);
+      const admin = await Promise.resolve(
+        adminResult as boolean | Promise<boolean>,
+      );
       if (admin) return true;
     } catch (err) {
       // ignore admin guard errors and try user guard
     }
 
     try {
-      // Versuch: User-JWT
-      const user = await this.userGuard.canActivate(context);
+      const userResult = this.userGuard.canActivate(context);
+      const user = await Promise.resolve(
+        userResult as boolean | Promise<boolean>,
+      );
       if (user) return true;
     } catch (err) {
       // ignore user guard errors and fail below
