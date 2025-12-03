@@ -124,11 +124,6 @@ export default function ConferenceDashboardPresentationView() {
     setError("");
   }
 
-  function closePopup() {
-    if (!confirm("Änderungen verwerfen?")) return;
-    resetForm();
-  }
-
   function handleStatusUpdate(presentationId: number, e: React.MouseEvent) {
     e.stopPropagation();
 
@@ -172,7 +167,7 @@ export default function ConferenceDashboardPresentationView() {
       {showForm && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={closePopup}
+          onClick={resetForm}
         >
           <div
             className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
@@ -180,7 +175,7 @@ export default function ConferenceDashboardPresentationView() {
           >
             {/* Close button */}
             <button
-              onClick={closePopup}
+              onClick={resetForm}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
               aria-label="Schließen"
             >
@@ -221,7 +216,15 @@ export default function ConferenceDashboardPresentationView() {
                   onChange={(e) =>
                     setFormData({ ...formData, agendaPosition: e.target.value })
                   }
-                  placeholder="1"
+                  placeholder={
+                    presentations && presentations.length > 0
+                      ? String(
+                          Math.max(
+                            ...presentations.map((p) => p.agendaPosition)
+                          ) + 1
+                        )
+                      : "1"
+                  }
                   required
                   min="1"
                 />
@@ -244,15 +247,15 @@ export default function ConferenceDashboardPresentationView() {
                 >
                   {users && users.length > 0 ? (
                     users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.email}
+                      <option key={user.id} value={user.id} title={user.email}>
+                        {user.name}
                       </option>
                     ))
                   ) : (
                     <option disabled>Keine Benutzer verfügbar</option>
                   )}
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1 sm:invisible md:visible">
                   Halten Sie Strg/Cmd gedrückt, um mehrere auszuwählen
                 </p>
               </div>
@@ -285,9 +288,6 @@ export default function ConferenceDashboardPresentationView() {
                 <div>
                   <strong>Agenda Position:</strong>{" "}
                   {presentation.agendaPosition}
-                </div>
-                <div>
-                  <strong>Konferenz ID:</strong> {presentation.conferenceId}
                 </div>
                 {presentation.presenters &&
                   presentation.presenters.length > 0 && (

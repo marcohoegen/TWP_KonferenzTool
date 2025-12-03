@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -59,6 +60,7 @@ export class UserService {
     return await this.prisma.user.findMany({
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
         createdAt: true,
@@ -80,6 +82,7 @@ export class UserService {
       where: { id },
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
         createdAt: true,
@@ -215,6 +218,7 @@ export class UserService {
       where: { conferenceId },
       select: {
         id: true,
+        name: true,
         email: true,
         code: true,
         conferenceId: true,
@@ -222,5 +226,18 @@ export class UserService {
         codeSentAt: true,
       },
     });
+  }
+
+  async createMany(users: CreateUserDto[]) {
+    const createdUsers: User[] = [];
+    for (const userData of users) {
+      const user = await (this.create({
+        name: userData.name,
+        email: userData.email,
+        conferenceId: userData.conferenceId,
+      }) as Promise<User>);
+      createdUsers.push(user);
+    }
+    return createdUsers;
   }
 }
