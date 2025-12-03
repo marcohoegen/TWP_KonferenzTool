@@ -30,7 +30,7 @@ import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
 import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
 import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
-import ConferenceDashboardRatingsview from "./pages/ConferenceDashboardRatingsview";
+import ConferenceDashboardRatingsview from "./pages/ConferenceDashboardRatingsView";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({
