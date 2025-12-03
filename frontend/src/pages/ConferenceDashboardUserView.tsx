@@ -22,7 +22,7 @@ export default function ConferenceDashboardUserView() {
 
   const [formData, setFormData] = useState({
     email: "",
-    code: "",
+    name: "",
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -52,7 +52,11 @@ export default function ConferenceDashboardUserView() {
         },
       });
     } else {
-      const payload = { email: formData.email, conferenceId: conferenceIdNum };
+      const payload = {
+        email: formData.email,
+        name: formData.name,
+        conferenceId: conferenceIdNum,
+      };
       createMutation.mutate(payload, {
         onSuccess: () => {
           resetForm();
@@ -81,21 +85,16 @@ export default function ConferenceDashboardUserView() {
     setEditingId(user.id);
     setFormData({
       email: user.email,
-      code: user.code,
+      name: user.name,
     });
     setShowForm(true);
   }
 
   function resetForm() {
-    setFormData({ email: "", code: "" });
+    setFormData({ email: "", name: "" });
     setEditingId(null);
     setShowForm(false);
     setError("");
-  }
-
-  function closePopup() {
-    if (!confirm("Änderungen verwerfen?")) return;
-    resetForm();
   }
 
   function handleSendEmail(userId: number, e: React.MouseEvent) {
@@ -170,7 +169,7 @@ export default function ConferenceDashboardUserView() {
       {showForm && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={closePopup}
+          onClick={resetForm}
         >
           <div
             className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
@@ -178,7 +177,7 @@ export default function ConferenceDashboardUserView() {
           >
             {/* Close button */}
             <button
-              onClick={closePopup}
+              onClick={resetForm}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
               aria-label="Schließen"
             >
@@ -190,6 +189,22 @@ export default function ConferenceDashboardUserView() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block mb-1 font-medium">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded p-2"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Max Mustermann"
+                  required
+                />
+              </div>
+
               <div>
                 <label className="block mb-1 font-medium">
                   E-Mail <span className="text-red-500">*</span>
@@ -229,18 +244,29 @@ export default function ConferenceDashboardUserView() {
           <BasicSpinner />
         ) : users && users.length > 0 ? (
           users.map((user: User) => (
-            <CardBasic key={user.id} title={user.email}>
+            <CardBasic key={user.id} title={user.name}>
               <div className="space-y-2 text-sm text-left">
                 <div>
-                  <strong>Code:</strong> {user.code}
-                </div>
-                <div>
-                  <strong>Konferenz ID:</strong> {user.conferenceId}
+                  <strong>Email:</strong> {user.email}
                 </div>
                 {user.codeSentAt && (
                   <div>
-                    <strong>Code gesendet am:</strong>{" "}
-                    {new Date(user.codeSentAt).toLocaleString()}
+                    <div>
+                      <strong>Code gesendet am:</strong>{" "}
+                    </div>
+                    <div>
+                      {new Date(user.codeSentAt).toLocaleString("de-DE", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })}
+                      {", "}
+                      {new Date(user.codeSentAt).toLocaleTimeString("de-DE", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {" Uhr"}
+                    </div>
                   </div>
                 )}
               </div>
