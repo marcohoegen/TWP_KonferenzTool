@@ -24,7 +24,7 @@ import { User } from './entities/user.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import express from 'express';
-import { JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
 import type { Multer } from 'multer';
 
 @Controller('user')
@@ -123,7 +123,7 @@ export class UserController {
     return await this.userService.removePresentation(userId, presentationId);
   }
 
-  @UseGuards(JwtUserAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('upload-csv/:conferenceId')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
