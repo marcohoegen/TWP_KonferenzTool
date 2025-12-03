@@ -186,7 +186,10 @@ export default function ConferenceDashboardUserView() {
             </ButtonRoundedLgPrimaryBasic>
             <ButtonRoundedLgPrimaryBasic
               className="w-3/8"
-              onClick={() => setShowCsvForm(true)}
+              onClick={() => {
+                setShowCsvForm(true);
+                setError("");
+              }}
             >
               CSV-Upload
             </ButtonRoundedLgPrimaryBasic>
@@ -324,7 +327,7 @@ export default function ConferenceDashboardUserView() {
                   und "Email" enthalten.
                 </p>
                 <a
-                  href="/src/assets/UserUploadTemplate.csv"
+                  href="../assets/UserUploadTemplate.csv"
                   download="UserUploadTemplate.csv"
                   className="text-sm text-blue-600 hover:underline"
                 >

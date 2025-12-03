@@ -212,17 +212,18 @@ export default function ConferenceDashboardPresentationView() {
                 <input
                   type="number"
                   className="w-full border border-gray-300 rounded p-2"
-                  value={
-                    editingId
-                      ? formData.agendaPosition
-                      : presentations && presentations.length > 0
-                      ? Math.max(
-                          ...presentations.map((p) => p.agendaPosition)
-                        ) + 1
-                      : 1
-                  }
+                  value={formData.agendaPosition}
                   onChange={(e) =>
                     setFormData({ ...formData, agendaPosition: e.target.value })
+                  }
+                  placeholder={
+                    presentations && presentations.length > 0
+                      ? String(
+                          Math.max(
+                            ...presentations.map((p) => p.agendaPosition)
+                          ) + 1
+                        )
+                      : "1"
                   }
                   required
                   min="1"
@@ -254,7 +255,7 @@ export default function ConferenceDashboardPresentationView() {
                     <option disabled>Keine Benutzer verfügbar</option>
                   )}
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1 sm:invisible md:visible">
                   Halten Sie Strg/Cmd gedrückt, um mehrere auszuwählen
                 </p>
               </div>

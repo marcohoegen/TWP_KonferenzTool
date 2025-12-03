@@ -16,7 +16,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -123,6 +123,7 @@ export class UserController {
     return await this.userService.removePresentation(userId, presentationId);
   }
 
+  @UseGuards(JwtUserAuthGuard)
   @Post('upload-csv/:conferenceId')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -137,13 +138,22 @@ export class UserController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit
+    }),
+  )
   async uploadCsv(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
     @UploadedFile() file: Multer.File,
   ) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
+    }
+    if (file.mimetype !== 'text/csv') {
+      throw new BadRequestException(
+        'Invalid file type. Please upload a CSV file',
+      );
     }
 
     const csvContent = file.buffer.toString('utf-8');
