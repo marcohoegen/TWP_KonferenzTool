@@ -62,6 +62,7 @@ export class AdminController {
     return req.user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(200)
   logout(@Res({ passthrough: true }) res: express.Response) {
