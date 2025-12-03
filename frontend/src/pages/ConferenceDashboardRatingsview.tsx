@@ -44,8 +44,11 @@ type SortDirection = "asc" | "desc";
 
 // Helper function to render star rating with partial fill
 function renderStarRating(rating: number) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 >= 0.5;
+  // Round UP to nearest 0.5: 2.01 -> 2.5, 2.51 -> 3, 2.97
+  const roundedRating = Math.ceil(rating * 2) / 2;
+  
+  const fullStars = Math.floor(roundedRating);
+  const hasHalfStar = roundedRating % 1 === 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
