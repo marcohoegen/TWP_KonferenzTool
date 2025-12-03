@@ -11,7 +11,12 @@ import {
   Res,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,6 +25,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import express from 'express';
 import { JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
+import type { Multer } from 'multer';
 
 @Controller('user')
 export class UserController {
@@ -115,5 +121,51 @@ export class UserController {
     @Param('presentationId', ParseIntPipe) presentationId: number,
   ) {
     return await this.userService.removePresentation(userId, presentationId);
+  }
+
+  @Post('upload-csv/:conferenceId')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCsv(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+    @UploadedFile() file: Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const csvContent = file.buffer.toString('utf-8');
+    const lines = csvContent.split(/\r?\n/).filter((line) => line.trim());
+
+    if (lines.length < 2) {
+      throw new BadRequestException(
+        'CSV file must have a header row and at least one data row',
+      );
+    }
+
+    // Skip header row, parse remaining lines
+    const users: CreateUserDto[] = lines.slice(1).map((line) => {
+      const [name, email] = line.split(',').map((field) => field.trim());
+      if (!name || !email) {
+        throw new BadRequestException(
+          `Invalid CSV format. Each row must have Name and Email: "${line}"`,
+        );
+      }
+      return { name, email, conferenceId };
+    });
+
+    return await this.userService.createMany(users);
   }
 }
