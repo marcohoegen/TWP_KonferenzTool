@@ -93,6 +93,16 @@ export class UserController {
   }
 
   @Patch('/comment/:id')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        conferenceComment: {
+          type: 'string',
+        },
+      },
+    },
+  })
   async updateComment(
     @Param('id', ParseIntPipe) id: number,
     @Body('conferenceComment') conferenceComment: string,

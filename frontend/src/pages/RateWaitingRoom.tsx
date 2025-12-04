@@ -8,6 +8,8 @@ import CardBasic from "../common/CardBasic";
 import InputTextarea from "../common/InputTextarea";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import { usePresentationPresentationControllerFindAll } from "../api/generate/hooks/PresentationService.hooks";
+import { useRatingRatingControllerFindAll } from "../api/generate/hooks/RatingService.hooks";
+import { useUserUserControllerMe, useUserUserControllerUpdateComment } from "../api/generate/hooks/UserService.hooks";
 import type { Presentation } from "../api/generate";
 
 export default function RateWaitingRoom() {
@@ -20,17 +22,45 @@ export default function RateWaitingRoom() {
     { refetchInterval: 5000 }
   );
 
+  // Get current user and their ratings
+  const { data: currentUser } = useUserUserControllerMe(undefined, undefined);
+  const { data: allRatings } = useRatingRatingControllerFindAll(undefined, undefined);
+  const updateCommentMutation = useUserUserControllerUpdateComment();
+
   // Filter active presentations
   const activePresentations = (presentations as Presentation[] | undefined)?.filter(
     (p) => p.status === "ACTIVE"
   ) || [];
 
   const handleSubmitFeedback = () => {
-    // TODO: API call to submit general feedback when backend endpoint is ready
-    console.log("General feedback to be submitted:", generalFeedback);
-    // Placeholder for future API integration:
-    // submitGeneralFeedback.mutate({ feedback: generalFeedback });
-    alert("Feedback wird gespeichert (API noch nicht implementiert)");
+    const user = currentUser as { id?: number };
+    if (!user?.id) {
+      alert("Bitte melden Sie sich an, um Feedback abzugeben");
+      return;
+    }
+
+    updateCommentMutation.mutate(
+      [user.id, { conferenceComment: generalFeedback }],
+      {
+        onSuccess: () => {
+          alert("Feedback erfolgreich gespeichert!");
+          setGeneralFeedback("");
+        },
+        onError: (error) => {
+          console.error("Error submitting feedback:", error);
+          alert("Fehler beim Speichern des Feedbacks");
+        },
+      }
+    );
+  };
+
+  // Helper function to check if user has rated a presentation
+  const hasRatedPresentation = (presentationId: number): boolean => {
+    const user = currentUser as { id?: number };
+    if (!user?.id || !allRatings) return false;
+    return allRatings.some(
+      (rating) => rating.userId === user.id && rating.presentationId === presentationId
+    );
   };
 
   const handleNavigateToPresentation = (presentationId: number) => {
@@ -82,29 +112,42 @@ export default function RateWaitingRoom() {
           </div>
         ) : activePresentations.length > 0 ? (
           <div className="flex flex-wrap gap-4 justify-center">
-            {activePresentations.map((presentation) => (
-              <CardBasic key={presentation.id} title={presentation.title}>
-                <div className="space-y-2 text-sm text-left">
-                  <div>
-                    <strong>Agenda Position:</strong> {presentation.agendaPosition}
-                  </div>
-                  {presentation.presenters && presentation.presenters.length > 0 && (
+            {activePresentations.map((presentation) => {
+              const hasRated = hasRatedPresentation(presentation.id);
+              return (
+                <CardBasic key={presentation.id} title={presentation.title}>
+                  <div className="space-y-2 text-sm text-left">
                     <div>
-                      <strong>Präsentatoren:</strong>{" "}
-                      {presentation.presenters.map((p) => p.name).join(", ")}
+                      <strong>Agenda Position:</strong> {presentation.agendaPosition}
                     </div>
-                  )}
-                </div>
+                    {presentation.presenters && presentation.presenters.length > 0 && (
+                      <div>
+                        <strong>Präsentatoren:</strong>{" "}
+                        {presentation.presenters.map((p) => p.name).join(", ")}
+                      </div>
+                    )}
+                    
+                    {/* Rating Status */}
+                    <div className={`mt-2 text-sm font-medium ${
+                      hasRated ? "text-green-600" : "text-red-600"
+                    }`}>
+                      {hasRated 
+                        ? "✓ Sie haben diese Präsentation schon bewertet" 
+                        : "✗ Sie haben diese Präsentation noch nicht bewertet"
+                      }
+                    </div>
+                  </div>
 
-                <div className="mt-4 w-full">
-                  <ButtonRoundedLgPrimaryBasic
-                    onClick={() => handleNavigateToPresentation(presentation.id)}
-                  >
-                    Bewertung abgeben
-                  </ButtonRoundedLgPrimaryBasic>
-                </div>
-              </CardBasic>
-            ))}
+                  <div className="mt-4 w-full">
+                    <ButtonRoundedLgPrimaryBasic
+                      onClick={() => handleNavigateToPresentation(presentation.id)}
+                    >
+                      Bewertung abgeben
+                    </ButtonRoundedLgPrimaryBasic>
+                  </div>
+                </CardBasic>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-8">
