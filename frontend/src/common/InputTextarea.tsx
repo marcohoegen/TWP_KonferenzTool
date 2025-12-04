@@ -6,6 +6,8 @@ interface TextareaProps {
   placeholder?: string;
   helperText?: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: (evt: ChangeEvent<HTMLTextAreaElement>) => void;
   rows?: number;
   resizable?: boolean;
 }
@@ -16,13 +18,21 @@ export default function InputTextarea({
   placeholder = label,
   helperText,
   defaultValue = "",
+  value: controlledValue,
+  onChange: controlledOnChange,
   rows = 3,
   resizable = false, // standardmäßig deaktiviert
 }: TextareaProps) {
-  const [value, setValue] = useState(defaultValue);
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : internalValue;
 
   const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(evt.target.value);
+    if (controlledOnChange) {
+      controlledOnChange(evt);
+    } else {
+      setInternalValue(evt.target.value);
+    }
   };
 
   return (
