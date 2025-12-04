@@ -48,6 +48,7 @@ model User {
   name String
   email String
   code String @unique
+  conferenceComment String?
   createdAt DateTime @default(now())
   codeSentAt DateTime?
 //Fremdschlüssel

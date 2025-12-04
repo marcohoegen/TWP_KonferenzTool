@@ -93,6 +93,14 @@ export class UserController {
   }
 
   @Patch(':id')
+  async updateComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('conferenceComment') conferenceComment: string,
+  ) {
+    return await this.userService.updateComment(id, conferenceComment);
+  }
+
+  @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,

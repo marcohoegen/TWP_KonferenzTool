@@ -8,6 +8,7 @@ export class User implements PrismaUser {
   email: string;
   name: string;
   code: string;
+  conferenceComment: string | null;
   conferenceId: number;
   createdAt: Date;
   codeSentAt: Date | null;
