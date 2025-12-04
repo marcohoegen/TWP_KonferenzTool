@@ -92,7 +92,7 @@ export class UserController {
     return await this.userService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('/comment/:id')
   async updateComment(
     @Param('id', ParseIntPipe) id: number,
     @Body('conferenceComment') conferenceComment: string,
