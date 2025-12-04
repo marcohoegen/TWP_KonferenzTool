@@ -59,7 +59,13 @@ export function createMutationHook<TData, TArgs extends any[]>(
       // auto invalidation
       onSuccess: (...params) => {
         invalidateKeys.forEach((k) => {
-          queryClient.invalidateQueries({ queryKey: [k] });
+          // Invalidate all queries that start with this key prefix
+          queryClient.invalidateQueries({ 
+            predicate: (query) => {
+              const queryKey = query.queryKey[0];
+              return typeof queryKey === 'string' && queryKey.startsWith(k);
+            }
+          });
         });
 
         if (options.onSuccess) {

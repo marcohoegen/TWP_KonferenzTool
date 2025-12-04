@@ -58,8 +58,8 @@ for (const file of fs.readdirSync(servicesDir)) {
       methodName
     )}`.replace("Service", "");
 
-    // invalidateKeys = all queryKeys of this service
-    const invalidateKey = `${serviceName}.findAll`;
+    // invalidateKeys = this service name for prefix matching
+    const invalidateKey = `${serviceName}`;
 
     if (isMutation) {
       hookExports.push(`
