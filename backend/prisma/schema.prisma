@@ -41,6 +41,7 @@ model Conference {
 //bidirektionale Fremdschlüsselbeziehung
   users User[]
   presentations Presentation[]
+  sessions Session[]
 }
 
 model User {
@@ -73,6 +74,9 @@ model Presentation {
 
   //bidirektionale Fremdschlüsselbeziehung
   ratings Rating[]
+
+  sessionId     Int
+  session       Session   @relation(fields: [sessionId], references: [id])
 }
 
 enum PresentationStatus {
@@ -92,4 +96,15 @@ model Rating {
 
   presentationId Int
   presentation Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)  
+}
+
+model Session {
+  id Int @id @default(autoincrement())
+  sessionNumber Int
+  sessionName String
+
+  conferenceId Int
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
+
+  presentations Presentation[]
 }

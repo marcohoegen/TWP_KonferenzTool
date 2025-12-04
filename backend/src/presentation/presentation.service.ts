@@ -9,7 +9,7 @@ export class PresentationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createPresentationDto: CreatePresentationDto) {
-    const { conferenceId, presenterIds, ...presentationData } =
+    const { conferenceId, presenterIds, sessionId, ...presentationData } =
       createPresentationDto;
 
     const Presentation = await this.prisma.presentation.create({
@@ -21,6 +21,7 @@ export class PresentationService {
             }
           : undefined,
         conference: { connect: { id: conferenceId } },
+        session: { connect: { id: sessionId } },
       },
       include: {
         presenters: {
@@ -50,6 +51,7 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
+        sessionId: true,
         presenters: {
           select: {
             id: true,
@@ -73,6 +75,7 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
+        sessionId: true,
         presenters: {
           select: {
             id: true,
@@ -101,6 +104,7 @@ export class PresentationService {
         agendaPosition: true,
         presenters: true,
         conferenceId: true,
+        sessionId: true,
         status: true,
       },
       orderBy: { agendaPosition: 'asc' },
