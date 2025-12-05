@@ -75,8 +75,8 @@ model Presentation {
   //bidirektionale Fremdschlüsselbeziehung
   ratings Rating[]
 
-  sessionId     Int
-  session       Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId     Int?
+  session       Session?   @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 }
 
 enum PresentationStatus {

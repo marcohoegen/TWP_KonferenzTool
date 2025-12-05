@@ -13,7 +13,7 @@ export class ConferenceService {
         ...createConferenceDto,
         sessions: {
           create: {
-            sessionNumber: 1,
+            sessionNumber: 0,
             sessionName: 'presentations',
           },
         },
