@@ -21,12 +21,19 @@ export class SessionService {
     return await this.prisma.session.findMany();
   }
 
+  async findSessionsByConferenceId(conferenceId: number) {
+    return await this.prisma.session.findMany({
+      where: { conferenceId },
+    });
+  }
+
   async findOne(id: number) {
     return await this.prisma.session.findUnique({
       where: { id },
     });
   }
 
+  // Update session without being able to change conferenceId
   async update(id: number, updateSessionDto: UpdateSessionDto) {
     const { conferenceId, ...updateData } = updateSessionDto;
     return await this.prisma.session.update({

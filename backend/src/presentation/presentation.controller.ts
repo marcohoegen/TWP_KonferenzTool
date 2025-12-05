@@ -77,6 +77,26 @@ export class PresentationController {
     );
   }
 
+  @Get('session/:sessionId')
+  async findPresentationsBySessionId(
+    @Param('sessionId', ParseIntPipe) sessionId: number,
+  ): Promise<Presentation[]> {
+    return (
+      await this.presentationService.findPresentationsBySessionId(sessionId)
+    ).map(
+      (presentation) =>
+        new Presentation({
+          id: presentation.id,
+          title: presentation.title,
+          agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId,
+          presenters: presentation.presenters ?? [],
+          conferenceId: presentation.conferenceId,
+          status: presentation.status,
+        }),
+    );
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.presentationService.findOne(id);

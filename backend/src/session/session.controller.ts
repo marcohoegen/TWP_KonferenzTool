@@ -30,6 +30,13 @@ export class SessionController {
     return this.sessionService.findAll();
   }
 
+  @Get('conference/:conferenceId')
+  async findSessionsByConferenceId(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+  ) {
+    return this.sessionService.findSessionsByConferenceId(conferenceId);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {

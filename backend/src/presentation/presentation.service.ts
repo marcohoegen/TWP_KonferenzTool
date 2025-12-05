@@ -125,6 +125,22 @@ export class PresentationService {
     });
   }
 
+  async findPresentationsBySessionId(sessionId: number) {
+    return await this.prisma.presentation.findMany({
+      where: { sessionId },
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        presenters: true,
+        conferenceId: true,
+        sessionId: true,
+        status: true,
+      },
+      orderBy: { agendaPosition: 'asc' },
+    });
+  }
+
   async update(id: number, updatePresentationDto: UpdatePresentationDto) {
     const presentationExists = await this.prisma.presentation.findUnique({
       where: { id },
