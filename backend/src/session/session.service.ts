@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -68,6 +72,13 @@ export class SessionService {
 
     if (!sessionExists) {
       throw new NotFoundException(`Session with ID ${id} not found`);
+    }
+
+    // Prevent deleting the default "presentations" session to avoid self-reassignment loops
+    if (sessionExists.sessionName === 'presentations') {
+      throw new BadRequestException(
+        'The default "presentations" session cannot be deleted.',
+      );
     }
 
     // Get or create default session for this conference

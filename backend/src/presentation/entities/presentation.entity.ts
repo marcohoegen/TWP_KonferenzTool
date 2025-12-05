@@ -12,7 +12,7 @@ export class Presentation implements PrismaPresentation {
   title: string;
   agendaPosition: number;
   conferenceId: number;
-  sessionId: number;
+  sessionId: number | null;
 
   @ApiProperty({
     enum: PresentationStatus,

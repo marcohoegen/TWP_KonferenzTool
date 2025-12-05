@@ -16,7 +16,7 @@ export class PresentationService {
 
     if (!resolvedSessionId) {
       const defaultSession = await this.prisma.session.findFirst({
-        where: { conferenceId, sessionNumber: 1 },
+        where: { conferenceId, sessionNumber: 0 },
       });
       if (!defaultSession) {
         throw new NotFoundException(
