@@ -12,6 +12,19 @@ export class PresentationService {
     const { conferenceId, presenterIds, sessionId, ...presentationData } =
       createPresentationDto;
 
+    let resolvedSessionId = sessionId;
+
+    if (!resolvedSessionId) {
+      const defaultSession = await this.prisma.session.findFirst({
+        where: { conferenceId, sessionNumber: 1 },
+      });
+      if (!defaultSession) {
+        throw new NotFoundException(
+          `Default session for conference ID ${conferenceId} not found`,
+        );
+      }
+      resolvedSessionId = defaultSession.id;
+    }
     const Presentation = await this.prisma.presentation.create({
       data: {
         ...presentationData,
@@ -21,7 +34,7 @@ export class PresentationService {
             }
           : undefined,
         conference: { connect: { id: conferenceId } },
-        session: { connect: { id: sessionId } },
+        session: { connect: { id: resolvedSessionId } },
       },
       include: {
         presenters: {
@@ -34,6 +47,7 @@ export class PresentationService {
           },
         },
         ratings: true,
+        session: true,
       },
     });
 

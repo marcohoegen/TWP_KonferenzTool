@@ -32,6 +32,7 @@ export class PresentationController {
     return new Presentation({
       id: createPresentation.id,
       title: createPresentation.title,
+      sessionId: createPresentation.sessionId,
       agendaPosition: createPresentation.agendaPosition,
       conferenceId: createPresentation.conferenceId,
       status: createPresentation.status,
@@ -47,6 +48,7 @@ export class PresentationController {
           id: presentation.id,
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId,
           conferenceId: presentation.conferenceId,
           status: presentation.status,
         }),
@@ -67,6 +69,7 @@ export class PresentationController {
           id: presentation.id,
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId,
           presenters: presentation.presenters ?? [],
           conferenceId: presentation.conferenceId,
           status: presentation.status,
@@ -93,6 +96,7 @@ export class PresentationController {
       id: updatedPresentation.id,
       title: updatedPresentation.title,
       agendaPosition: updatedPresentation.agendaPosition,
+      sessionId: updatedPresentation.sessionId,
       conferenceId: updatedPresentation.conferenceId,
       status: updatedPresentation.status,
     });

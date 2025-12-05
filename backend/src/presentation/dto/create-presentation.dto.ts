@@ -23,8 +23,8 @@ export class CreatePresentationDto {
   conferenceId: number;
 
   @IsNumber()
-  @IsNotEmpty()
-  sessionId: number;
+  @IsOptional()
+  sessionId?: number;
 
   @IsArray()
   @IsOptional()
