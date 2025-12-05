@@ -76,7 +76,7 @@ model Presentation {
   ratings Rating[]
 
   sessionId     Int
-  session       Session   @relation(fields: [sessionId], references: [id])
+  session       Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
 enum PresentationStatus {

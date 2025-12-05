@@ -28,9 +28,10 @@ export class SessionService {
   }
 
   async update(id: number, updateSessionDto: UpdateSessionDto) {
+    const { conferenceId, ...updateData } = updateSessionDto;
     return await this.prisma.session.update({
       where: { id },
-      data: updateSessionDto,
+      data: updateData,
     });
   }
 
