@@ -60,6 +60,12 @@ export default function RateThanks() {
           <ButtonRoundedLgPrimaryBasic onClick={handleEdit}>
             Edit
           </ButtonRoundedLgPrimaryBasic>
+          
+          <div className="mt-4">
+            <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/rate/wait")}>
+              Weitere Bewertungen abgeben
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
         </div>
 
         <p className="text-sm text-gray-500 mt-4">
