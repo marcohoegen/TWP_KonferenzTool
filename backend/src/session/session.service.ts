@@ -13,6 +13,14 @@ export class SessionService {
 
   async create(createSessionDto: CreateSessionDto) {
     const { conferenceId, ...sessionData } = createSessionDto;
+    
+    // Validate reserved name
+    if (sessionData.sessionName?.trim().toLowerCase() === 'presentations') {
+      throw new BadRequestException(
+        'Session name "presentations" is reserved.',
+      );
+    }
+    
     return await this.prisma.session.create({
       data: {
         ...sessionData,
@@ -58,7 +66,17 @@ export class SessionService {
     if (!sessionExists) {
       throw new NotFoundException(`Session with ID ${id} not found`);
     }
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { conferenceId, ...updateData } = updateSessionDto;
+    
+    // Validate reserved name if sessionName is being updated
+    if (updateData.sessionName?.trim().toLowerCase() === 'presentations') {
+      throw new BadRequestException(
+        'Session name "presentations" is reserved.',
+      );
+    }
+    
     return await this.prisma.session.update({
       where: { id },
       data: updateData,
