@@ -9,6 +9,7 @@ import { RatingModule } from './rating/rating.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from './email/email.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EmailModule } from './email/email.module';
     PresentationModule,
     AuthModule,
     EmailModule,
+    SessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

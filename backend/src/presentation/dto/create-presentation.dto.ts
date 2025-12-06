@@ -22,6 +22,10 @@ export class CreatePresentationDto {
   @IsNumber()
   conferenceId: number;
 
+  @IsNumber()
+  @IsOptional()
+  sessionId?: number;
+
   @IsArray()
   @IsOptional()
   @IsNumber({}, { each: true })
