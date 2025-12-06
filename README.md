@@ -119,3 +119,22 @@ Die Zuverlässigkeit dessen ist nicht zu 100% gegeben, daher ist folgendes bei u
 docker-compose down
 docker-compose up --build
 ```
+
+### neue Hooks im Frontend generieren
+
+Frontend: npm run openapi:gen
+Frontend: OpenAPI.ts: WITH_CREDENTIALS: false --> auf true setzen
+
+
+### Aktuelle Checkliste wenn wechsel in neuen Branch wenn fehler beim bauen von Docker auftreten
+
+1. Lösche alle Docker Container + Volumes
+2. frontend & Backend: npm install
+3. backend: npx prisma generate
+4. docker compose build --no-cache
+5. docker compose up
+   
+### Bei fehler mit Datenbank oder leerer Datenbank
+
+6. (nach Schritt5) docker exec -it nest-backend npx prisma migrate deploy
+7. Backend: npx prisma db seed --> Erstellung von zufälligen, neuen Testdaten - neu generierter Seed wird in seed-info.json gespeichert
