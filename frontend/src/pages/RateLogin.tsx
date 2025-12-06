@@ -38,7 +38,7 @@ export default function RateLogin() {
   return (
     <div className="flex flex-col items-center mt-12 px-4">
       <img src={confeedlogo} alt="Confeed Logo" className="w-[50vw] h-auto" />
-      <h1 className="text-xl font-semibold mt-4">User Login</h1>
+      <h2 className="text-2xl font-semibold mt-4">User Login</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
         <InputFieldLogin
