@@ -14,9 +14,13 @@ export class JwtUserStrategy extends PassportStrategy(Strategy, 'userjwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: express.Request) => {
-          let token = null;
-          if (req && req.cookies) {
-            token = req.cookies['userjwt'];
+          let token: string | null = null;
+          if (req && req.cookies && typeof req.cookies === 'object') {
+            const cookies = req.cookies as Record<string, unknown>;
+            const jwtValue = cookies['userjwt'];
+            if (typeof jwtValue === 'string') {
+              token = jwtValue;
+            }
           }
           return token;
         },

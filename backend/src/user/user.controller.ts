@@ -34,6 +34,7 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
@@ -66,6 +67,7 @@ export class UserController {
     return req.user;
   }
 
+  @UseGuards(JwtUserAuthGuard)
   @Post('logout')
   @HttpCode(200)
   logout(@Res({ passthrough: true }) res: express.Response) {
@@ -73,11 +75,13 @@ export class UserController {
     return { success: true };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
     return await this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('conference/:conferenceId')
   async findUsersByConferenceId(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
@@ -87,6 +91,7 @@ export class UserController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOne(id);
@@ -118,6 +123,7 @@ export class UserController {
     return await this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
@@ -125,6 +131,7 @@ export class UserController {
     return this.userService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':userId/presentation/:presentationId')
   async addPresentation(
     @Param('userId', ParseIntPipe) userId: number,
@@ -133,6 +140,7 @@ export class UserController {
     return await this.userService.addPresentation(userId, presentationId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':userId/presentation/:presentationId')
   async removePresentation(
     @Param('userId', ParseIntPipe) userId: number,
