@@ -158,45 +158,9 @@ export class PresentationService {
       throw new NotFoundException(`Presentation with ID ${id} not found`);
     }
 
-    const newStatus = status;
-
-    // If activating, deactivate all other presentations in the same conference
-    if (newStatus === PresentationStatus.ACTIVE) {
-      const results = await this.prisma.$transaction([
-        this.prisma.presentation.updateMany({
-          where: {
-            conferenceId: presentation.conferenceId,
-            id: { not: id },
-            status: PresentationStatus.ACTIVE,
-          },
-          data: { status: PresentationStatus.INACTIVE },
-        }),
-        this.prisma.presentation.update({
-          where: { id },
-          data: { status: newStatus },
-          select: {
-            id: true,
-            title: true,
-            agendaPosition: true,
-            conferenceId: true,
-            status: true,
-          },
-        }),
-      ]);
-      return results[1];
-    }
-
-    // If deactivating, just update this presentation
     return await this.prisma.presentation.update({
       where: { id },
-      data: { status: newStatus },
-      select: {
-        id: true,
-        title: true,
-        agendaPosition: true,
-        conferenceId: true,
-        status: true,
-      },
+      data: { status: status },
     });
   }
 

@@ -92,6 +92,24 @@ export class UserController {
     return await this.userService.findOne(id);
   }
 
+  @Patch('/comment/:id')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        conferenceComment: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  async updateComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('conferenceComment') conferenceComment: string,
+  ) {
+    return await this.userService.updateComment(id, conferenceComment);
+  }
+
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,

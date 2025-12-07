@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -63,6 +63,7 @@ export class UserService {
         name: true,
         email: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         presentations: {
           select: {
@@ -85,6 +86,7 @@ export class UserService {
         name: true,
         email: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         presentations: {
           select: {
@@ -106,6 +108,19 @@ export class UserService {
   async findOneByCode(code: string) {
     return await this.prisma.user.findUnique({
       where: { code },
+    });
+  }
+
+  async updateComment(id: number, conferenceComment: string) {
+    const userExists = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!userExists) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: { conferenceComment },
     });
   }
 
@@ -222,6 +237,7 @@ export class UserService {
         email: true,
         code: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         codeSentAt: true,
       },
