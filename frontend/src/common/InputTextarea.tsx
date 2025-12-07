@@ -28,9 +28,9 @@ export default function InputTextarea({
   const value = isControlled ? controlledValue : internalValue;
 
   const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
-    if (controlledOnChange) {
+    if (isControlled && controlledOnChange) {
       controlledOnChange(evt);
-    } else {
+    } else if (!isControlled) {
       setInternalValue(evt.target.value);
     }
   };
