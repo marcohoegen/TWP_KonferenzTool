@@ -8,7 +8,14 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
+import type { Multer } from 'multer';
+import { parse } from 'csv-parse/browser/esm/sync';
 import { PresentationService } from './presentation.service';
 import { CreatePresentationDto } from './dto/create-presentation.dto';
 import { UpdatePresentationDto } from './dto/update-presentation.dto';
@@ -146,6 +153,82 @@ export class PresentationController {
     return await this.presentationService.removePresenter(
       presentationId,
       userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-csv/:conferenceId')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+    }),
+  )
+  async uploadCsv(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+    @UploadedFile() file: Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    if (
+      file.mimetype !== 'text/csv' &&
+      file.mimetype !== 'application/vnd.ms-excel'
+    ) {
+      throw new BadRequestException(
+        'Invalid file type. Please upload a CSV file',
+      );
+    }
+
+    interface CsvRow {
+      title?: string;
+      presentername?: string;
+      presenteremail?: string;
+    }
+
+    let records: CsvRow[];
+    try {
+      records = parse(file.buffer, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+    } catch {
+      throw new BadRequestException('Error parsing CSV file');
+    }
+
+    const presentations: Array<{
+      title: string;
+      presenterName: string;
+      presenterEmail: string;
+    }> = records.map((row, index) => {
+      const title = row.title;
+      const presenterName = row.presentername;
+      const presenterEmail = row.presenteremail;
+
+      if (!title || !presenterName || !presenterEmail) {
+        throw new BadRequestException(
+          `Missing required fields in CSV at row ${index + 2}`,
+        );
+      }
+
+      return { title, presenterName, presenterEmail };
+    });
+
+    return await this.presentationService.createManyFromCsv(
+      presentations,
+      conferenceId,
     );
   }
 }

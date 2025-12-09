@@ -220,4 +220,151 @@ export class PresentationService {
       },
     });
   }
+
+  async createManyFromCsv(
+    presentations: Array<{
+      title: string;
+      presenterName: string;
+      presenterEmail: string;
+    }>,
+    conferenceId: number,
+  ) {
+    const presentationMap = new Map<
+      string,
+      {
+        agendaPosition: number;
+        presenters: Array<{ name: string; email: string }>;
+      }
+    >();
+    const uniquePresentations: string[] = [];
+
+    // Group presenters by presentation title, maintaining order
+    presentations.forEach(({ title, presenterName, presenterEmail }) => {
+      if (!presentationMap.has(title)) {
+        presentationMap.set(title, {
+          agendaPosition: uniquePresentations.length + 1,
+          presenters: [],
+        });
+        uniquePresentations.push(title);
+      }
+
+      const presentation = presentationMap.get(title)!;
+      // Check for duplicate presenter in this presentation
+      const isDuplicate = presentation.presenters.some(
+        (p) => p.email === presenterEmail && p.name === presenterName,
+      );
+
+      if (!isDuplicate) {
+        presentation.presenters.push({
+          name: presenterName,
+          email: presenterEmail,
+        });
+      }
+    });
+
+    // Get highest existing agenda position for this conference
+    const maxAgendaPosition = await this.prisma.presentation.findFirst({
+      where: { conferenceId },
+      orderBy: { agendaPosition: 'desc' },
+      select: { agendaPosition: true },
+    });
+
+    const startPosition = (maxAgendaPosition?.agendaPosition || 0) + 1;
+
+    const createdPresentations: Array<{
+      id: number;
+      title: string;
+      agendaPosition: number;
+      status: PresentationStatus;
+      conferenceId: number;
+      createdAt: Date;
+      presenters: Array<{
+        id: number;
+        name: string;
+        email: string;
+        conferenceId: number;
+      }>;
+    }> = [];
+
+    for (const title of uniquePresentations) {
+      const { agendaPosition, presenters } = presentationMap.get(title)!;
+      const adjustedPosition = startPosition + agendaPosition - 1;
+
+      // Process each presenter - find or create user
+      const presenterIds: number[] = [];
+
+      for (const presenter of presenters) {
+        // Check if user exists by email in this conference
+        let user = await this.prisma.user.findFirst({
+          where: {
+            email: presenter.email,
+            conferenceId: conferenceId,
+          },
+        });
+
+        // If user doesn't exist, create them
+        if (!user) {
+          // Generate unique code for new user
+          let personCode = '';
+          let isUnique = false;
+          while (!isUnique) {
+            personCode = this.generatePersonCode();
+            const existingUser = await this.prisma.user.findUnique({
+              where: { code: personCode },
+            });
+            if (!existingUser) {
+              isUnique = true;
+            }
+          }
+
+          user = await this.prisma.user.create({
+            data: {
+              name: presenter.name,
+              email: presenter.email,
+              code: personCode,
+              conferenceId: conferenceId,
+            },
+          });
+        }
+
+        presenterIds.push(user.id);
+      }
+
+      // Create presentation with all presenters
+      const presentation = await this.prisma.presentation.create({
+        data: {
+          title,
+          agendaPosition: adjustedPosition,
+          status: PresentationStatus.INACTIVE,
+          conference: { connect: { id: conferenceId } },
+          presenters: {
+            connect: presenterIds.map((id) => ({ id })),
+          },
+        },
+        include: {
+          presenters: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              conferenceId: true,
+            },
+          },
+        },
+      });
+
+      createdPresentations.push(presentation);
+    }
+
+    return createdPresentations;
+  }
+
+  // Helper method to generate unique person codes
+  private generatePersonCode(length = 5): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from(
+      { length },
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join('');
+  }
 }
