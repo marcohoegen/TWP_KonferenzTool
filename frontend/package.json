@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "openapi:gen": "npx openapi-typescript-codegen --input http://localhost:3000/api-json --output src/api/generate --client axios && node src/api/generate-hooks.js"
+    "openapi:gen": "npx openapi-typescript-codegen --input http://172.20.10.2:3000/api-json --output src/api/generate --client axios && node src/api/generate-hooks.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",

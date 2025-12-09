@@ -40,7 +40,7 @@ interface RatingData {
 }
 
 export default function RatingDetailed({
-  apiUrl = "http://localhost:3000/api/ratings",
+  apiUrl = `http://${import.meta.env.BACKEND_IP}:3000/api/ratings`,
   averageRating,
   totalRatings,
   ratingBreakdown,

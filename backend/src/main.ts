@@ -8,14 +8,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: [`http://${process.env.IP_ADDRESS}:5173`, 'http://localhost:5173'],
     credentials: true,
   });
 
   const config = new DocumentBuilder()
     .setTitle('Confeed Backend')
     .setDescription('API-description for the Confeed Backend')
-    .addServer('http://localhost:3000')
+    .addServer(`http://${process.env.IP_ADDRESS}:3000`)
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
