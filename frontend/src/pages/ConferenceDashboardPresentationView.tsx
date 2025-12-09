@@ -16,16 +16,19 @@ import {
   usePresentationPresentationControllerUpdateStatus,
 } from "../api/generate/hooks/PresentationService.hooks";
 import { useUserUserControllerFindUsersByConferenceId } from "../api/generate/hooks/UserService.hooks";
+import { useSessionSessionControllerFindSessionsByConferenceId, useSessionSessionControllerFindOne } from "../api/generate/hooks/SessionService.hooks";
 import type { Presentation } from "../api/generate/models/Presentation";
 import { UpdateStatusDto } from "../api/generate";
 
 export default function ConferenceDashboardPresentationView() {
-  const { conferenceId } = useParams<{ conferenceId: string }>();
+  const { conferenceId, sessionId } = useParams<{ conferenceId: string; sessionId: string }>();
   const conferenceIdNum = Number(conferenceId);
+  const sessionIdNum = Number(sessionId);
 
   const [formData, setFormData] = useState({
     title: "",
     agendaPosition: "",
+    sessionId: sessionIdNum,
   });
   const [selectedPresenterIds, setSelectedPresenterIds] = useState<number[]>(
     []
@@ -34,14 +37,31 @@ export default function ConferenceDashboardPresentationView() {
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
 
+  // Fetch current session
+  const { data: currentSession } = useSessionSessionControllerFindOne(
+    [sessionIdNum],
+    undefined
+  );
+
+  // Fetch all sessions for reassignment dropdown
+  const { data: allSessions } = useSessionSessionControllerFindSessionsByConferenceId(
+    [conferenceIdNum],
+    undefined
+  );
+
   // Use hooks - passing conferenceId to get presentations for this specific conference
   const {
-    data: presentations,
+    data: allPresentations,
     isLoading,
     refetch,
   } = usePresentationPresentationControllerFindPresentationsByConferenceId(
     [conferenceIdNum],
     undefined
+  );
+
+  // Filter presentations for current session
+  const presentations = allPresentations?.filter(
+    (p) => p.sessionId === sessionIdNum
   );
 
   // Fetch users for presenter selection
@@ -64,6 +84,7 @@ export default function ConferenceDashboardPresentationView() {
         title: formData.title,
         agendaPosition: parseInt(formData.agendaPosition, 10),
         presenterIds: selectedPresenterIds,
+        sessionId: formData.sessionId, // Include sessionId for reassignment
       };
       updateMutation.mutate([editingId, payload], {
         onSuccess: () => {
@@ -80,6 +101,7 @@ export default function ConferenceDashboardPresentationView() {
         title: formData.title,
         agendaPosition: parseInt(formData.agendaPosition, 10),
         conferenceId: conferenceIdNum,
+        sessionId: sessionIdNum, // Auto-assign to current session
         presenterIds: selectedPresenterIds,
       };
       createMutation.mutate(payload, {
@@ -111,13 +133,14 @@ export default function ConferenceDashboardPresentationView() {
     setFormData({
       title: presentation.title,
       agendaPosition: String(presentation.agendaPosition),
+      sessionId: presentation.sessionId || sessionIdNum,
     });
     setSelectedPresenterIds(presentation.presenters?.map((p) => p.id) || []);
     setShowForm(true);
   }
 
   function resetForm() {
-    setFormData({ title: "", agendaPosition: "" });
+    setFormData({ title: "", agendaPosition: "", sessionId: sessionIdNum });
     setSelectedPresenterIds([]);
     setEditingId(null);
     setShowForm(false);
@@ -151,6 +174,11 @@ export default function ConferenceDashboardPresentationView() {
   return (
     <div className="p-4">
       <div className="mb-5">
+        <h1 className="text-lg md:text-xl font-bold text-slate-800 mb-3">
+          {currentSession?.sessionName === "presentations" 
+            ? "Unzugeordnete Präsentationen" 
+            : `${currentSession?.sessionNumber} - ${currentSession?.sessionName}`}
+        </h1>
         <div className="mt-3 max-w-lg mx-auto">
           <ButtonRoundedLgPrimaryBasic
             className="w-full"
@@ -259,6 +287,33 @@ export default function ConferenceDashboardPresentationView() {
                   Halten Sie Strg/Cmd gedrückt, um mehrere auszuwählen
                 </p>
               </div>
+
+              {/* Session Dropdown - only show in edit mode */}
+              {editingId && (
+                <div>
+                  <label className="block mb-1 font-medium">
+                    Session zuweisen
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded p-2"
+                    value={formData.sessionId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sessionId: Number(e.target.value) })
+                    }
+                  >
+                    {allSessions?.map((session: { id: number; sessionName: string; sessionNumber: number }) => (
+                      <option key={session.id} value={session.id}>
+                        {session.sessionName === "presentations"
+                          ? "Unzugeordnete Präsentationen"
+                          : `${session.sessionNumber} - ${session.sessionName}`}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Wählen Sie eine andere Session, um die Präsentation zu verschieben
+                  </p>
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <ButtonRoundedLgPrimaryBasic type="submit" className="flex-1">
