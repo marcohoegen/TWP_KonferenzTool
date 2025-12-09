@@ -623,12 +623,13 @@ export default function ConferenceDashboardSessionView() {
                   (Standard-Session, kann nicht bearbeitet werden)
                 </p>
               </div>
-              <ButtonRoundedLgPrimaryBasic
-                onClick={() => handleCreatePresentation(defaultSession.id)}
-                className="w-full md:w-auto"
-              >
-                + Präsentation
-              </ButtonRoundedLgPrimaryBasic>
+              <div className="w-full md:w-auto">
+                <ButtonRoundedLgPrimaryBasic
+                  onClick={() => handleCreatePresentation(defaultSession.id)}
+                >
+                  + Präsentation
+                </ButtonRoundedLgPrimaryBasic>
+              </div>
             </div>
 
             {/* Presentations Grid */}
@@ -727,12 +728,13 @@ export default function ConferenceDashboardSessionView() {
                   >
                     <img src={trashIcon} alt="Delete" className="w-5 h-5" />
                   </button>
-                  <ButtonRoundedLgPrimaryBasic
-                    onClick={() => handleCreatePresentation(session.id)}
-                    className="w-full md:w-auto"
-                  >
-                    + Präsentation
-                  </ButtonRoundedLgPrimaryBasic>
+                  <div className="w-full md:w-auto">
+                    <ButtonRoundedLgPrimaryBasic
+                      onClick={() => handleCreatePresentation(session.id)}
+                    >
+                      + Präsentation
+                    </ButtonRoundedLgPrimaryBasic>
+                  </div>
                 </div>
               </div>
 
