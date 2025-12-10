@@ -32,6 +32,7 @@ export class PresentationController {
     return new Presentation({
       id: createPresentation.id,
       title: createPresentation.title,
+      sessionId: createPresentation.sessionId ?? undefined,
       agendaPosition: createPresentation.agendaPosition,
       conferenceId: createPresentation.conferenceId,
       status: createPresentation.status,
@@ -48,6 +49,7 @@ export class PresentationController {
           id: presentation.id,
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId ?? undefined,
           conferenceId: presentation.conferenceId,
           status: presentation.status,
         }),
@@ -69,6 +71,28 @@ export class PresentationController {
           id: presentation.id,
           title: presentation.title,
           agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId ?? undefined,
+          presenters: presentation.presenters ?? [],
+          conferenceId: presentation.conferenceId,
+          status: presentation.status,
+        }),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('session/:sessionId')
+  async findPresentationsBySessionId(
+    @Param('sessionId', ParseIntPipe) sessionId: number,
+  ): Promise<Presentation[]> {
+    return (
+      await this.presentationService.findPresentationsBySessionId(sessionId)
+    ).map(
+      (presentation) =>
+        new Presentation({
+          id: presentation.id,
+          title: presentation.title,
+          agendaPosition: presentation.agendaPosition,
+          sessionId: presentation.sessionId ?? undefined,
           presenters: presentation.presenters ?? [],
           conferenceId: presentation.conferenceId,
           status: presentation.status,
@@ -96,6 +120,7 @@ export class PresentationController {
       id: updatedPresentation.id,
       title: updatedPresentation.title,
       agendaPosition: updatedPresentation.agendaPosition,
+      sessionId: updatedPresentation.sessionId ?? undefined,
       conferenceId: updatedPresentation.conferenceId,
       status: updatedPresentation.status,
     });

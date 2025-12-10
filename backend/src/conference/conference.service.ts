@@ -8,11 +8,21 @@ export class ConferenceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createConferenceDto: CreateConferenceDto) {
-    return await this.prisma.conference.create({
+    const conference = await this.prisma.conference.create({
       data: {
         ...createConferenceDto,
+        sessions: {
+          create: {
+            sessionNumber: 0,
+            sessionName: 'presentations',
+          },
+        },
+      },
+      include: {
+        sessions: true,
       },
     });
+    return conference;
   }
 
   async findAll() {

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useRatingRatingControllerGetRanking } from "../api/generate/hooks/RatingService.hooks";
+import { usePresentationPresentationControllerFindPresentationsByConferenceId } from "../api/generate/hooks/PresentationService.hooks";
+import { useSessionSessionControllerFindSessionsByConferenceId } from "../api/generate/hooks/SessionService.hooks";
 import BasicSpinner from "../common/BasicSpinner";
 import ErrorPopup from "../common/ErrorPopup";
 import CardBasic from "../common/CardBasic";
@@ -82,6 +84,8 @@ export default function ConferenceDashboardRatingsView() {
   // State management
   const [minRatings, setMinRatings] = useState<number>(0);
   const [appliedMinRatings, setAppliedMinRatings] = useState<number>(0);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const [appliedSessionId, setAppliedSessionId] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField>("overallAverage");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
@@ -98,12 +102,28 @@ export default function ConferenceDashboardRatingsView() {
     }
   );
 
+  // Fetch presentations to get sessionId mapping
+  const { data: presentations } = usePresentationPresentationControllerFindPresentationsByConferenceId(
+    [Number(conferenceId)],
+    { enabled: !!conferenceId }
+  );
+
+  // Fetch sessions for filter dropdown
+  const { data: sessions } = useSessionSessionControllerFindSessionsByConferenceId(
+    [Number(conferenceId)],
+    { enabled: !!conferenceId }
+  );
+
   // Parse ranking data and filter by conference
   const allRankings: PresentationRanking[] = rankingData || [];
   
-  // In a real scenario, we'd need the backend to filter by conference
-  // For now, we'll show all rankings (backend should eventually filter)
-  const rankings: PresentationRanking[] = allRankings;
+  // Filter by session if selected
+  const rankings: PresentationRanking[] = appliedSessionId !== null
+    ? allRankings.filter(ranking => {
+        const presentation = presentations?.find((p: { id: number }) => p.id === ranking.presentationId);
+        return presentation?.sessionId === appliedSessionId;
+      })
+    : allRankings;
 
   // Sorting function
   const sortedRankings = [...rankings]
@@ -141,12 +161,15 @@ export default function ConferenceDashboardRatingsView() {
   // Apply filter
   function handleApplyFilter() {
     setAppliedMinRatings(minRatings);
+    setAppliedSessionId(selectedSessionId);
   }
 
   // Reset filter
   function handleResetFilter() {
     setMinRatings(0);
     setAppliedMinRatings(0);
+    setSelectedSessionId(null);
+    setAppliedSessionId(null);
   }  
 
   // Toggle expanded card for histogram details
@@ -234,6 +257,30 @@ export default function ConferenceDashboardRatingsView() {
                 placeholder="0"
               />
             </div>
+
+            <div className="flex-1 min-w-full sm:min-w-[200px]">
+              <label
+                htmlFor="sessionFilter"
+                className="block text-sm font-medium text-slate-700 mb-2"
+              >
+                Session filtern
+              </label>
+              <select
+                id="sessionFilter"
+                value={selectedSessionId ?? ""}
+                onChange={(e) => setSelectedSessionId(e.target.value ? Number(e.target.value) : null)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              >
+                <option value="">Alle Sessions</option>
+                {sessions?.map((session: { id: number; sessionName: string; sessionNumber: number }) => (
+                  <option key={session.id} value={session.id}>
+                    {session.sessionName === "presentations"
+                      ? "Unzugeordnete Präsentationen"
+                      : `${session.sessionNumber} - ${session.sessionName}`}
+                  </option>
+                ))}
+              </select>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-2 sm:flex-1">
               <button
@@ -252,9 +299,17 @@ export default function ConferenceDashboardRatingsView() {
           </div>
 
           <div className="mt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            {appliedMinRatings > 0 && (
+            {(appliedMinRatings > 0 || appliedSessionId !== null) && (
               <p className="text-xs text-slate-600">
-                Aktiver Filter: Mindestens {appliedMinRatings} Bewertung{appliedMinRatings !== 1 ? "en" : ""}
+                Aktive Filter: 
+                {appliedMinRatings > 0 && ` Mindestens ${appliedMinRatings} Bewertung${appliedMinRatings !== 1 ? "en" : ""}`}
+                {appliedMinRatings > 0 && appliedSessionId !== null && ","} 
+                {appliedSessionId !== null && (() => {
+                  const session = sessions?.find((s: { id: number }) => s.id === appliedSessionId);
+                  return session 
+                    ? ` Session: ${session.sessionName === "presentations" ? "Unzugeordnete Präsentationen" : `${session.sessionNumber} - ${session.sessionName}`}`
+                    : " Session ausgewählt";
+                })()}
               </p>
             )}
             <div className="w-full sm:w-auto">

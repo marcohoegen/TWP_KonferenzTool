@@ -9,9 +9,22 @@ export class PresentationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createPresentationDto: CreatePresentationDto) {
-    const { conferenceId, presenterIds, ...presentationData } =
+    const { conferenceId, presenterIds, sessionId, ...presentationData } =
       createPresentationDto;
 
+    let resolvedSessionId = sessionId;
+
+    if (!resolvedSessionId) {
+      const defaultSession = await this.prisma.session.findFirst({
+        where: { conferenceId, sessionNumber: 0 },
+      });
+      if (!defaultSession) {
+        throw new NotFoundException(
+          `Default session for conference ID ${conferenceId} not found`,
+        );
+      }
+      resolvedSessionId = defaultSession.id;
+    }
     const Presentation = await this.prisma.presentation.create({
       data: {
         ...presentationData,
@@ -21,6 +34,7 @@ export class PresentationService {
             }
           : undefined,
         conference: { connect: { id: conferenceId } },
+        session: { connect: { id: resolvedSessionId } },
       },
       include: {
         presenters: {
@@ -33,6 +47,7 @@ export class PresentationService {
           },
         },
         ratings: true,
+        session: true,
       },
     });
 
@@ -50,6 +65,7 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
+        sessionId: true,
         presenters: {
           select: {
             id: true,
@@ -73,6 +89,7 @@ export class PresentationService {
         title: true,
         agendaPosition: true,
         conferenceId: true,
+        sessionId: true,
         presenters: {
           select: {
             id: true,
@@ -101,6 +118,23 @@ export class PresentationService {
         agendaPosition: true,
         presenters: true,
         conferenceId: true,
+        sessionId: true,
+        status: true,
+      },
+      orderBy: { agendaPosition: 'asc' },
+    });
+  }
+
+  async findPresentationsBySessionId(sessionId: number) {
+    return await this.prisma.presentation.findMany({
+      where: { sessionId },
+      select: {
+        id: true,
+        title: true,
+        agendaPosition: true,
+        presenters: true,
+        conferenceId: true,
+        sessionId: true,
         status: true,
       },
       orderBy: { agendaPosition: 'asc' },
