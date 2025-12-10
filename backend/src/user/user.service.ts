@@ -23,6 +23,17 @@ export class UserService {
     let personCode: string = '';
     let isUnique = false;
 
+    // Ensure, that no duplicate users are created for the same conference
+    const existingConferenceUser = await this.findByEmailAndConferenceId(
+      userData.email,
+      conferenceId,
+    );
+    if (existingConferenceUser) {
+      throw new Error(
+        `User with email ${userData.email} is already registered for this conference.`,
+      );
+    }
+
     // Ensure the generated code is unique
     while (!isUnique) {
       personCode = this.generatePersonCode();
@@ -255,5 +266,12 @@ export class UserService {
       createdUsers.push(user);
     }
     return createdUsers;
+  }
+
+  // Helper method to prevent duplicate user registrations for the same conference
+  async findByEmailAndConferenceId(email: string, conferenceId: number) {
+    return await this.prisma.user.findFirst({
+      where: { email, conferenceId },
+    });
   }
 }
