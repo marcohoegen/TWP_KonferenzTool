@@ -133,8 +133,9 @@ Frontend: OpenAPI.ts: WITH_CREDENTIALS: false --> auf true setzen
 3. backend: npx prisma generate
 4. docker compose build --no-cache
 5. docker compose up
-   
-### Bei fehler mit Datenbank oder leerer Datenbank
-
 6. (nach Schritt5) docker exec -it nest-backend npx prisma migrate deploy
-7. Backend: npx prisma db seed --> Erstellung von zufälligen, neuen Testdaten - neu generierter Seed wird in seed-info.json gespeichert
+7. Backend: npx prisma db seed --> Erstellung von zufälligen, neuen Testdaten - neu generierter Seed wird in seed-info.json gespeichert  
+8. frontend: npm run openapi:gen
+9. frontend: frontend\src\api\generate\core\OpenAPI.ts -> WITH_CREDENTIALS: false --> auf true setzen
+
+
