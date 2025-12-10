@@ -478,6 +478,76 @@ export default function ConferenceDashboardSessionView() {
     setError("");
   };
 
+  // Bulk toggle activation status for all presentations in all sessions
+  const handleToggleActivateAll = async () => {
+    if (!allPresentations) return;
+    
+    // Check if any presentation is inactive
+    const hasInactivePresentations = allPresentations.some(
+      (p) => p.status === "INACTIVE"
+    );
+    
+    try {
+      for (const presentation of allPresentations) {
+        const targetStatus = hasInactivePresentations
+          ? UpdateStatusDto.status.ACTIVE
+          : UpdateStatusDto.status.INACTIVE;
+
+        if (
+          (hasInactivePresentations && presentation.status === "INACTIVE") ||
+          (!hasInactivePresentations && presentation.status === "ACTIVE")
+        ) {
+          await updateStatusMutation.mutateAsync([
+            presentation.id,
+            { status: targetStatus },
+          ]);
+        }
+      }
+      refetchPresentations();
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Fehler beim Ändern der Präsentationsstatus.";
+      setError(errorMessage);
+    }
+  };
+
+  // Bulk toggle activation status for all presentations in a specific session
+  const handleToggleActivateSession = async (sessionId: number) => {
+    const sessionPresentations = getPresentationsForSession(sessionId);
+    
+    // Check if any presentation is inactive
+    const hasInactivePresentations = sessionPresentations.some(
+      (p) => p.status === "INACTIVE"
+    );
+    
+    try {
+      for (const presentation of sessionPresentations) {
+        const targetStatus = hasInactivePresentations
+          ? UpdateStatusDto.status.ACTIVE
+          : UpdateStatusDto.status.INACTIVE;
+
+        if (
+          (hasInactivePresentations && presentation.status === "INACTIVE") ||
+          (!hasInactivePresentations && presentation.status === "ACTIVE")
+        ) {
+          await updateStatusMutation.mutateAsync([
+            presentation.id,
+            { status: targetStatus },
+          ]);
+        }
+      }
+      refetchPresentations();
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Fehler beim Ändern der Präsentationsstatus.";
+      setError(errorMessage);
+    }
+  };
+
   if (sessionsLoading) {
     return <BasicSpinner />;
   }
@@ -489,10 +559,17 @@ export default function ConferenceDashboardSessionView() {
         <h2 className="text-lg md:text-xl font-bold text-slate-800 mb-3">
           Sessions & Präsentationen für {conference?.name || "Konferenz"}
         </h2>
-        <div className="mt-3 max-w-lg mx-auto">
-          <ButtonRoundedLgPrimaryBasic onClick={() => setShowForm(true)}>
-            Neue Session erstellen
-          </ButtonRoundedLgPrimaryBasic>
+        <div className="mt-3 flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto">
+          <div className="flex-1">
+            <ButtonRoundedLgPrimaryBasic onClick={() => setShowForm(true)}>
+              Neue Session erstellen
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
+          <div className="flex-1">
+            <ButtonRoundedLgPrimaryBasic onClick={handleToggleActivateAll}>
+              Alle aktivieren/deaktivieren
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
         </div>
       </div>
 
@@ -778,7 +855,12 @@ export default function ConferenceDashboardSessionView() {
                   (Standard-Session, kann nicht bearbeitet werden)
                 </p>
               </div>
-              <div className="w-full md:w-auto">
+              <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+                <ButtonRoundedLgPrimaryBasic
+                  onClick={() => handleToggleActivateSession(defaultSession.id)}
+                >
+                  Alle aktivieren/deaktivieren
+                </ButtonRoundedLgPrimaryBasic>
                 <ButtonRoundedLgPrimaryBasic
                   onClick={() => handleCreatePresentation(defaultSession.id)}
                 >
@@ -912,7 +994,12 @@ export default function ConferenceDashboardSessionView() {
                   >
                     <img src={trashIcon} alt="Delete" className="w-5 h-5" />
                   </button>
-                  <div className="w-full md:w-auto">
+                  <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+                    <ButtonRoundedLgPrimaryBasic
+                      onClick={() => handleToggleActivateSession(session.id)}
+                    >
+                      Alle aktivieren/deaktivieren
+                    </ButtonRoundedLgPrimaryBasic>
                     <ButtonRoundedLgPrimaryBasic
                       onClick={() => handleCreatePresentation(session.id)}
                     >

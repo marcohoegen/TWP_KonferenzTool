@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useRatingRatingControllerGetRanking } from "../api/generate/hooks/RatingService.hooks";
 import { usePresentationPresentationControllerFindPresentationsByConferenceId } from "../api/generate/hooks/PresentationService.hooks";
 import { useSessionSessionControllerFindSessionsByConferenceId } from "../api/generate/hooks/SessionService.hooks";
+import { useUserUserControllerFindUsersByConferenceId } from "../api/generate/hooks/UserService.hooks";
 import BasicSpinner from "../common/BasicSpinner";
 import ErrorPopup from "../common/ErrorPopup";
 import CardBasic from "../common/CardBasic";
@@ -81,6 +82,9 @@ function renderStarRating(rating: number) {
 export default function ConferenceDashboardRatingsView() {
   const { conferenceId } = useParams<{ conferenceId: string }>();
 
+  // View toggle state
+  const [viewMode, setViewMode] = useState<"presentations" | "feedback">("presentations");
+
   // State management
   const [minRatings, setMinRatings] = useState<number>(0);
   const [appliedMinRatings, setAppliedMinRatings] = useState<number>(0);
@@ -113,6 +117,18 @@ export default function ConferenceDashboardRatingsView() {
     [Number(conferenceId)],
     { enabled: !!conferenceId }
   );
+
+  // Fetch users for conference feedback
+  const { data: users } = useUserUserControllerFindUsersByConferenceId(
+    [Number(conferenceId)],
+    { enabled: !!conferenceId && viewMode === "feedback" }
+  );
+
+  // Filter users with conference comments
+  const usersWithFeedback = users?.filter(
+    (user: { conferenceComment?: string | null }) => 
+      user.conferenceComment && user.conferenceComment.trim().length > 0
+  ) || [];
 
   // Parse ranking data and filter by conference
   const allRankings: PresentationRanking[] = rankingData || [];
@@ -232,6 +248,40 @@ export default function ConferenceDashboardRatingsView() {
 
   return (
     <div className="p-4">
+      {/* View Toggle Buttons */}
+      <div className="mb-5">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 max-w-4xl mx-auto">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">
+            Ansicht wählen
+          </h2>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setViewMode("presentations")}
+              className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-colors ${
+                viewMode === "presentations"
+                  ? "bg-sky-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              Präsentationsbewertungen
+            </button>
+            <button
+              onClick={() => setViewMode("feedback")}
+              className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-colors ${
+                viewMode === "feedback"
+                  ? "bg-sky-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              Konferenz-Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Conditional rendering based on view mode */}
+      {viewMode === "presentations" ? (
+        <>
       {/* Filter Controls Section */}
       <div className="mb-5">
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 max-w-4xl mx-auto">
@@ -494,6 +544,40 @@ export default function ConferenceDashboardRatingsView() {
           </div>
         )}
       </div>
+        </>
+      ) : (
+        /* Conference Feedback View */
+        <div>
+          <div className="text-center mb-4 text-sm text-slate-600">
+            {usersWithFeedback.length} Feedback{usersWithFeedback.length !== 1 ? "s" : ""} gefunden
+          </div>
+
+          {usersWithFeedback.length > 0 ? (
+            <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+              {usersWithFeedback.map((user: { id: number; conferenceComment?: string | null }, index: number) => (
+                <div
+                  key={user.id}
+                  className="bg-white rounded-lg shadow-md p-6 border border-slate-200"
+                >
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">
+                    Konferenz-Feedback #{index + 1}
+                  </h3>
+                  <p className="text-slate-700 whitespace-pre-wrap">
+                    {user.conferenceComment}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg font-medium">Kein Feedback gefunden</p>
+              <p className="text-sm mt-2">
+                Es wurde noch kein Konferenz-Feedback abgegeben
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

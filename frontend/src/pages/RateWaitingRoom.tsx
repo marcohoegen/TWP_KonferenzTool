@@ -7,29 +7,52 @@ import BasicSpinner from "../common/BasicSpinner";
 import CardBasic from "../common/CardBasic";
 import InputTextarea from "../common/InputTextarea";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { usePresentationPresentationControllerFindAll } from "../api/generate/hooks/PresentationService.hooks";
+import { usePresentationPresentationControllerFindPresentationsByConferenceId } from "../api/generate/hooks/PresentationService.hooks";
 import { useRatingRatingControllerFindAll } from "../api/generate/hooks/RatingService.hooks";
-import { useUserUserControllerMe, useUserUserControllerUpdateComment } from "../api/generate/hooks/UserService.hooks";
+import { useUserUserControllerMe, useUserUserControllerUpdateComment, useUserUserControllerFindOne } from "../api/generate/hooks/UserService.hooks";
+import { useSessionSessionControllerFindSessionsByConferenceId } from "../api/generate/hooks/SessionService.hooks";
 import type { Presentation } from "../api/generate";
 
 export default function RateWaitingRoom() {
   const navigate = useNavigate();
   const [generalFeedback, setGeneralFeedback] = useState("");
 
-  // Poll presentations every 5 seconds to get updated active presentations
-  const { data: presentations, isLoading } = usePresentationPresentationControllerFindAll(
-    undefined,
-    { refetchInterval: 5000 }
+  // Get current user ID from JWT
+  const { data: meData } = useUserUserControllerMe(undefined, undefined);
+  const userId = (meData as { id?: number })?.id;
+
+  // Fetch full user data to get conferenceId
+  const { data: currentUser } = useUserUserControllerFindOne(
+    [userId!],
+    { enabled: !!userId }
+  );
+  const userConferenceId = (currentUser as { conferenceId?: number })?.conferenceId;
+
+  // Poll presentations every 5 seconds to get updated active presentations for user's conference
+  const { data: presentations, isLoading } = usePresentationPresentationControllerFindPresentationsByConferenceId(
+    [userConferenceId!],
+    { refetchInterval: 5000, enabled: !!userConferenceId }
   );
 
-  // Get current user and their ratings
-  const { data: currentUser } = useUserUserControllerMe(undefined, undefined);
+  // Fetch sessions for user's conference to identify default session
+  const { data: sessions } = useSessionSessionControllerFindSessionsByConferenceId(
+    [userConferenceId!],
+    { enabled: !!userConferenceId }
+  );
+
+  // Get ratings
   const { data: allRatings } = useRatingRatingControllerFindAll(undefined, undefined);
   const updateCommentMutation = useUserUserControllerUpdateComment();
 
-  // Filter active presentations
+  // Find default session ID (sessionName === "presentations")
+  const defaultSession = sessions?.find(
+    (s: { sessionName: string }) => s.sessionName === "presentations"
+  );
+  const defaultSessionId = defaultSession?.id;
+
+  // Filter active presentations and exclude those in default session
   const activePresentations = (presentations as Presentation[] | undefined)?.filter(
-    (p) => p.status === "ACTIVE"
+    (p) => p.status === "ACTIVE" && p.sessionId !== defaultSessionId
   ) || [];
 
   const handleSubmitFeedback = () => {
@@ -84,8 +107,8 @@ export default function RateWaitingRoom() {
           id="general-feedback"
           label="Ihr allgemeines Feedback zur Konferenz"
           placeholder="Teilen Sie uns Ihre Gedanken mit..."
-          rows={4}
-          resizable={true}
+          rows={5}
+          resizable={false}
           value={generalFeedback}
           onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setGeneralFeedback(e.target.value)}
         />

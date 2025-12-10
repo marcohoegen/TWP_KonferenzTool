@@ -167,7 +167,11 @@ export class RatingService {
   ) {
     const presentations = await this.prisma.presentation.findMany({
       where: conferenceId ? { conferenceId } : undefined,
-      include: { ratings: true, presenters: true },
+      include: { 
+        ratings: true, 
+        presenters: true,
+        session: true 
+      },
     });
 
     const ranking: Array<{
@@ -203,6 +207,11 @@ export class RatingService {
     }> = [];
 
     for (const p of presentations) {
+      // Skip presentations in default session (sessionName === "presentations")
+      if (p.session && p.session.sessionName === 'presentations') {
+        continue;
+      }
+
       if (p.ratings.length < minRatings) {
         continue;
       }
