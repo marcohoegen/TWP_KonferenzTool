@@ -10,6 +10,7 @@ import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
 import { usePresentationPresentationControllerFindAll } from "../api/generate/hooks/PresentationService.hooks";
 import { useRatingRatingControllerFindAll } from "../api/generate/hooks/RatingService.hooks";
 import { useUserUserControllerMe, useUserUserControllerUpdateComment } from "../api/generate/hooks/UserService.hooks";
+import { useSessionSessionControllerFindAll } from "../api/generate/hooks/SessionService.hooks";
 import type { Presentation } from "../api/generate";
 
 export default function RateWaitingRoom() {
@@ -22,14 +23,23 @@ export default function RateWaitingRoom() {
     { refetchInterval: 5000 }
   );
 
+  // Fetch all sessions to identify default session
+  const { data: sessions } = useSessionSessionControllerFindAll(undefined, undefined);
+
   // Get current user and their ratings
   const { data: currentUser } = useUserUserControllerMe(undefined, undefined);
   const { data: allRatings } = useRatingRatingControllerFindAll(undefined, undefined);
   const updateCommentMutation = useUserUserControllerUpdateComment();
 
-  // Filter active presentations
+  // Find default session ID (sessionName === "presentations")
+  const defaultSession = sessions?.find(
+    (s: { sessionName: string }) => s.sessionName === "presentations"
+  );
+  const defaultSessionId = defaultSession?.id;
+
+  // Filter active presentations and exclude those in default session
   const activePresentations = (presentations as Presentation[] | undefined)?.filter(
-    (p) => p.status === "ACTIVE"
+    (p) => p.status === "ACTIVE" && p.sessionId !== defaultSessionId
   ) || [];
 
   const handleSubmitFeedback = () => {
