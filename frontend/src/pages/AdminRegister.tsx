@@ -6,6 +6,8 @@ import confeedlogo from "../assets/confeedMinimal.svg";
 import ErrorPopup from "../common/ErrorPopup";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
 import { useAdminAdminControllerCreate } from "../api/generate/hooks/AdminService.hooks";
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AdminRegister = () => {
   const [name, setName] = useState("");
@@ -17,6 +19,14 @@ const AdminRegister = () => {
 
   const navigate = useNavigate();
   const createMutation = useAdminAdminControllerCreate();
+  const { isAuthenticated, isLoading } = useAdminAuth();
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   useEffect(() => {
     if (error) {
@@ -85,6 +95,16 @@ const AdminRegister = () => {
       setError(message);
     }
   };
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Don't render registration form if already authenticated (will redirect)
+  if (isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
