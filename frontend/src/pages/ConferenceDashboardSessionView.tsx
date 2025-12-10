@@ -47,14 +47,18 @@ export default function ConferenceDashboardSessionView() {
   const [showForm, setShowForm] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [deletePresentations, setDeletePresentations] = useState(false);
-  const [editingPresentationId, setEditingPresentationId] = useState<number | null>(null);
+  const [editingPresentationId, setEditingPresentationId] = useState<
+    number | null
+  >(null);
   const [showPresentationForm, setShowPresentationForm] = useState(false);
   const [presentationFormData, setPresentationFormData] = useState({
     title: "",
     agendaPosition: "",
     sessionId: 0,
   });
-  const [selectedPresenterIds, setSelectedPresenterIds] = useState<number[]>([]);
+  const [selectedPresenterIds, setSelectedPresenterIds] = useState<number[]>(
+    []
+  );
 
   // Fetch sessions and presentations
   const {
@@ -66,13 +70,11 @@ export default function ConferenceDashboardSessionView() {
     undefined
   );
 
-  const {
-    data: allPresentations,
-    refetch: refetchPresentations,
-  } = usePresentationPresentationControllerFindPresentationsByConferenceId(
-    [conferenceIdNum],
-    undefined
-  );
+  const { data: allPresentations, refetch: refetchPresentations } =
+    usePresentationPresentationControllerFindPresentationsByConferenceId(
+      [conferenceIdNum],
+      undefined
+    );
 
   const { data: conference } = useConferenceConferenceControllerFindOne(
     [conferenceIdNum],
@@ -83,12 +85,13 @@ export default function ConferenceDashboardSessionView() {
   const createSession = useSessionSessionControllerCreate();
   const updateSession = useSessionSessionControllerUpdate();
   const deleteSession = useSessionSessionControllerRemove();
-  
+
   // Presentation mutations
   const createPresentation = usePresentationPresentationControllerCreate();
   const updatePresentation = usePresentationPresentationControllerUpdate();
   const removePresentation = usePresentationPresentationControllerRemove();
-  const updateStatusMutation = usePresentationPresentationControllerUpdateStatus();
+  const updateStatusMutation =
+    usePresentationPresentationControllerUpdateStatus();
 
   // Fetch users for presenter selection
   const { data: users } = useUserUserControllerFindUsersByConferenceId(
@@ -101,7 +104,6 @@ export default function ConferenceDashboardSessionView() {
     return name.trim().toLowerCase() === "presentations";
   };
 
-  // Get presentation count for a session
   // Get presentations for a session
   const getPresentationsForSession = (sessionId: number): Presentation[] => {
     if (!allPresentations) return [];
@@ -109,7 +111,9 @@ export default function ConferenceDashboardSessionView() {
   };
 
   // Get default session
-  const defaultSession = sessions?.find((s: Session) => s.sessionName === "presentations");
+  const defaultSession = sessions?.find(
+    (s: Session) => s.sessionName === "presentations"
+  );
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,11 +141,9 @@ export default function ConferenceDashboardSessionView() {
 
     // Check for duplicate session number in the same conference (excluding current session if editing)
     const duplicateSession = sessions?.find(
-      (s: Session) => 
-        s.sessionNumber === sessionNumber && 
-        s.id !== editingId
+      (s: Session) => s.sessionNumber === sessionNumber && s.id !== editingId
     );
-    
+
     if (duplicateSession) {
       setError(
         `Die Session-Nummer ${sessionNumber} wird bereits von "${duplicateSession.sessionName}" verwendet.`
@@ -178,7 +180,9 @@ export default function ConferenceDashboardSessionView() {
       refetchSessions();
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : "Fehler beim Speichern der Session.";
+        err instanceof Error
+          ? err.message
+          : "Fehler beim Speichern der Session.";
       setError(errorMessage);
     }
   };
@@ -187,7 +191,9 @@ export default function ConferenceDashboardSessionView() {
   const handleEdit = (session: Session) => {
     // Don't allow editing default session
     if (session.sessionName === "presentations") {
-      setError('Die Standard-Session "Unzugeordnete Präsentationen" kann nicht bearbeitet werden.');
+      setError(
+        'Die Standard-Session "Unzugeordnete Präsentationen" kann nicht bearbeitet werden.'
+      );
       return;
     }
 
@@ -243,7 +249,7 @@ export default function ConferenceDashboardSessionView() {
           }
         }
       }
-      
+
       await deleteSession.mutateAsync([sessionId]);
       setDeleteConfirm(null);
       setDeletePresentations(false);
@@ -280,7 +286,11 @@ export default function ConferenceDashboardSessionView() {
   };
 
   const handleDeletePresentation = async (presentationId: number) => {
-    if (!window.confirm("Sind Sie sicher, dass Sie diese Präsentation löschen möchten?")) {
+    if (
+      !window.confirm(
+        "Sind Sie sicher, dass Sie diese Präsentation löschen möchten?"
+      )
+    ) {
       return;
     }
     try {
@@ -487,12 +497,7 @@ export default function ConferenceDashboardSessionView() {
       </div>
 
       {/* Error Popup */}
-      {error && (
-        <ErrorPopup
-          message={error}
-          onClose={() => setError("")}
-        />
-      )}
+      {error && <ErrorPopup message={error} onClose={() => setError("")} />}
 
       {/* Create/Edit Form Modal */}
       {showForm && (
@@ -564,7 +569,9 @@ export default function ConferenceDashboardSessionView() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl my-8">
             <h2 className="text-xl font-bold mb-4">
-              {editingPresentationId ? "Präsentation bearbeiten" : "Neue Präsentation erstellen"}
+              {editingPresentationId
+                ? "Präsentation bearbeiten"
+                : "Neue Präsentation erstellen"}
             </h2>
             <form onSubmit={handlePresentationSubmit}>
               <div className="mb-4">
@@ -626,8 +633,13 @@ export default function ConferenceDashboardSessionView() {
                       </option>
                     )}
                     {sessions
-                      ?.filter((s: Session) => s.sessionName !== "presentations")
-                      .sort((a: Session, b: Session) => a.sessionNumber - b.sessionNumber)
+                      ?.filter(
+                        (s: Session) => s.sessionName !== "presentations"
+                      )
+                      .sort(
+                        (a: Session, b: Session) =>
+                          a.sessionNumber - b.sessionNumber
+                      )
                       .map((s: Session) => (
                         <option key={s.id} value={s.id}>
                           {s.sessionNumber} - {s.sessionName}
@@ -643,16 +655,24 @@ export default function ConferenceDashboardSessionView() {
                 </label>
                 <div className="border border-slate-300 rounded-md p-3 max-h-48 overflow-y-auto">
                   {users?.map((user) => (
-                    <label key={user.id} className="flex items-center gap-2 py-1 cursor-pointer">
+                    <label
+                      key={user.id}
+                      className="flex items-center gap-2 py-1 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedPresenterIds.includes(user.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedPresenterIds([...selectedPresenterIds, user.id]);
+                            setSelectedPresenterIds([
+                              ...selectedPresenterIds,
+                              user.id,
+                            ]);
                           } else {
                             setSelectedPresenterIds(
-                              selectedPresenterIds.filter((id) => id !== user.id)
+                              selectedPresenterIds.filter(
+                                (id) => id !== user.id
+                              )
                             );
                           }
                         }}
@@ -695,9 +715,7 @@ export default function ConferenceDashboardSessionView() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Session löschen</h2>
-            <p className="mb-4">
-              Diese Session wirklich löschen?
-            </p>
+            <p className="mb-4">Diese Session wirklich löschen?</p>
             {defaultSession?.id !== deleteConfirm && (
               <div className="mb-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -713,7 +731,8 @@ export default function ConferenceDashboardSessionView() {
                 </label>
                 {!deletePresentations && (
                   <p className="text-sm text-gray-600 mt-2 ml-6">
-                    Präsentationen werden zu 'Unzugeordnete Präsentationen' verschoben
+                    Präsentationen werden zu 'Unzugeordnete Präsentationen'
+                    verschoben
                   </p>
                 )}
               </div>
@@ -747,10 +766,13 @@ export default function ConferenceDashboardSessionView() {
             {/* Session Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
               <div>
-                <h3 className="text-xl font-bold">Unzugeordnete Präsentationen</h3>
+                <h3 className="text-xl font-bold">
+                  Unzugeordnete Präsentationen
+                </h3>
                 <p className="text-sm text-slate-600">
-                  Session Nummer: {defaultSession.sessionNumber} | {" "}
-                  {getPresentationsForSession(defaultSession.id).length} Präsentationen
+                  Session Nummer: {defaultSession.sessionNumber} |{" "}
+                  {getPresentationsForSession(defaultSession.id).length}{" "}
+                  Präsentationen
                 </p>
                 <p className="text-xs text-slate-400 italic mt-1">
                   (Standard-Session, kann nicht bearbeitet werden)
@@ -767,60 +789,85 @@ export default function ConferenceDashboardSessionView() {
 
             {/* Presentations Grid */}
             <div className="flex flex-wrap gap-4 justify-center mt-4">
-              {getPresentationsForSession(defaultSession.id).map((presentation) => (
-                <CardBasic key={presentation.id} title={presentation.title}>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-slate-600">
-                      Position: {presentation.agendaPosition || "Keine"}
-                    </p>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm font-semibold">Präsentierende:</p>
-                      {presentation.presenters && presentation.presenters.length > 0 ? (
-                        presentation.presenters.map((presenter) => (
-                          <p key={presenter.id} className="text-sm text-slate-600">
-                            • {presenter.name}
+              {getPresentationsForSession(defaultSession.id).map(
+                (presentation) => (
+                  <CardBasic key={presentation.id} title={presentation.title}>
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm text-slate-600">
+                        Position: {presentation.agendaPosition || "Keine"}
+                      </p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm font-semibold">Präsentierende:</p>
+                        {presentation.presenters &&
+                        presentation.presenters.length > 0 ? (
+                          presentation.presenters.map((presenter) => (
+                            <p
+                              key={presenter.id}
+                              className="text-sm text-slate-600"
+                            >
+                              • {presenter.name}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="text-sm text-slate-500 italic">
+                            Keine Präsentierenden zugewiesen
                           </p>
-                        ))
-                      ) : (
-                        <p className="text-sm text-slate-500 italic">
-                          Keine Präsentierenden zugewiesen
-                        </p>
-                      )}
+                        )}
+                      </div>
+                      <div className="flex gap-2 mt-auto">
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(
+                              presentation.id,
+                              presentation.status
+                            )
+                          }
+                          className="p-2 hover:bg-slate-100 rounded"
+                          title={
+                            presentation.status === "ACTIVE"
+                              ? "Als inaktiv markieren"
+                              : "Als aktiv markieren"
+                          }
+                        >
+                          <img
+                            src={
+                              presentation.status === "ACTIVE"
+                                ? activeIcon
+                                : inactiveIcon
+                            }
+                            alt={
+                              presentation.status === "ACTIVE"
+                                ? "Active"
+                                : "Inactive"
+                            }
+                            className="w-5 h-5"
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleEditPresentation(presentation)}
+                          className="p-2 hover:bg-slate-100 rounded"
+                          title="Bearbeiten"
+                        >
+                          <img src={toolIcon} alt="Edit" className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeletePresentation(presentation.id)
+                          }
+                          className="p-2 hover:bg-slate-100 rounded"
+                          title="Löschen"
+                        >
+                          <img
+                            src={trashIcon}
+                            alt="Delete"
+                            className="w-5 h-5"
+                          />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-2 mt-auto">
-                      <button
-                        onClick={() => handleStatusUpdate(presentation.id, presentation.status)}
-                        className="p-2 hover:bg-slate-100 rounded"
-                        title={
-                          presentation.status === "ACTIVE"
-                            ? "Als inaktiv markieren"
-                            : "Als aktiv markieren"
-                        }
-                      >
-                        <img
-                          src={presentation.status === "ACTIVE" ? activeIcon : inactiveIcon}
-                          alt={presentation.status === "ACTIVE" ? "Active" : "Inactive"}
-                          className="w-5 h-5"
-                        />
-                      </button>
-                      <button
-                        onClick={() => handleEditPresentation(presentation)}
-                        className="p-2 hover:bg-slate-100 rounded"
-                        title="Bearbeiten"
-                      >
-                        <img src={toolIcon} alt="Edit" className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePresentation(presentation.id)}
-                        className="p-2 hover:bg-slate-100 rounded"
-                        title="Löschen"
-                      >
-                        <img src={trashIcon} alt="Delete" className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                </CardBasic>
-              ))}
+                  </CardBasic>
+                )
+              )}
               {getPresentationsForSession(defaultSession.id).length === 0 && (
                 <p className="text-slate-500 italic col-span-full text-center py-4">
                   Keine Präsentationen in dieser Session
@@ -835,7 +882,10 @@ export default function ConferenceDashboardSessionView() {
           ?.filter((s: Session) => s.sessionName !== "presentations")
           .sort((a: Session, b: Session) => a.sessionNumber - b.sessionNumber)
           .map((session: Session) => (
-            <div key={session.id} className="bg-white rounded-lg shadow-md p-4 md:p-6 border-2 border-slate-300">
+            <div
+              key={session.id}
+              className="bg-white rounded-lg shadow-md p-4 md:p-6 border-2 border-slate-300"
+            >
               {/* Session Header */}
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
                 <div>
@@ -843,7 +893,8 @@ export default function ConferenceDashboardSessionView() {
                     {session.sessionNumber} - {session.sessionName}
                   </h3>
                   <p className="text-sm text-slate-600">
-                    {getPresentationsForSession(session.id).length} Präsentationen
+                    {getPresentationsForSession(session.id).length}{" "}
+                    Präsentationen
                   </p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
@@ -881,9 +932,13 @@ export default function ConferenceDashboardSessionView() {
                       </p>
                       <div className="flex flex-col gap-1">
                         <p className="text-sm font-semibold">Präsentierende:</p>
-                        {presentation.presenters && presentation.presenters.length > 0 ? (
+                        {presentation.presenters &&
+                        presentation.presenters.length > 0 ? (
                           presentation.presenters.map((presenter) => (
-                            <p key={presenter.id} className="text-sm text-slate-600">
+                            <p
+                              key={presenter.id}
+                              className="text-sm text-slate-600"
+                            >
                               • {presenter.name}
                             </p>
                           ))
@@ -895,7 +950,12 @@ export default function ConferenceDashboardSessionView() {
                       </div>
                       <div className="flex gap-2 mt-auto">
                         <button
-                          onClick={() => handleStatusUpdate(presentation.id, presentation.status)}
+                          onClick={() =>
+                            handleStatusUpdate(
+                              presentation.id,
+                              presentation.status
+                            )
+                          }
                           className="p-2 hover:bg-slate-100 rounded"
                           title={
                             presentation.status === "ACTIVE"
@@ -904,8 +964,16 @@ export default function ConferenceDashboardSessionView() {
                           }
                         >
                           <img
-                            src={presentation.status === "ACTIVE" ? activeIcon : inactiveIcon}
-                            alt={presentation.status === "ACTIVE" ? "Active" : "Inactive"}
+                            src={
+                              presentation.status === "ACTIVE"
+                                ? activeIcon
+                                : inactiveIcon
+                            }
+                            alt={
+                              presentation.status === "ACTIVE"
+                                ? "Active"
+                                : "Inactive"
+                            }
                             className="w-5 h-5"
                           />
                         </button>
@@ -917,11 +985,17 @@ export default function ConferenceDashboardSessionView() {
                           <img src={toolIcon} alt="Edit" className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDeletePresentation(presentation.id)}
+                          onClick={() =>
+                            handleDeletePresentation(presentation.id)
+                          }
                           className="p-2 hover:bg-slate-100 rounded"
                           title="Löschen"
                         >
-                          <img src={trashIcon} alt="Delete" className="w-5 h-5" />
+                          <img
+                            src={trashIcon}
+                            alt="Delete"
+                            className="w-5 h-5"
+                          />
                         </button>
                       </div>
                     </div>
