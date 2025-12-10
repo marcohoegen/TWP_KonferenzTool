@@ -1,6 +1,5 @@
 import "./App.css";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useNavigate,
@@ -8,18 +7,11 @@ import {
   useParams,
 } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
-import ButtonRoundedLgPrimaryBasic from "./common/ButtonRoundedLgPrimaryBasic";
 import AdminSeite from "./pages/AdminLogin";
 import AdminRegister from "./pages/AdminRegister";
-import UserPanel from "./pages/UserPanel";
-import confeedlogo from "./assets/confeedMinimal.svg";
-import NewConference from "./pages/NewConference";
-import ComponentShowCase from "./pages/ComponentShowcase";
-import AdminCRUD from "./pages/AdminCRUD";
+import AdminLogout from "./pages/AdminLogout";
+import UserLogout from "./pages/UserLogout";
 import ConferenceCRUD from "./pages/ConferenceCRUD";
-import PresentationCRUD from "./pages/PresentationCRUD";
-import RatingCRUD from "./pages/RatingCRUD";
-import UserCRUD from "./pages/UserCRUD";
 import RateLogin from "./pages/RateLogin";
 import RateWaitingRoom from "./pages/RateWaitingRoom";
 import RateOverview from "./pages/RateOverview";
@@ -32,6 +24,10 @@ import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
 import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
 import ConferenceDashboardSessionView from "./pages/ConferenceDashboardSessionView";
 import ConferenceDashboardRatingsView from "./pages/ConferenceDashboardRatingsView";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { UserAuthProvider } from "./contexts/UserAuthContext";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import ProtectedUserRoute from "./components/ProtectedUserRoute";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
 function PageWithMenu({
@@ -67,7 +63,7 @@ function PageWithMenu({
     () => [
       { label: "Konferenzverwaltung", path: "/admin/dashboard" },
       { label: "Settings", path: "/settings" },
-      { label: "Logout", path: "/logout" },
+      { label: "Logout", path: "/admin/logout" },
     ],
     []
   );
@@ -114,80 +110,11 @@ function PageWithMenu({
   );
 }
 
-const HomePage = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="p-4">
-      <div
-        style={{
-          marginTop: "20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
-        <img
-          src={confeedlogo}
-          alt="Confeed Logo"
-          className="logo confeed"
-          width={400}
-        />
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/adminseite")}>
-          Admin Login
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/rate/login")}>
-          Rate Presentation
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/userpanel")}>
-          Userverwaltung
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/newconference")}>
-          New Conference
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/admins")}>
-          Admin CRUD
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic
-          onClick={() => navigate("/crud/conferences")}
-        >
-          Konferenz CRUD
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic
-          onClick={() => navigate("/crud/presentations")}
-        >
-          Präsentationen CRUD
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/ratings")}>
-          Bewertungen CRUD
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic onClick={() => navigate("/crud/users")}>
-          Benutzer CRUD
-        </ButtonRoundedLgPrimaryBasic>
-
-        <ButtonRoundedLgPrimaryBasic
-          onClick={() => navigate("/componentshowcase")}
-        >
-          Beispielkomponenten
-        </ButtonRoundedLgPrimaryBasic>
-      </div>
-    </div>
-  );
-};
-
 export default function App() {
   const AdminMainMenu = [
     { label: "Konferenzen", path: "/admin/dashboard" },
     { label: "Einstellungen", path: "/settings" },
-    { label: "Logout", path: "/logout" },
+    { label: "Logout", path: "/admin/logout" },
   ];
 
   const AdminConferenceMenu = [
@@ -205,90 +132,136 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<RateLogin />} />
+      <AdminAuthProvider>
+        <UserAuthProvider>
+          <Routes>
+            {/* Public Route - User Login */}
+            <Route path="/" element={<RateLogin />} />
 
-        {/* Admin Ansichten */}
+            {/* Admin Public Routes */}
+            <Route path="/admin/register" element={<AdminRegister />} />
+            <Route path="/admin/login" element={<AdminSeite />} />
+            <Route path="/admin/logout" element={<AdminLogout />} />
 
-        <Route path="/admin/register" element={<AdminRegister />} />
-        <Route path="/admin/login" element={<AdminSeite />} />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <PageWithMenu title="Konferenz-Verwaltung" menuItems={AdminMainMenu}>
-              <ConferenceCRUD />
-            </PageWithMenu>
-          }
-        />
-        <Route
-          path="/admin/:conferenceId/users"
-          element={
-            <PageWithMenu
-              title="Benutzer-Verwaltung"
-              menuItems={AdminConferenceMenu}
-            >
-              <ConferenceDashboardUserView />
-            </PageWithMenu>
-          }
-        />
-        <Route
-          path="/admin/:conferenceId/sessions"
-          element={
-            <PageWithMenu
-              title="Sessions & Präsentationen"
-              menuItems={AdminConferenceMenu}
-            >
-              <ConferenceDashboardSessionView />
-            </PageWithMenu>
-          }
-        />
-        <Route
-          path="/admin/:conferenceId/sessions/:sessionId/presentations"
-          element={
-            <PageWithMenu
-              title="Präsentations-Verwaltung"
-              menuItems={AdminConferenceMenu}
-            >
-              <ConferenceDashboardPresentationView />
-            </PageWithMenu>
-          }
-        />
-        <Route
-          path="/admin/:conferenceId/presentations"
-          element={
-            <PageWithMenu
-              title="Präsentations-Verwaltung"
-              menuItems={AdminConferenceMenu}
-            >
-              <ConferenceDashboardPresentationView />
-            </PageWithMenu>
-          }
-        />
-        <Route
-          path="/admin/:conferenceId/ratings"
-          element={
-            <PageWithMenu
-              title="Bewertungen & Analytics"
-              menuItems={AdminConferenceMenu}
-            >
-              <ConferenceDashboardRatingsView />
-            </PageWithMenu>
-          }
-        />
+            {/* Protected Admin Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Konferenz-Verwaltung"
+                    menuItems={AdminMainMenu}
+                  >
+                    <ConferenceCRUD />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:conferenceId/users"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Benutzer-Verwaltung"
+                    menuItems={AdminConferenceMenu}
+                  >
+                    <ConferenceDashboardUserView />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:conferenceId/sessions"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Sessions & Präsentationen"
+                    menuItems={AdminConferenceMenu}
+                  >
+                    <ConferenceDashboardSessionView />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:conferenceId/sessions/:sessionId/presentations"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Präsentations-Verwaltung"
+                    menuItems={AdminConferenceMenu}
+                  >
+                    <ConferenceDashboardPresentationView />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:conferenceId/presentations"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Präsentations-Verwaltung"
+                    menuItems={AdminConferenceMenu}
+                  >
+                    <ConferenceDashboardPresentationView />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:conferenceId/ratings"
+              element={
+                <ProtectedAdminRoute>
+                  <PageWithMenu
+                    title="Bewertungen & Analytics"
+                    menuItems={AdminConferenceMenu}
+                  >
+                    <ConferenceDashboardRatingsView />
+                  </PageWithMenu>
+                </ProtectedAdminRoute>
+              }
+            />
 
-        {/* User Ansichten */}
+            {/* User Logout Route */}
+            <Route path="/rate/logout" element={<UserLogout />} />
 
-        <Route path="/rate/wait" element={<RateWaitingRoom />} />
-        <Route
-          path="/rate/overview/:presentationId?"
-          element={<RateOverview />}
-        />
-        <Route
-          path="/rate/presentation/:presentationId"
-          element={<RatePresentation />}
-        />
-        <Route path="/rate/thanks" element={<RateThanks />} />
-      </Routes>
+            {/* Protected User Routes */}
+            <Route
+              path="/rate/wait"
+              element={
+                <ProtectedUserRoute>
+                  <RateWaitingRoom />
+                </ProtectedUserRoute>
+              }
+            />
+            <Route
+              path="/rate/overview/:presentationId?"
+              element={
+                <ProtectedUserRoute>
+                  <RateOverview />
+                </ProtectedUserRoute>
+              }
+            />
+            <Route
+              path="/rate/presentation/:presentationId"
+              element={
+                <ProtectedUserRoute>
+                  <RatePresentation />
+                </ProtectedUserRoute>
+              }
+            />
+            <Route
+              path="/rate/thanks"
+              element={
+                <ProtectedUserRoute>
+                  <RateThanks />
+                </ProtectedUserRoute>
+              }
+            />
+          </Routes>
+        </UserAuthProvider>
+      </AdminAuthProvider>
     </BrowserRouter>
   );
 }
