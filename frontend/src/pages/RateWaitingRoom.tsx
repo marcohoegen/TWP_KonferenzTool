@@ -84,8 +84,8 @@ export default function RateWaitingRoom() {
           id="general-feedback"
           label="Ihr allgemeines Feedback zur Konferenz"
           placeholder="Teilen Sie uns Ihre Gedanken mit..."
-          rows={4}
-          resizable={true}
+          rows={5}
+          resizable={false}
           value={generalFeedback}
           onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setGeneralFeedback(e.target.value)}
         />
