@@ -1,19 +1,39 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import InputFieldLogin from "../components/InputFieldLogin";
 import InputFieldPassword from "../common/InputFieldPassword";
 import confeedlogo from "../assets/confeedMinimal.svg";
 import ErrorPopup from "../common/ErrorPopup";
 import ButtonLoadingAnimated from "../common/ButtonLoadingAnimated";
 import { useAdminAdminControllerLogin } from "../api/generate/hooks/AdminService.hooks";
+import { useAdminAuth } from "../contexts/AdminAuthContext";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
   const loginMutation = useAdminAdminControllerLogin();
+  const { isAuthenticated, isLoading } = useAdminAuth();
+
+  // Check for unauthorized redirect
+  useEffect(() => {
+    if (searchParams.get("unauthorized") === "true") {
+      setError("Bitte melden Sie sich an, um auf diese Seite zuzugreifen");
+      // Remove the parameter from URL
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   useEffect(() => {
     if (error) {
@@ -28,7 +48,8 @@ const AdminLogin = () => {
     try {
       const data = await loginMutation.mutateAsync({ email, password });
       if (data.success) {
-        navigate("/admin/dashboard");
+        // Reload page to trigger auth context refresh
+        window.location.href = "/admin/dashboard";
       } else {
         setError("Falsche E-Mail oder Passwort");
       }
@@ -36,6 +57,16 @@ const AdminLogin = () => {
       setError("Falsche E-Mail oder Passwort");
     }
   };
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Don't render login form if already authenticated (will redirect)
+  if (isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
@@ -82,10 +113,15 @@ const AdminLogin = () => {
       {error && (
         <div className="mt-4 w-full max-w-md">
           <ErrorPopup
-            title="Fehler beim Einloggen"
+            title={
+              error.includes("anmelden")
+                ? "Zugriff verweigert"
+                : "Fehler beim Einloggen"
+            }
             message={error}
             visible={true}
             position="bottom"
+            onClose={() => setError(null)}
           />
         </div>
       )}
