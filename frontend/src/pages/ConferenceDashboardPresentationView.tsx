@@ -14,14 +14,21 @@ import {
   usePresentationPresentationControllerUpdate,
   usePresentationPresentationControllerRemove,
   usePresentationPresentationControllerUpdateStatus,
+  usePresentationPresentationControllerUploadCsv,
 } from "../api/generate/hooks/PresentationService.hooks";
 import { useUserUserControllerFindUsersByConferenceId } from "../api/generate/hooks/UserService.hooks";
-import { useSessionSessionControllerFindSessionsByConferenceId, useSessionSessionControllerFindOne } from "../api/generate/hooks/SessionService.hooks";
+import {
+  useSessionSessionControllerFindSessionsByConferenceId,
+  useSessionSessionControllerFindOne,
+} from "../api/generate/hooks/SessionService.hooks";
 import type { Presentation } from "../api/generate/models/Presentation";
 import { UpdateStatusDto } from "../api/generate";
 
 export default function ConferenceDashboardPresentationView() {
-  const { conferenceId, sessionId } = useParams<{ conferenceId: string; sessionId: string }>();
+  const { conferenceId, sessionId } = useParams<{
+    conferenceId: string;
+    sessionId: string;
+  }>();
   const conferenceIdNum = Number(conferenceId);
   const sessionIdNum = Number(sessionId);
 
@@ -36,6 +43,8 @@ export default function ConferenceDashboardPresentationView() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [showCsvForm, setShowCsvForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Fetch current session
   const { data: currentSession } = useSessionSessionControllerFindOne(
@@ -44,10 +53,11 @@ export default function ConferenceDashboardPresentationView() {
   );
 
   // Fetch all sessions for reassignment dropdown
-  const { data: allSessions } = useSessionSessionControllerFindSessionsByConferenceId(
-    [conferenceIdNum],
-    undefined
-  );
+  const { data: allSessions } =
+    useSessionSessionControllerFindSessionsByConferenceId(
+      [conferenceIdNum],
+      undefined
+    );
 
   // Use hooks - passing conferenceId to get presentations for this specific conference
   const {
@@ -74,6 +84,7 @@ export default function ConferenceDashboardPresentationView() {
   const removeMutation = usePresentationPresentationControllerRemove();
   const updateStatusMutation =
     usePresentationPresentationControllerUpdateStatus();
+  const uploadCSVMutation = usePresentationPresentationControllerUploadCsv();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -171,21 +182,59 @@ export default function ConferenceDashboardPresentationView() {
     });
   }
 
+  function handleCsvSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedFile) {
+      setError("Bitte wählen Sie eine CSV-Datei aus");
+      return;
+    }
+
+    uploadCSVMutation.mutate([conferenceIdNum, { file: selectedFile }], {
+      onSuccess: (data: Presentation[]) => {
+        alert(`${data.length} Präsentationen erfolgreich erstellt!`);
+        setShowCsvForm(false);
+        setSelectedFile(null);
+        refetch();
+      },
+      onError: (err: unknown) => {
+        setError(err instanceof Error ? err.message : "Fehler beim CSV-Upload");
+      },
+    });
+  }
+
+  function closeCsvForm() {
+    if (selectedFile && !confirm("Änderungen verwerfen?")) return;
+    setShowCsvForm(false);
+    setSelectedFile(null);
+    setError("");
+  }
+
   return (
     <div className="p-4">
       <div className="mb-5">
-        <h1 className="text-lg md:text-xl font-bold text-slate-800 mb-3">
-          {currentSession?.sessionName === "presentations" 
-            ? "Unzugeordnete Präsentationen" 
-            : `${currentSession?.sessionNumber} - ${currentSession?.sessionName}`}
-        </h1>
-        <div className="mt-3 max-w-lg mx-auto">
-          <ButtonRoundedLgPrimaryBasic
-            className="w-full"
-            onClick={() => setShowForm(true)}
-          >
-            Neue Präsentation erstellen
-          </ButtonRoundedLgPrimaryBasic>
+        <div className="mt-3 max-w-lg mx-auto space-y-2">
+          <div className="flex gap-4 justify-center">
+            <ButtonRoundedLgPrimaryBasic
+              className="w-5/8"
+              onClick={() => setShowForm(true)}
+            >
+              Neue Präsentation erstellen
+            </ButtonRoundedLgPrimaryBasic>
+            <ButtonRoundedLgPrimaryBasic
+              className="w-3/8"
+              onClick={() => {
+                setShowCsvForm(true);
+                setError("");
+              }}
+            >
+              CSV-Upload
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
+          <h1 className="text-lg md:text-xl font-bold text-slate-800 mb-3">
+            {currentSession?.sessionName === "presentations"
+              ? "Unzugeordnete Präsentationen"
+              : `${currentSession?.sessionNumber} - ${currentSession?.sessionName}`}
+          </h1>
         </div>
       </div>
 
@@ -298,19 +347,29 @@ export default function ConferenceDashboardPresentationView() {
                     className="w-full border border-gray-300 rounded p-2"
                     value={formData.sessionId}
                     onChange={(e) =>
-                      setFormData({ ...formData, sessionId: Number(e.target.value) })
+                      setFormData({
+                        ...formData,
+                        sessionId: Number(e.target.value),
+                      })
                     }
                   >
-                    {allSessions?.map((session: { id: number; sessionName: string; sessionNumber: number }) => (
-                      <option key={session.id} value={session.id}>
-                        {session.sessionName === "presentations"
-                          ? "Unzugeordnete Präsentationen"
-                          : `${session.sessionNumber} - ${session.sessionName}`}
-                      </option>
-                    ))}
+                    {allSessions?.map(
+                      (session: {
+                        id: number;
+                        sessionName: string;
+                        sessionNumber: number;
+                      }) => (
+                        <option key={session.id} value={session.id}>
+                          {session.sessionName === "presentations"
+                            ? "Unzugeordnete Präsentationen"
+                            : `${session.sessionNumber} - ${session.sessionName}`}
+                        </option>
+                      )
+                    )}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Wählen Sie eine andere Session, um die Präsentation zu verschieben
+                    Wählen Sie eine andere Session, um die Präsentation zu
+                    verschieben
                   </p>
                 </div>
               )}
@@ -323,6 +382,116 @@ export default function ConferenceDashboardPresentationView() {
                   type="button"
                   onClick={resetForm}
                   className="flex-1"
+                >
+                  Abbrechen
+                </ButtonRoundedLgPrimaryBasic>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CSV Upload Popup */}
+      {showCsvForm && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={closeCsvForm}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={closeCsvForm}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              aria-label="Schließen"
+            >
+              ×
+            </button>
+
+            <h2 className="mb-4 text-xl font-bold">
+              Präsentationen per CSV hochladen
+            </h2>
+
+            <form onSubmit={handleCsvSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block mb-1 font-medium">
+                  CSV-Datei <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="w-full border border-gray-300 rounded p-2"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Maximale Dateigröße: 10 MB
+                </p>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded">
+                <p className="text-sm font-medium mb-2">
+                  CSV-Format (mit Kopfzeile):
+                </p>
+                <code className="text-xs block bg-white p-2 rounded mb-2 overflow-x-auto">
+                  title,presentername,presenteremail
+                </code>
+                <p className="text-xs text-gray-600 mb-2">
+                  <strong>Beispiel:</strong>
+                </p>
+                <code className="text-xs block bg-white p-2 rounded mb-2 overflow-x-auto">
+                  "Keynote Speech",John Doe,john@example.com
+                  <br />
+                  "Keynote Speech",Jane Smith,jane@example.com
+                  <br />
+                  "Workshop A",Bob Wilson,bob@example.com
+                </code>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const csv = "title,presentername,presenteremail\n";
+                    const blob = new Blob([csv], { type: "text/csv" });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "Presentation_Upload_Template.csv";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-sm text-blue-600 hover:underline mb-2 inline-block"
+                >
+                  ↓ CSV-Vorlage herunterladen
+                </a>
+                <ul className="text-xs text-gray-600 mt-2 space-y-1">
+                  <li>• Eine Zeile pro Präsentator</li>
+                  <li>• Gleiche Titel = mehrere Präsentatoren</li>
+                  <li>• Agenda-Position wird automatisch vergeben</li>
+                  <li>• Neue Benutzer werden automatisch erstellt</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-2">
+                <ButtonRoundedLgPrimaryBasic
+                  type="submit"
+                  className="flex-1"
+                  // TODO: Uncomment after running npm run openapi:gen
+                  // disabled={uploadCSVMutation.isPending}
+                >
+                  {/* TODO: Update after running npm run openapi:gen */}
+                  {/* {uploadCSVMutation.isPending ? "Hochladen..." : "Hochladen"} */}
+                  Hochladen
+                </ButtonRoundedLgPrimaryBasic>
+                <ButtonRoundedLgPrimaryBasic
+                  type="button"
+                  onClick={closeCsvForm}
+                  className="flex-1"
+                  // TODO: Uncomment after running npm run openapi:gen
+                  // disabled={uploadCSVMutation.isPending}
                 >
                   Abbrechen
                 </ButtonRoundedLgPrimaryBasic>

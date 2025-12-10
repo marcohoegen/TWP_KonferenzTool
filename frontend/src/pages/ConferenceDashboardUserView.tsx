@@ -327,8 +327,20 @@ export default function ConferenceDashboardUserView() {
                   und "Email" enthalten.
                 </p>
                 <a
-                  href="../assets/UserUploadTemplate.csv"
-                  download="UserUploadTemplate.csv"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const csv = "Name,Email\n";
+                    const blob = new Blob([csv], { type: "text/csv" });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "User_Upload_Template.csv";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  }}
                   className="text-sm text-blue-600 hover:underline"
                 >
                   ↓ CSV-Vorlage herunterladen

@@ -26,6 +26,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import express from 'express';
 import { JwtAuthGuard, JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
 import type { Multer } from 'multer';
+import { parse } from 'csv-parse/browser/esm/sync';
 
 @Controller('user')
 export class UserController {
@@ -165,7 +166,7 @@ export class UserController {
   })
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
     }),
   )
   async uploadCsv(
@@ -175,29 +176,36 @@ export class UserController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
-    if (file.mimetype !== 'text/csv') {
+    if (
+      file.mimetype !== 'text/csv' &&
+      file.mimetype !== 'application/vnd.ms-excel'
+    ) {
       throw new BadRequestException(
         'Invalid file type. Please upload a CSV file',
       );
     }
 
-    const csvContent = file.buffer.toString('utf-8');
-    const lines = csvContent.split(/\r?\n/).filter((line) => line.trim());
-
-    if (lines.length < 2) {
-      throw new BadRequestException(
-        'CSV file must have a header row and at least one data row',
-      );
+    let records: any[];
+    try {
+      records = parse(file.buffer, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+    } catch (err) {
+      throw new BadRequestException('Error parsing CSV file');
     }
 
-    // Skip header row, parse remaining lines
-    const users: CreateUserDto[] = lines.slice(1).map((line) => {
-      const [name, email] = line.split(',').map((field) => field.trim());
+    const users: CreateUserDto[] = records.map((row, index) => {
+      const name = row.name;
+      const email = row.email;
+
       if (!name || !email) {
         throw new BadRequestException(
-          `Invalid CSV format. Each row must have Name and Email: "${line}"`,
+          `Missing required fields in CSV at row ${index + 2}`,
         );
       }
+
       return { name, email, conferenceId };
     });
 
