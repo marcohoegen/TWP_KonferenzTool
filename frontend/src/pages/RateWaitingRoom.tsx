@@ -154,7 +154,9 @@ export default function RateWaitingRoom() {
             <p className="text-lg font-medium text-gray-700 mb-4">
               Please wait until feedback opens :)
             </p>
-            <BasicSpinner />
+            <div className="flex justify-center">
+              <BasicSpinner />
+            </div>
             <p className="mt-4 text-sm text-gray-500">
               Aktuell sind keine Präsentationen zur Bewertung verfügbar
             </p>
