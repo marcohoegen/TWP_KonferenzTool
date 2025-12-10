@@ -510,25 +510,6 @@ export default function ConferenceDashboardRatingsView() {
                       );
                     })()}
                   </div>
-                  
-                  {/* Statistics */}
-                  <div className="mt-4 pt-4 border-t border-slate-200">
-                    <h5 className="text-xs font-semibold text-slate-700 mb-2">Statistiken</h5>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div className="text-center">
-                        <div className="text-slate-600">Min</div>
-                        <div className="font-semibold">{item.overallMin}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-slate-600">Median</div>
-                        <div className="font-semibold">{formatNumberDE(item.overallMedian)}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-slate-600">Max</div>
-                        <div className="font-semibold">{item.overallMax}</div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </CardBasic>
