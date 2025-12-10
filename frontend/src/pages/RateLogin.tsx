@@ -37,13 +37,13 @@ export default function RateLogin() {
 
   return (
     <div className="flex flex-col items-center mt-12 px-4">
-      <img src={confeedlogo} alt="Confeed Logo" className="w-[50vw] h-auto" />
+      <img src={confeedlogo} alt="Confeed Logo" className="w-[50vw] max-w-xs h-auto mx-auto" />
       <h2 className="text-2xl font-semibold mt-4">User Login</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
         <InputFieldLogin
           id="userCode"
-          label="Personal Code"
+          label="Persönlicher Code"
           value={userCode}
           onChange={(e) => setUserCode(e.target.value)}
         />
@@ -63,9 +63,9 @@ export default function RateLogin() {
       <div className="mt-8 text-center">
         <button
           onClick={() => navigate("/admin/login")}
-          className="text-sm text-gray-600 hover:text-gray-900 underline transition-colors cursor-pointer"
+          className="text-sm text-sky-600 hover:underline font-medium transition-colors cursor-pointer"
         >
-          Admin? Click here to login
+          Admin? Klicke hier zum Login
         </button>
       </div>
     </div>

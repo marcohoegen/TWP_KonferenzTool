@@ -7,12 +7,6 @@ import BasicSpinner from "../common/BasicSpinner";
 import toolIcon from "../assets/toolOptionIcon.svg";
 import trashIcon from "../assets/trashbinIcon.svg";
 import {
-  useSessionSessionControllerFindSessionsByConferenceId,
-  useSessionSessionControllerCreate,
-  useSessionSessionControllerUpdate,
-  useSessionSessionControllerRemove,
-} from "../api/generate/hooks/SessionService.hooks";
-import {
   usePresentationPresentationControllerFindPresentationsByConferenceId,
   usePresentationPresentationControllerCreate,
   usePresentationPresentationControllerUpdate,
@@ -61,14 +55,19 @@ export default function ConferenceDashboardSessionView() {
   );
 
   // Fetch sessions and presentations
-  const {
-    data: sessions,
-    isLoading: sessionsLoading,
-    refetch: refetchSessions,
-  } = useSessionSessionControllerFindSessionsByConferenceId(
-    [conferenceIdNum],
-    undefined
-  );
+  // NOTE: SessionService.hooks not available - session endpoints not exposed in OpenAPI
+  // const {
+  //   data: sessions,
+  //   isLoading: sessionsLoading,
+  //   refetch: refetchSessions,
+  // } = useSessionSessionControllerFindSessionsByConferenceId(
+  //   [conferenceIdNum],
+  //   undefined
+  // );
+
+  const sessions = []; // Mock empty array until SessionService is available
+  const sessionsLoading = false;
+  const refetchSessions = () => {};
 
   const { data: allPresentations, refetch: refetchPresentations } =
     usePresentationPresentationControllerFindPresentationsByConferenceId(
@@ -82,9 +81,14 @@ export default function ConferenceDashboardSessionView() {
   );
 
   // Mutations
-  const createSession = useSessionSessionControllerCreate();
-  const updateSession = useSessionSessionControllerUpdate();
-  const deleteSession = useSessionSessionControllerRemove();
+  // NOTE: SessionService.hooks not available - commented out
+  // const createSession = useSessionSessionControllerCreate();
+  // const updateSession = useSessionSessionControllerUpdate();
+  // const deleteSession = useSessionSessionControllerRemove();
+
+  const createSession = { mutate: () => {}, isPending: false };
+  const updateSession = { mutate: () => {}, isPending: false };
+  const deleteSession = { mutate: () => {}, isPending: false };
 
   // Presentation mutations
   const createPresentation = usePresentationPresentationControllerCreate();

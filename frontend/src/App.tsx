@@ -186,7 +186,7 @@ const HomePage = () => {
 export default function App() {
   const AdminMainMenu = [
     { label: "Konferenzen", path: "/admin/dashboard" },
-    { label: "Settings", path: "/settings" },
+    { label: "Einstellungen", path: "/settings" },
     { label: "Logout", path: "/logout" },
   ];
 
