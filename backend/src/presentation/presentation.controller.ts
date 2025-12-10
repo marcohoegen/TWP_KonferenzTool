@@ -22,6 +22,8 @@ import { UpdatePresentationDto } from './dto/update-presentation.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { Presentation } from './entities/presentation.entity';
 import { JwtAuthGuard, JwtEitherAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { validate } from 'class-validator';
 
 @Controller('presentation')
 export class PresentationController {
@@ -216,6 +218,18 @@ export class PresentationController {
       const title = row.title;
       const presenterName = row.presentername;
       const presenterEmail = row.presenteremail;
+
+      const usr: CreateUserDto = {
+        name: presenterName || '',
+        email: presenterEmail || '',
+        conferenceId,
+      };
+
+      validate(usr).catch((errors) => {
+        throw new BadRequestException(
+          `Invalid presenter data in CSV at row ${index + 2}: ${errors}`,
+        );
+      });
 
       if (!title || !presenterName || !presenterEmail) {
         throw new BadRequestException(

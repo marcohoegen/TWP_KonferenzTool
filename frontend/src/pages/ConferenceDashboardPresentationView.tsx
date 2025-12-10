@@ -170,9 +170,6 @@ export default function ConferenceDashboardPresentationView() {
         setError(err instanceof Error ? err.message : "Fehler beim CSV-Upload");
       },
     });
-    console.warn(
-      "CSV upload not yet available - run npm run openapi:gen first"
-    );
   }
 
   function closeCsvForm() {
