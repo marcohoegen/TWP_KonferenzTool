@@ -91,9 +91,9 @@ const AdminRegister = () => {
       <img
         src={confeedlogo}
         alt="Confeed Logo"
-        className="w-[85vw] max-w-xs h-auto mx-auto"
+        className="w-[50vw] max-w-xs h-auto mx-auto"
       />
-      <h2 className="text-xl font-semibold mt-4">Admin-Registrierung</h2>
+      <h2 className="text-2xl font-semibold mt-4">Admin-Registrierung</h2>
 
       <div className="flex flex-col gap-4 w-full max-w-md mt-6">
         <InputFieldLogin

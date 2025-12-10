@@ -65,7 +65,7 @@ function PageWithMenu({
 
   const defaultMenuItems = useMemo(
     () => [
-      { label: "Conferences", path: "/admin/dashboard" },
+      { label: "Konferenzverwaltung", path: "/admin/dashboard" },
       { label: "Settings", path: "/settings" },
       { label: "Logout", path: "/logout" },
     ],
@@ -185,8 +185,8 @@ const HomePage = () => {
 
 export default function App() {
   const AdminMainMenu = [
-    { label: "Conferences", path: "/admin/dashboard" },
-    { label: "Settings", path: "/settings" },
+    { label: "Konferenzen", path: "/admin/dashboard" },
+    { label: "Einstellungen", path: "/settings" },
     { label: "Logout", path: "/logout" },
   ];
 
@@ -215,7 +215,7 @@ export default function App() {
         <Route
           path="/admin/dashboard"
           element={
-            <PageWithMenu title="Conferences" menuItems={AdminMainMenu}>
+            <PageWithMenu title="Konferenz-Verwaltung" menuItems={AdminMainMenu}>
               <ConferenceCRUD />
             </PageWithMenu>
           }

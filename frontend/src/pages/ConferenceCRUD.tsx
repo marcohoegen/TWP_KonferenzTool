@@ -107,9 +107,7 @@ export default function ConferenceCRUD() {
   return (
     <div className="p-4">
       <div className="mb-5">
-        <h1 className="text-center text-2xl font-semibold">
-          Konferenz-Verwaltung
-        </h1>
+       
         <div className="mt-3 max-w-lg mx-auto">
           <ButtonRoundedLgPrimaryBasic
             className="w-full"
