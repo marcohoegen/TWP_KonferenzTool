@@ -209,12 +209,46 @@ export default function ConferenceDashboardSessionView() {
         for (const presentation of presentationsToDelete) {
           await removePresentation.mutateAsync(presentation.id);
         }
+      } else {
+        // If not deleting presentations, they will be moved to default session
+        // We need to renumber them to follow the default session's sequence
+        const presentationsToMove = getPresentationsForSession(sessionId);
+        
+        if (presentationsToMove.length > 0 && defaultSession) {
+          // Get current max position in default session
+          const defaultSessionPresentations = getPresentationsForSession(defaultSession.id);
+          let nextPosition = Math.max(
+            0,
+            ...defaultSessionPresentations.map((p) => p.agendaPosition || 0)
+          ) + 1;
+
+          // Sort presentations to move by their current position
+          const sortedPresentations = [...presentationsToMove].sort(
+            (a, b) => (a.agendaPosition || 0) - (b.agendaPosition || 0)
+          );
+
+          // Update each presentation with new position before session deletion
+          for (const presentation of sortedPresentations) {
+            await updatePresentation.mutateAsync([
+              presentation.id,
+              {
+                title: presentation.title,
+                agendaPosition: nextPosition,
+                conferenceId: conferenceIdNum,
+                sessionId: presentation.sessionId ?? 0,
+                presenterIds: presentation.presenters?.map((p) => p.id) || [],
+              },
+            ]);
+            nextPosition++;
+          }
+        }
       }
       
       await deleteSession.mutateAsync([sessionId]);
       setDeleteConfirm(null);
       setDeletePresentations(false);
       refetchSessions();
+      refetchPresentations();
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Fehler beim Löschen der Session.";
@@ -298,9 +332,27 @@ export default function ConferenceDashboardSessionView() {
     e.preventDefault();
     setError("");
 
-    const agendaPos = presentationFormData.agendaPosition
+    let agendaPos = presentationFormData.agendaPosition
       ? parseInt(presentationFormData.agendaPosition, 10)
       : 0;
+
+    // Get all presentations in the target session
+    const targetSessionPresentations = getPresentationsForSession(
+      presentationFormData.sessionId
+    );
+
+    // Auto-adjust position if out of range (for new presentations)
+    if (!editingPresentationId && agendaPos > 0) {
+      const maxPosition = Math.max(
+        0,
+        ...targetSessionPresentations.map((p) => p.agendaPosition || 0)
+      );
+      
+      // If user enters a position beyond max+1, set it to max+1
+      if (agendaPos > maxPosition + 1) {
+        agendaPos = maxPosition + 1;
+      }
+    }
 
     const data = {
       title: presentationFormData.title,
@@ -311,11 +363,92 @@ export default function ConferenceDashboardSessionView() {
     };
 
     try {
+      // Check if we're creating a new presentation (not editing)
+      if (!editingPresentationId && agendaPos > 0) {
+        // Find if there's already a presentation with this agenda position
+        const conflictingPresentation = targetSessionPresentations.find(
+          (p) => p.agendaPosition === agendaPos
+        );
+
+        if (conflictingPresentation) {
+          // Find the next gap or use max+1 as the stopping point
+          const sortedPositions = targetSessionPresentations
+            .map((p) => p.agendaPosition || 0)
+            .filter((pos) => pos >= agendaPos)
+            .sort((a, b) => a - b);
+
+          // Shift only consecutive presentations starting from the conflict position
+          const presentationsToShift = [];
+          for (const presentation of targetSessionPresentations) {
+            if (presentation.agendaPosition && presentation.agendaPosition >= agendaPos) {
+              // Check if there's a gap before this position
+              const hasGapBefore = sortedPositions.some((pos, idx) => {
+                if (idx === 0) return false;
+                return pos - sortedPositions[idx - 1] > 1 && sortedPositions[idx - 1] < (presentation.agendaPosition || 0);
+              });
+              
+              // Only include if no gap before this position
+              if (!hasGapBefore || presentation.agendaPosition === agendaPos) {
+                presentationsToShift.push(presentation);
+              }
+            }
+          }
+
+          // Sort descending to avoid conflicts during update
+          presentationsToShift.sort((a, b) => (b.agendaPosition || 0) - (a.agendaPosition || 0));
+
+          // Update each presentation's position
+          for (const presentation of presentationsToShift) {
+            await updatePresentation.mutateAsync([
+              presentation.id,
+              {
+                title: presentation.title,
+                agendaPosition: (presentation.agendaPosition || 0) + 1,
+                conferenceId: conferenceIdNum,
+                sessionId: presentation.sessionId ?? 0,
+                presenterIds: presentation.presenters?.map((p) => p.id) || [],
+              },
+            ]);
+          }
+        }
+      }
+
+      // If editing, check if position changed and handle conflicts
+      if (editingPresentationId && agendaPos > 0) {
+        const currentPresentation = allPresentations?.find(
+          (p) => p.id === editingPresentationId
+        );
+        const oldPosition = currentPresentation?.agendaPosition || 0;
+
+        if (oldPosition !== agendaPos) {
+          // Find if there's already a presentation with the new position
+          const conflictingPresentation = targetSessionPresentations.find(
+            (p) => p.agendaPosition === agendaPos && p.id !== editingPresentationId
+          );
+
+          if (conflictingPresentation) {
+            // SWAP: Give the conflicting presentation the old position
+            await updatePresentation.mutateAsync([
+              conflictingPresentation.id,
+              {
+                title: conflictingPresentation.title,
+                agendaPosition: oldPosition,
+                conferenceId: conferenceIdNum,
+                sessionId: conflictingPresentation.sessionId ?? 0,
+                presenterIds: conflictingPresentation.presenters?.map((p) => p.id) || [],
+              },
+            ]);
+          }
+        }
+      }
+
+      // Now create or update the current presentation
       if (editingPresentationId) {
         await updatePresentation.mutateAsync([editingPresentationId, data]);
       } else {
         await createPresentation.mutateAsync(data);
       }
+
       resetPresentationForm();
       refetchPresentations();
     } catch (err: unknown) {
