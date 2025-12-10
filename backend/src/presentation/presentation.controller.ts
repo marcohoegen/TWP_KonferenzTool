@@ -77,6 +77,7 @@ export class PresentationController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('session/:sessionId')
   async findPresentationsBySessionId(
     @Param('sessionId', ParseIntPipe) sessionId: number,
