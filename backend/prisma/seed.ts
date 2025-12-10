@@ -125,7 +125,14 @@ async function main() {
         }),
       ),
     );
-
+    // default Session erstellen
+    await prisma.session.create({
+      data: {
+        sessionName: 'presentations',
+        conferenceId: conference.id,
+        sessionNumber: 0,
+      },
+    });
     // Sessions (1-5 pro Konferenz)
     const numberOfSessions = faker.number.int({ min: 1, max: 5 });
 
