@@ -1,5 +1,5 @@
-
-{/* Verwendung:
+{
+  /* Verwendung:
     
 backend sollte angeben: {
   "averageRating": 4.3,
@@ -8,8 +8,8 @@ backend sollte angeben: {
 }
 
 anwendung: 
-mit api:
-<RatingDetailed apiUrl="http://localhost:3000/api/ratings" />
+mit hook (presentationId):
+<RatingDetailed presentationId={123} minRatings={1} />
 
 ohne api, statisch:
 <RatingDetailed
@@ -18,13 +18,17 @@ ohne api, statisch:
   ratingBreakdown={[40, 10, 5, 2, 1]}
 />
 
-*/}
+*/
+}
 
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
+import { useRatingRatingControllerFindStatsByPresentationId } from "../api/generate/hooks/RatingService.hooks";
 
 interface RatingDetailedProps {
-  /** API-Endpunkt zum Laden der Bewertungen */
-  apiUrl?: string;
+  /** Presentation ID zum Laden der Bewertungen */
+  presentationId?: number;
+  /** Minimum number of ratings required */
+  minRatings?: number;
   /** Optional: direkt übergebene Bewertung (z. B. aus Props) */
   averageRating?: number;
   /** Optional: Gesamtzahl der Bewertungen */
@@ -40,55 +44,54 @@ interface RatingData {
 }
 
 export default function RatingDetailed({
-  apiUrl = `http://${import.meta.env.BACKEND_IP}:3000/api/ratings`,
+  presentationId,
+  minRatings = 1,
   averageRating,
   totalRatings,
   ratingBreakdown,
 }: RatingDetailedProps) {
-  const [data, setData] = useState<RatingData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const instanceIdRef = useRef(Math.random().toString(36).slice(2, 9));
 
-  // Daten laden, wenn kein direkter Wert übergeben wurde
-  useEffect(() => {
-    // if static data is provided, use it directly
-    if (typeof averageRating === "number") {
-      setData({
-        averageRating,
-        totalRatings: totalRatings ?? 0,
-        breakdown: ratingBreakdown ?? [0, 0, 0, 0, 0],
-      });
-      setError(null);
-      return;
+  // Use hook to fetch data if presentationId is provided
+  const {
+    data: apiData,
+    isLoading,
+    error: apiError,
+  } = useRatingRatingControllerFindStatsByPresentationId(
+    presentationId !== undefined ? [presentationId, minRatings] : undefined,
+    {
+      enabled: presentationId !== undefined && averageRating === undefined,
     }
+  );
 
-    // otherwise fetch from API
-    setLoading(true);
-    setError(null);
+  // Determine data source
+  let data: RatingData | null = null;
+  let loading = false;
+  let error: string | null = null;
 
-    fetch(apiUrl)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}: Fehler beim Laden der Bewertungen`);
-        return res.json();
-      })
-      .then((result: RatingData) => {
-        // validate response
-        if (
-          typeof result.averageRating !== "number" ||
-          typeof result.totalRatings !== "number" ||
-          !Array.isArray(result.breakdown)
-        ) {
-          throw new Error("Ungültiges Antwortformat vom Server");
-        }
-        setData(result);
-      })
-      .catch((err) => {
-        setError((err as Error).message || "Fehler beim Laden der Bewertungen");
-        setData(null);
-      })
-      .finally(() => setLoading(false));
-  }, [averageRating, totalRatings, ratingBreakdown, apiUrl]);
+  if (typeof averageRating === "number") {
+    // Static data provided
+    data = {
+      averageRating,
+      totalRatings: totalRatings ?? 0,
+      breakdown: ratingBreakdown ?? [0, 0, 0, 0, 0],
+    };
+  } else if (presentationId !== undefined) {
+    // API data from hook
+    loading = isLoading;
+    if (apiError) {
+      error =
+        apiError instanceof Error
+          ? apiError.message
+          : "Fehler beim Laden der Bewertungen";
+    } else if (apiData) {
+      data = {
+        averageRating: apiData.averageRating ?? 0,
+        totalRatings: apiData.totalRatings ?? 0,
+        breakdown: apiData.breakdown ?? [0, 0, 0, 0, 0],
+      };
+    }
+  }
 
   if (loading) {
     return (
@@ -125,7 +128,13 @@ export default function RatingDetailed({
       if (rating >= i) {
         // voller Stern
         stars.push(
-          <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 text-amber-400">
+          <svg
+            key={i}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="h-6 w-6 text-amber-400"
+          >
             <path
               fillRule="evenodd"
               d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
@@ -136,7 +145,12 @@ export default function RatingDetailed({
       } else if (rating > i - 1 && rating < i) {
         // halber Stern
         stars.push(
-          <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-6 w-6 text-amber-400">
+          <svg
+            key={i}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            className="h-6 w-6 text-amber-400"
+          >
             <defs>
               <linearGradient id={`${gradientId}-${i}`}>
                 <stop offset="50%" stopColor="currentColor" />
@@ -154,7 +168,15 @@ export default function RatingDetailed({
       } else {
         // leerer Stern
         stars.push(
-          <svg key={i} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-6 w-6 text-amber-400">
+          <svg
+            key={i}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="h-6 w-6 text-amber-400"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

@@ -30,6 +30,7 @@ import Sidebar from "./components/Sidebar";
 import type { ReactNode } from "react";
 import ConferenceDashboardUserView from "./pages/ConferenceDashboardUserView";
 import ConferenceDashboardPresentationView from "./pages/ConferenceDashboardPresentationView";
+import ConferenceDashboardSessionView from "./pages/ConferenceDashboardSessionView";
 import ConferenceDashboardRatingsView from "./pages/ConferenceDashboardRatingsView";
 
 // Wrapper component that adds menu bar (mobile) and sidebar (desktop) to pages
@@ -192,8 +193,8 @@ export default function App() {
   const AdminConferenceMenu = [
     { label: "Benutzer-Verwaltung", path: "/admin/:conferenceId/users" },
     {
-      label: "Präsentations-Verwaltung",
-      path: "/admin/:conferenceId/presentations",
+      label: "Sessions & Präsentationen",
+      path: "/admin/:conferenceId/sessions",
     },
     {
       label: "Bewertungen & Analytics",
@@ -227,6 +228,28 @@ export default function App() {
               menuItems={AdminConferenceMenu}
             >
               <ConferenceDashboardUserView />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/admin/:conferenceId/sessions"
+          element={
+            <PageWithMenu
+              title="Sessions & Präsentationen"
+              menuItems={AdminConferenceMenu}
+            >
+              <ConferenceDashboardSessionView />
+            </PageWithMenu>
+          }
+        />
+        <Route
+          path="/admin/:conferenceId/sessions/:sessionId/presentations"
+          element={
+            <PageWithMenu
+              title="Präsentations-Verwaltung"
+              menuItems={AdminConferenceMenu}
+            >
+              <ConferenceDashboardPresentationView />
             </PageWithMenu>
           }
         />
