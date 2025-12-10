@@ -133,7 +133,7 @@ export default function InputRating({
               <span className="text-slate-400"> / {maxRating}</span>
             </>
           ) : (
-            <span className="text-slate-400">Bewerte diese Konferenz</span>
+            <span className="text-slate-400">Bewerte diese Kategorie</span>
           )}
         </p>
       </div>
