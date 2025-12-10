@@ -7,27 +7,40 @@ import BasicSpinner from "../common/BasicSpinner";
 import CardBasic from "../common/CardBasic";
 import InputTextarea from "../common/InputTextarea";
 import ButtonRoundedLgPrimaryBasic from "../common/ButtonRoundedLgPrimaryBasic";
-import { usePresentationPresentationControllerFindAll } from "../api/generate/hooks/PresentationService.hooks";
+import { usePresentationPresentationControllerFindPresentationsByConferenceId } from "../api/generate/hooks/PresentationService.hooks";
 import { useRatingRatingControllerFindAll } from "../api/generate/hooks/RatingService.hooks";
-import { useUserUserControllerMe, useUserUserControllerUpdateComment } from "../api/generate/hooks/UserService.hooks";
-import { useSessionSessionControllerFindAll } from "../api/generate/hooks/SessionService.hooks";
+import { useUserUserControllerMe, useUserUserControllerUpdateComment, useUserUserControllerFindOne } from "../api/generate/hooks/UserService.hooks";
+import { useSessionSessionControllerFindSessionsByConferenceId } from "../api/generate/hooks/SessionService.hooks";
 import type { Presentation } from "../api/generate";
 
 export default function RateWaitingRoom() {
   const navigate = useNavigate();
   const [generalFeedback, setGeneralFeedback] = useState("");
 
-  // Poll presentations every 5 seconds to get updated active presentations
-  const { data: presentations, isLoading } = usePresentationPresentationControllerFindAll(
-    undefined,
-    { refetchInterval: 5000 }
+  // Get current user ID from JWT
+  const { data: meData } = useUserUserControllerMe(undefined, undefined);
+  const userId = (meData as { id?: number })?.id;
+
+  // Fetch full user data to get conferenceId
+  const { data: currentUser } = useUserUserControllerFindOne(
+    [userId!],
+    { enabled: !!userId }
+  );
+  const userConferenceId = (currentUser as { conferenceId?: number })?.conferenceId;
+
+  // Poll presentations every 5 seconds to get updated active presentations for user's conference
+  const { data: presentations, isLoading } = usePresentationPresentationControllerFindPresentationsByConferenceId(
+    [userConferenceId!],
+    { refetchInterval: 5000, enabled: !!userConferenceId }
   );
 
-  // Fetch all sessions to identify default session
-  const { data: sessions } = useSessionSessionControllerFindAll(undefined, undefined);
+  // Fetch sessions for user's conference to identify default session
+  const { data: sessions } = useSessionSessionControllerFindSessionsByConferenceId(
+    [userConferenceId!],
+    { enabled: !!userConferenceId }
+  );
 
-  // Get current user and their ratings
-  const { data: currentUser } = useUserUserControllerMe(undefined, undefined);
+  // Get ratings
   const { data: allRatings } = useRatingRatingControllerFindAll(undefined, undefined);
   const updateCommentMutation = useUserUserControllerUpdateComment();
 
