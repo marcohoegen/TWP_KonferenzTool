@@ -114,12 +114,35 @@ async function main() {
         prisma.user.create({
           data: {
             email: faker.internet.email(),
+            name: faker.person.fullName(),
             code: Array.from({ length: 5 }, () =>
               faker.helpers.arrayElement(
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
               ),
             ).join(''),
             conferenceId: conference.id,
+          },
+        }),
+      ),
+    );
+    // default Session erstellen
+    await prisma.session.create({
+      data: {
+        sessionName: 'presentations',
+        conferenceId: conference.id,
+        sessionNumber: 0,
+      },
+    });
+    // Sessions (1-5 pro Konferenz)
+    const numberOfSessions = faker.number.int({ min: 1, max: 5 });
+
+    const sessions = await Promise.all(
+      Array.from({ length: numberOfSessions }).map((_, i) =>
+        prisma.session.create({
+          data: {
+            sessionName: `Session ${i + 1}`,
+            conferenceId: conference.id,
+            sessionNumber: i + 1,
           },
         }),
       ),
@@ -133,6 +156,8 @@ async function main() {
         const numberOfPresenters = faker.number.int({ min: 1, max: 3 });
         const shuffledUsers = faker.helpers.shuffle(users);
         const selectedPresenters = shuffledUsers.slice(0, numberOfPresenters);
+        const randomSession =
+          sessions[faker.number.int({ min: 0, max: sessions.length - 1 })];
 
         return prisma.presentation.create({
           data: {
@@ -140,6 +165,7 @@ async function main() {
             agendaPosition: i + 1,
             conferenceId: conference.id,
             status: PresentationStatus.INACTIVE,
+            sessionId: randomSession.id,
             presenters: {
               connect: selectedPresenters.map((user) => ({ id: user.id })),
             },

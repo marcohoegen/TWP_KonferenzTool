@@ -21,9 +21,8 @@ export default function RateOverview() {
   usePresentationStatusCheck(presentationId);
 
   const presentation = data as Presentation;
+  console.log("Loaded presentation data:", presentation);
 
-  // Extract presenter name from the presenters array (first presenter's email or fallback)
-  const presenterName = presentation?.presenters?.[0]?.email || "Presenter";
   const presentationTitle = presentation?.title || "Presentation";
 
   const handleEnterFeedback = () => {
@@ -71,7 +70,7 @@ export default function RateOverview() {
         </p>
 
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          {presenterName}
+          {presentation?.presenters?.map((pr) => pr.name).join(", ")}
         </h2>
 
         <p className="text-xl text-gray-700 mb-8">{presentationTitle}</p>

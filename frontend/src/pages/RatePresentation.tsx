@@ -170,13 +170,25 @@ export default function RatePresentation() {
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         {/* Submit Button */}
-        <div className="mt-8 w-full">
-          <ButtonRoundedLgPrimaryBasic
-            onClick={handleSubmit}
-            disabled={!isComplete && isClicked}
-          >
-            Send Feedback
-          </ButtonRoundedLgPrimaryBasic>
+        <div className="mt-8 w-full space-y-4">
+          <div className="w-full">
+            <ButtonRoundedLgPrimaryBasic
+              onClick={handleSubmit}
+              disabled={!isComplete && isClicked}
+              className="w-full"
+            >
+              Send Feedback
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
+
+          <div className="w-full">
+            <ButtonRoundedLgPrimaryBasic
+              onClick={() => navigate("/rate/wait")}
+              className="w-full"
+            >
+              Zurück zur Übersicht
+            </ButtonRoundedLgPrimaryBasic>
+          </div>
 
           {!isComplete && (
             <p className="text-sm text-gray-500 text-center mt-2">

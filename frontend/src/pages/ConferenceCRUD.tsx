@@ -104,11 +104,6 @@ export default function ConferenceCRUD() {
     setError("");
   }
 
-  function closePopup() {
-    if (!confirm("Änderungen verwerfen?")) return;
-    resetForm();
-  }
-
   return (
     <div className="p-4">
       <div className="mb-5">
@@ -129,7 +124,7 @@ export default function ConferenceCRUD() {
       {showForm && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={closePopup}
+          onClick={resetForm}
         >
           <div
             className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
@@ -137,7 +132,7 @@ export default function ConferenceCRUD() {
           >
             {/* Close button */}
             <button
-              onClick={closePopup}
+              onClick={resetForm}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
               aria-label="Schließen"
             >

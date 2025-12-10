@@ -11,7 +11,12 @@ import {
   Res,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,7 +24,9 @@ import { User } from './entities/user.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import express from 'express';
-import { JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, JwtUserAuthGuard } from 'src/auth/jwt-auth.guard';
+import type { Multer } from 'multer';
+import { parse } from 'csv-parse/browser/esm/sync';
 
 @Controller('user')
 export class UserController {
@@ -28,6 +35,7 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
@@ -60,6 +68,7 @@ export class UserController {
     return req.user;
   }
 
+  @UseGuards(JwtUserAuthGuard)
   @Post('logout')
   @HttpCode(200)
   logout(@Res({ passthrough: true }) res: express.Response) {
@@ -67,11 +76,13 @@ export class UserController {
     return { success: true };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
     return await this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('conference/:conferenceId')
   async findUsersByConferenceId(
     @Param('conferenceId', ParseIntPipe) conferenceId: number,
@@ -81,9 +92,28 @@ export class UserController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOne(id);
+  }
+
+  @Patch('/comment/:id')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        conferenceComment: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  async updateComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('conferenceComment') conferenceComment: string,
+  ) {
+    return await this.userService.updateComment(id, conferenceComment);
   }
 
   @Patch(':id')
@@ -94,6 +124,7 @@ export class UserController {
     return await this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
@@ -101,6 +132,7 @@ export class UserController {
     return this.userService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':userId/presentation/:presentationId')
   async addPresentation(
     @Param('userId', ParseIntPipe) userId: number,
@@ -109,11 +141,74 @@ export class UserController {
     return await this.userService.addPresentation(userId, presentationId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':userId/presentation/:presentationId')
   async removePresentation(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('presentationId', ParseIntPipe) presentationId: number,
   ) {
     return await this.userService.removePresentation(userId, presentationId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('upload-csv/:conferenceId')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+    }),
+  )
+  async uploadCsv(
+    @Param('conferenceId', ParseIntPipe) conferenceId: number,
+    @UploadedFile() file: Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    if (
+      file.mimetype !== 'text/csv' &&
+      file.mimetype !== 'application/vnd.ms-excel'
+    ) {
+      throw new BadRequestException(
+        'Invalid file type. Please upload a CSV file',
+      );
+    }
+
+    let records: any[];
+    try {
+      records = parse(file.buffer, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+    } catch (err) {
+      throw new BadRequestException('Error parsing CSV file');
+    }
+
+    const users: CreateUserDto[] = records.map((row, index) => {
+      const name = row.name;
+      const email = row.email;
+
+      if (!name || !email) {
+        throw new BadRequestException(
+          `Missing required fields in CSV at row ${index + 2}`,
+        );
+      }
+
+      return { name, email, conferenceId };
+    });
+
+    return await this.userService.createMany(users);
   }
 }

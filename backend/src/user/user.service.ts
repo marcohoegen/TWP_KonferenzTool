@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -59,8 +60,10 @@ export class UserService {
     return await this.prisma.user.findMany({
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         presentations: {
           select: {
@@ -80,8 +83,10 @@ export class UserService {
       where: { id },
       select: {
         id: true,
+        name: true,
         email: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         presentations: {
           select: {
@@ -103,6 +108,19 @@ export class UserService {
   async findOneByCode(code: string) {
     return await this.prisma.user.findUnique({
       where: { code },
+    });
+  }
+
+  async updateComment(id: number, conferenceComment: string) {
+    const userExists = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!userExists) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: { conferenceComment },
     });
   }
 
@@ -215,12 +233,27 @@ export class UserService {
       where: { conferenceId },
       select: {
         id: true,
+        name: true,
         email: true,
         code: true,
         conferenceId: true,
+        conferenceComment: true,
         createdAt: true,
         codeSentAt: true,
       },
     });
+  }
+
+  async createMany(users: CreateUserDto[]) {
+    const createdUsers: User[] = [];
+    for (const userData of users) {
+      const user = await (this.create({
+        name: userData.name,
+        email: userData.email,
+        conferenceId: userData.conferenceId,
+      }) as Promise<User>);
+      createdUsers.push(user);
+    }
+    return createdUsers;
   }
 }

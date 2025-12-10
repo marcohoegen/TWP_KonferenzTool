@@ -6,7 +6,9 @@ import { Rating } from 'src/rating/entities/rating.entity';
 export class User implements PrismaUser {
   id: number;
   email: string;
+  name: string;
   code: string;
+  conferenceComment: string | null;
   conferenceId: number;
   createdAt: Date;
   codeSentAt: Date | null;
