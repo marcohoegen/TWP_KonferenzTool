@@ -268,7 +268,7 @@ export class UserService {
     return createdUsers;
   }
 
-  // Hilfsmethode um zu vermeiden, dass User mehrfach für dieselbe Konferenz registriert werden
+  // Helper method to prevent duplicate user registrations for the same conference
   async findByEmailAndConferenceId(email: string, conferenceId: number) {
     return await this.prisma.user.findFirst({
       where: { email, conferenceId },
