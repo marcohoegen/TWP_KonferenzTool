@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "openapi:gen": "dotenv -- bash -c 'npx openapi-typescript-codegen --input http://$IP_ADDRESS:3000/api-json --output src/api/generate --client axios' && node src/api/generate-hooks.js"  },
+    "openapi:gen": "node src/helper/generate-api.js"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-query": "^5.90.9",
@@ -25,6 +26,9 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
+    "cross-env": "^10.1.0",
+    "dotenv": "^16.4.7",
+    "dotenv-cli": "^6.0.0",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
